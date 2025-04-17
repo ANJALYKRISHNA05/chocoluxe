@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CHOCOLUXE - Login</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        body, html { height: 100%; margin: 0; background-color: #f5e8d4; font-family: 'Nunito Sans', sans-serif; display: flex; flex-direction: column; }
+        .navbar { background-color: #4a2c2a; padding: 15px 30px; color: white; display: flex; justify-content: space-between; align-items: center; position: relative; z-index: 1000; }
+        .navbar .brand { font-size: 1.5rem; font-weight: 700; text-align: center; }
+        .navbar .brand small { display: block; font-size: 0.8rem; font-weight: 400; color: #d1a876; }
+        .navbar .nav-links { display: flex; align-items: center; gap: 25px; }
+        .navbar .nav-icons { display: flex; align-items: center; gap: 20px; }
+        .navbar a { color: white; text-decoration: none; font-size: 1rem; }
+        .navbar a:hover { color: #d1a876; }
+        .navbar .search-bar { width: 200px; font-size: 0.9rem; padding: 5px 10px; }
+        .navbar .menu-toggle { display: none; font-size: 1.5rem; cursor: pointer; }
+        .login-container { flex: 1; display: flex; justify-content: center; align-items: center; padding: 20px; }
+        .card { width: 100%; max-width: 400px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); border-radius: 15px; background-color: #fff9e6; overflow: hidden; text-align: center; }
+        .login-section { width: 100%; }
+        .login-form { padding: 30px; }
+        .card-title { font-size: 2rem; font-weight: 800; color: #4a2c2a; margin-bottom: 25px; }
+        .form-group label { font-size: 1rem; color: #555; }
+        .form-control { width: 100%; padding: 12px; margin-bottom: 20px; border: 2px solid #4a2c2a; border-radius: 8px; font-size: 1rem; background-color: #fff; transition: border-color 0.3s; }
+        .form-control:focus { border-color: #d1a876; outline: none; box-shadow: 0 0 8px rgba(209, 168, 118, 0.5); }
+        .btn-custom { background-color: #d1a876; color: white; width: 100%; padding: 12px; border: none; border-radius: 8px; font-size: 1.1rem; margin-top: 10px; transition: background-color 0.3s; }
+        .btn-custom:hover { background-color: #b68d5a; }
+        .google-btn { background-color: #fff; color: #757575; border: 2px solid #4a2c2a; width: 100%; padding: 12px; margin-bottom: 20px; display: flex; align-items: center; justify-content: center; border-radius: 8px; transition: background-color 0.3s; }
+        .google-btn img { width: 20px; margin-right: 10px; }
+        .google-btn:hover { background-color: #f5f5f5; }
+        .or-text { color: #555; margin: 15px 0; text-align: center; font-size: 1rem; }
+        .forgot-password-link { font-size: 0.9rem; color: #4a2c2a; text-decoration: none; display: block; text-align: right; margin-bottom: 15px; }
+        .forgot-password-link:hover { color: #d1a876; text-decoration: underline; }
+        .error-message { color: #dc3545; font-size: 0.8rem; margin-top: 5px; text-align: left; display: none; }
+        .alert-danger { background-color: #f8d7da; color: #721c24; border-radius: 5px; padding: 10px; margin-bottom: 15px; text-align: center; }
+        .footer { background-color: #4a2c2a; color: white; padding: 20px 0; margin-top: auto; text-align: center; }
+        .footer a { color: #d1a876; margin: 0 10px; text-decoration: none; font-size: 0.9rem; }
+        .footer a:hover { color: #fff; }
+        .footer .payment-icons img { width: 30px; margin: 5px; }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .navbar { padding: 15px; flex-direction: column; align-items: flex-start; }
+            .navbar .brand { margin-bottom: 15px; }
+            .navbar .nav-links, .navbar .nav-icons { display: none; }
+            .navbar .menu-toggle { display: block; position: absolute; top: 15px; right: 15px; }
+            .navbar.active .nav-links, .navbar.active .nav-icons { display: flex; flex-direction: column; width: 100%; background-color: #4a2c2a; padding: 15px 0; }
+            .navbar.active .nav-links a, .navbar.active .nav-icons a { margin: 10px 20px; }
+            .navbar.active .search-bar { width: 100%; margin: 10px 20px; }
+            .card { max-width: 90%; margin: 0 10px; }
+            .card-title { font-size: 1.5rem; }
+            .form-group label { font-size: 0.9rem; }
+            .form-control { font-size: 0.9rem; }
+            .btn-custom, .google-btn { font-size: 0.9rem; }
+        }
+        @media (max-width: 480px) {
+            .navbar .brand { font-size: 1.2rem; }
+            .navbar .brand small { font-size: 0.7rem; }
+            .navbar.active .nav-links a, .navbar.active .nav-icons a { font-size: 0.8rem; }
+            .navbar .search-bar { width: 120px; font-size: 0.7rem; }
+            .card { margin: 0 5px; }
+            .card-title { font-size: 1.2rem; }
+            .form-group label { font-size: 0.8rem; }
+            .form-control { font-size: 0.8rem; padding: 8px; }
+            .btn-custom, .google-btn { font-size: 0.8rem; padding: 8px; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="menu-toggle" onclick="toggleMenu()">☰</div>
+        <div class="brand">CHOCOLUXE <small>TASTE THE LUXURY</small></div>
+        <div class="nav-links">
+            <a href="#">Home</a>
+            <a href="#">Categories</a>
+            <a href="#">About</a>
+            <a href="#">Contact</a>
+        </div>
+        <div class="nav-icons">
+            <input type="text" class="form-control search-bar" placeholder="Search products...">
+            <a href="#" class="ms-3"><i class="fas fa-heart"></i></a>
+            <a href="#" class="ms-3"><i class="fas fa-shopping-cart"></i></a>
+            <a href="#" class="ms-3"><i class="fas fa-user"></i></a>
+        </div>
+    </nav>
+
+    <div class="login-container">
+        <div class="card">
+            <div class="card-body login-section">
+                <div class="login-form mt-5">
+                    <h3 class="card-title">Login</h3>
+                    <form id="loginform" method="post" action="/user/login">
+                        <div class="form-group mt-3">
+                            <label for="email">Email</label>
+                            <input type="email" class="form-control" name="email" id="email" placeholder="Enter email" required>
+                            <div id="error1" class="error-message"></div>
+                        </div>
+                        <div class="form-group">
+                            <label for="password">Password</label>
+                            <input type="password" class="form-control" name="password" id="password" placeholder="Password" required>
+                            <div id="error2" class="error-message"></div>
+                        </div>
+                        <div class="form-group">
+                            <a href="/user/forgot-password" class="forgot-password-link">Forgot Password?</a>
+                        </div>
+                        <% if (typeof message !== 'undefined' && message.length > 0) { %>
+                            <div class="alert alert-danger">
+                                <%= message %>
+                            </div>
+                        <% } %>
+                        <button type="submit" class="btn btn-custom">Login</button>
+                        <div class="or-text mt-3">or</div>
+                        <a href="/user/auth/google" class="google-btn">
+                            <img src="https://www.google.com/s2/favicons?domain=google.com" alt="Google"> Continue with Google
+                        </a>
+                    </form>
+                    <p class="sign-up-link mt-3">Don't have an account? <a href="/user/signup">Sign up</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container text-center">
+            <div class="row">
+                <div class="col">
+                    <strong>CHOCOLUXE</strong><br>
+                    TASTE THE LUXURY<br>
+                    Your ultimate destination for exquisite, handcrafted chocolates that redefine indulgence<br>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-facebook"></i></a>
+                </div>
+                <div class="col">
+                    <strong>SUPPORT</strong><br>
+                    FAQ<br>
+                    Terms of use<br>
+                    Privacy Policy
+                </div>
+                <div class="col">
+                    <strong>COMPANY</strong><br>
+                    About us<br>
+                    Contact<br>
+                    Careers
+                </div>
+                <div class="col">
+                    <strong>SHOP</strong><br>
+                    My Account<br>
+                    Checkout<br>
+                    Cart
+                </div>
+                <div class="col">
+                    <strong>ACCEPTED PAYMENTS</strong><br>
+                    <div class="payment-icons">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/4/41/Visa_Logo.png" alt="Visa">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg" alt="MasterCard">
+                        <img src="https://upload.wikimedia.org/wikipedia/en/thumb/1/1b/American_Express_logo.svg/1200px-American_Express_logo.svg.png" alt="Amex">
+                    </div>
+                </div>
+            </div>
+            <p class="mt-3">© 2025 chocoluxe. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        const emailid = document.getElementById("email");
+        const passid = document.getElementById("password");
+        const error1 = document.getElementById("error1");
+        const error2 = document.getElementById("error2");
+        const loginform = document.getElementById("loginform");
+
+        function emailValidateChecking(e) {
+            const emailval = emailid.value;
+            const emailpattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+            if (!emailpattern.test(emailval)) {
+                error1.style.display = "block";
+                error1.innerHTML = "Invalid email format";
+            } else {
+                error1.style.display = "none";
+                error1.innerHTML = "";
+            }
+        }
+
+        function passValidateChecking(e) {
+            const passval = passid.value;
+            if (passval.length < 8) {
+                error2.style.display = "block";
+                error2.innerHTML = "Password must be at least 8 characters";
+            } else {
+                error2.style.display = "none";
+                error2.innerHTML = "";
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            loginform.addEventListener("submit", function (e) {
+                emailValidateChecking();
+                passValidateChecking();
+
+                if (error1.innerHTML || error2.innerHTML) {
+                    e.preventDefault();
+                }
+            });
+
+            emailid.addEventListener("input", emailValidateChecking);
+            passid.addEventListener("input", passValidateChecking);
+        });
+
+        function toggleMenu() {
+            const navbar = document.querySelector('.navbar');
+            navbar.classList.toggle('active');
+        }
+    </script>
+</body>
+</html>

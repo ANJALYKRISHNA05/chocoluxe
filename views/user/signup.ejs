@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CHOCOLUXE - Sign Up</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        body, html { height: 100%; margin: 0; background-color: #f5e8d4; font-family: 'Nunito Sans', sans-serif; display: flex; flex-direction: column; }
+        .navbar { background-color: #4a2c2a; padding: 15px 30px; color: white; display: flex; justify-content: space-between; align-items: center; position: relative; z-index: 1000; }
+        .navbar .brand { font-size: 1.5rem; font-weight: 700; text-align: center; }
+        .navbar .brand small { display: block; font-size: 0.8rem; font-weight: 400; color: #d1a876; }
+        .navbar .nav-links { display: flex; align-items: center; gap: 25px; }
+        .navbar .nav-icons { display: flex; align-items: center; gap: 20px; }
+        .navbar a { color: white; text-decoration: none; font-size: 1rem; }
+        .navbar a:hover { color: #d1a876; }
+        .navbar .search-bar { width: 200px; font-size: 0.9rem; padding: 5px 10px; }
+        .navbar .menu-toggle { display: none; font-size: 1.5rem; cursor: pointer; }
+        .login-container { flex: 1; display: flex; justify-content: center; align-items: center; padding: 20px; }
+        .card { width: 100%; max-width: 400px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); border-radius: 15px; background-color: #fff9e6; overflow: hidden; text-align: center; }
+        .login-section { width: 100%; }
+        .login-form { padding: 30px; }
+        .card-title { font-size: 2rem; font-weight: 800; color: #4a2c2a; margin-bottom: 25px; }
+        .form-group label { font-size: 1rem; color: #555; }
+        .form-control { width: 100%; padding: 12px; margin-bottom: 5px; border: 2px solid #4a2c2a; border-radius: 8px; font-size: 1rem; background-color: #fff; transition: border-color 0.3s; }
+        .form-control:focus { border-color: #d1a876; outline: none; box-shadow: 0 0 8px rgba(209, 168, 118, 0.5); }
+        .btn-custom { background-color: #d1a876; color: white; width: 100%; padding: 12px; border: none; border-radius: 8px; font-size: 1.1rem; margin-top: 10px; transition: background-color 0.3s; }
+        .btn-custom:hover { background-color: #b68d5a; }
+        .google-btn { background-color: #fff; color: #757575; border: 2px solid #4a2c2a; width: 100%; padding: 12px; margin-bottom: 20px; display: flex; align-items: center; justify-content: center; border-radius: 8px; transition: background-color 0.3s; }
+        .google-btn img { width: 20px; margin-right: 10px; }
+        .google-btn:hover { background-color: #f5f5f5; }
+        .or-text { color: #555; margin: 15px 0; text-align: center; font-size: 1rem; }
+        .sign-up-link { font-size: 0.9rem; color: #4a2c2a; text-align: center; }
+        .sign-up-link a { color: #d1a876; text-decoration: none; font-weight: 600; }
+        .sign-up-link a:hover { text-decoration: underline; }
+        .error-message { color: #dc3545; font-size: 0.8rem; margin-top: 5px; text-align: left; display: none; }
+        .alert-danger { background-color: #f8d7da; color: #721c24; border-radius: 5px; padding: 10px; margin-bottom: 15px; text-align: center; transition: opacity 0.3s; }
+        .alert-danger.hide { opacity: 0; height: 0; padding: 0; margin: 0; overflow: hidden; }
+        .footer { background-color: #4a2c2a; color: white; padding: 20px 0; margin-top: auto; text-align: center; }
+        .footer a { color: #d1a876; margin: 0 10px; text-decoration: none; font-size: 0.9rem; }
+        .footer a:hover { color: #fff; }
+        .footer .payment-icons img { width: 30px; margin: 5px; }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .navbar { padding: 15px; flex-direction: column; align-items: flex-start; }
+            .navbar .brand { margin-bottom: 15px; }
+            .navbar .nav-links, .navbar .nav-icons { display: none; }
+            .navbar .menu-toggle { display: block; position: absolute; top: 15px; right: 15px; }
+            .navbar.active .nav-links, .navbar.active .nav-icons { display: flex; flex-direction: column; width: 100%; background-color: #4a2c2a; padding: 15px 0; }
+            .navbar.active .nav-links a, .navbar.active .nav-icons a { margin: 10px 20px; }
+            .navbar.active .search-bar { width: 100%; margin: 10px 20px; }
+            .card { max-width: 90%; margin: 0 10px; }
+            .card-title { font-size: 1.5rem; }
+            .form-group label { font-size: 0.9rem; }
+            .form-control { font-size: 0.9rem; }
+            .btn-custom, .google-btn { font-size: 0.9rem; }
+        }
+        @media (max-width: 480px) {
+            .navbar .brand { font-size: 1.2rem; }
+            .navbar .brand small { font-size: 0.7rem; }
+            .navbar.active .nav-links a, .navbar.active .nav-icons a { font-size: 0.8rem; }
+            .navbar .search-bar { width: 120px; font-size: 0.7rem; }
+            .card { margin: 0 5px; }
+            .card-title { font-size: 1.2rem; }
+            .form-group label { font-size: 0.8rem; }
+            .form-control { font-size: 0.8rem; padding: 8px; }
+            .btn-custom, .google-btn { font-size: 0.8rem; padding: 8px; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="menu-toggle" onclick="toggleMenu()">☰</div>
+        <div class="brand">CHOCOLUXE <small>TASTE THE LUXURY</small></div>
+        <div class="nav-links">
+            <a href="#">Home</a>
+            <a href="#">Categories</a>
+            <a href="#">About</a>
+            <a href="#">Contact</a>
+        </div>
+        <div class="nav-icons">
+            <input type="text" class="form-control search-bar" placeholder="Search products...">
+            <a href="#" class="ms-3"><i class="fas fa-heart"></i></a>
+            <a href="#" class="ms-3"><i class="fas fa-shopping-cart"></i></a>
+            <a href="#" class="ms-3"><i class="fas fa-user"></i></a>
+        </div>
+    </nav>
+
+    <div class="login-container">
+        <div class="card">
+            <div class="card-body login-section">
+                <div class="login-form mt-5">
+                    <h3 class="card-title">Sign Up</h3>
+                    <form id="signupform" method="post" action="/user/signup" onsubmit="return validateForm()">
+                        <div class="form-group mt-3">
+                            <label for="username">Username</label>
+                            <input type="text" class="form-control" name="username" id="username" placeholder="Enter username" required>
+                            <div id="error1" class="error-message"></div>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="email" class="form-control" name="email" id="email" placeholder="Enter email" required>
+                            <div id="error2" class="error-message"></div>
+                        </div>
+                        <div class="form-group">
+                            <label for="phone">Phone</label>
+                            <input type="tel" class="form-control" name="phone" id="phone" placeholder="Enter phone number">
+                            <div id="error3" class="error-message"></div>
+                        </div>
+                        <div class="form-group">
+                            <label for="password">Password</label>
+                            <input type="password" class="form-control" name="password" id="password" placeholder="Password" required>
+                            <div id="error4" class="error-message"></div>
+                        </div>
+                        <div class="form-group">
+                            <label for="confirmPassword">Confirm Password</label>
+                            <input type="password" class="form-control" name="confirmPassword" id="confirmPassword" placeholder="Confirm Password" required>
+                            <div id="error5" class="error-message"></div>
+                        </div>
+                        <% if (message && message.length > 0) { %>
+                            <div class="alert alert-danger" id="serverMessage">
+                                <%= message %>
+                            </div>
+                        <% } %>
+                        <button type="submit" class="btn btn-custom">Create Account</button>
+                        <div class="or-text mt-3">or</div>
+                        <a href="/user/auth/google" class="google-btn">
+                            <img src="https://www.google.com/s2/favicons?domain=google.com" alt="Google"> Continue with Google
+                        </a>
+                    </form>
+                    <p class="sign-up-link mt-3">Already have an account? <a href="/user/login">Log in</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container text-center">
+            <div class="row">
+                <div class="col">
+                    <strong>CHOCOLUXE</strong><br>
+                    TASTE THE LUXURY<br>
+                    Your ultimate destination for exquisite, handcrafted chocolates that redefine indulgence<br>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-facebook"></i></a>
+                </div>
+                <div class="col">
+                    <strong>SUPPORT</strong><br>
+                    FAQ<br>
+                    Terms of use<br>
+                    Privacy Policy
+                </div>
+                <div class="col">
+                    <strong>COMPANY</strong><br>
+                    About us<br>
+                    Contact<br>
+                    Careers
+                </div>
+                <div class="col">
+                    <strong>SHOP</strong><br>
+                    My Account<br>
+                    Checkout<br>
+                    Cart
+                </div>
+                <div class="col">
+                    <strong>ACCEPTED PAYMENTS</strong><br>
+                    <div class="payment-icons">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/4/41/Visa_Logo.png" alt="Visa">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg" alt="MasterCard">
+                        <img src="https://upload.wikimedia.org/wikipedia/en/thumb/1/1b/American_Express_logo.svg/1200px-American_Express_logo.svg.png" alt="Amex">
+                    </div>
+                </div>
+            </div>
+            <p class="mt-3">© 2025 chocoluxe. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            
+        
+            const username = document.getElementById('username');
+            const email = document.getElementById('email');
+            const phone = document.getElementById('phone');
+            const password = document.getElementById('password');
+            const confirmPassword = document.getElementById('confirmPassword');
+            const error1 = document.getElementById('error1');
+            const error2 = document.getElementById('error2');
+            const error3 = document.getElementById('error3');
+            const error4 = document.getElementById('error4');
+            const error5 = document.getElementById('error5');
+        
+            const validation = {
+                usernamePattern: /^[a-z]{5,20}$/,
+                emailPattern: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+                phonePattern: /^\d{10}$/,
+                validateUsername: function (value) {
+                    const lowercaseValue = value.toLowerCase();
+                    username.value = lowercaseValue; 
+                    return lowercaseValue.match(this.usernamePattern) !== null;
+                },
+                validateEmail: function (value) {
+                    return value.match(this.emailPattern) !== null;
+                },
+                validatePhone: function (value) {
+                    if (!value) return true; 
+                    if (!value.match(this.phonePattern)) return false;
+                    if (/^0{10}$/.test(value)) return false; 
+                    if (/^0/.test(value)) return false; 
+                    return true;
+                },
+                validatePassword: function (value) {
+                    const patterns = {
+                        length: value.length >= 8,
+                        uppercase: /[A-Z]/.test(value),
+                        lowercase: /[a-z]/.test(value),
+                        number: /[0-9]/.test(value),
+                        special: /[^A-Za-z0-9]/.test(value)
+                    };
+                    return Object.values(patterns).filter(Boolean).length >= 4;
+                },
+                validateConfirmPassword: function (pass, confirm) {
+                    return pass === confirm;
+                }
+            };
+    
+            function validateUsername() {
+                if (!validation.validateUsername(username.value)) {
+                    error1.style.display = 'block';
+                    error1.textContent = 'Username must contain only lowercase letters and be between 5 and 20 characters';
+                    return false;
+                } else {
+                    error1.style.display = 'none';
+                    error1.textContent = '';
+                    return true;
+                }
+            }
+        
+            function validateEmail() {
+                if (!validation.validateEmail(email.value)) {
+                    error2.style.display = 'block';
+                    error2.textContent = 'Invalid email format';
+                    return false;
+                } else {
+                    error2.style.display = 'none';
+                    error2.textContent = '';
+                    return true;
+                }
+            }
+        
+            function validatePhone() {
+                if (!validation.validatePhone(phone.value)) {
+                    error3.style.display = 'block';
+                    error3.textContent = 'Phone must be 10 digits, cannot be all zeros, and cannot start with 0';
+                    return false;
+                } else {
+                    error3.style.display = 'none';
+                    error3.textContent = '';
+                    return true;
+                }
+            }
+        
+            function validatePassword() {
+                if (!validation.validatePassword(password.value)) {
+                    error4.style.display = 'block';
+                    error4.textContent = 'Password must be at least 8 characters with uppercase, lowercase, number, and special character';
+                    return false;
+                } else {
+                    error4.style.display = 'none';
+                    error4.textContent = '';
+                    return true;
+                }
+            }
+        
+            function validateConfirmPassword() {
+                if (!validation.validateConfirmPassword(password.value, confirmPassword.value)) {
+                    error5.style.display = 'block';
+                    error5.textContent = 'Passwords do not match';
+                    return false;
+                } else {
+                    error5.style.display = 'none';
+                    error5.textContent = '';
+                    return true;
+                }
+            }
+        
+            function validateForm() {
+                const isUsernameValid = validateUsername();
+                const isEmailValid = validateEmail();
+                const isPhoneValid = validatePhone();
+                const isPasswordValid = validatePassword();
+                const isConfirmPasswordValid = validateConfirmPassword();
+        
+                const serverMessage = document.getElementById('serverMessage');
+                if (serverMessage && (isUsernameValid && isEmailValid && isPhoneValid && isPasswordValid && isConfirmPasswordValid)) {
+                    serverMessage.classList.add('hide');
+                }
+        
+                return isUsernameValid && isEmailValid && isPhoneValid && isPasswordValid && isConfirmPasswordValid;
+            }
+        
+            username.addEventListener('input', validateUsername);
+            email.addEventListener('input', validateEmail);
+            phone.addEventListener('input', validatePhone);
+            password.addEventListener('input', validatePassword);
+            confirmPassword.addEventListener('input', validateConfirmPassword);
+        
+        
+        
+            [username, email, phone, password, confirmPassword].forEach(input => {
+                input.addEventListener('input', updateServerMessage);
+            });
+        
+            function toggleMenu() {
+                const navbar = document.querySelector('.navbar');
+                navbar.classList.toggle('active');
+            }
+        });
+    </script>
+</body>
+</html>
