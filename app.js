@@ -3,6 +3,7 @@ const app=express();
 const path=require('path')
 const env=require('dotenv').config()
 const db=require("./config/db")
+
 const nocache=require('nocache')
 const session = require('express-session');
 const passport=require("./config/passport")
@@ -17,7 +18,7 @@ app.use(express.urlencoded({extended:true}))
 app.use(nocache())
 
 app.set('view engine','ejs')
-app.set('views', [path.join(__dirname, "views/user"), path.join(__dirname, "views/admin")])
+app.set('views', path.join(__dirname, "views"))
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(session({
     secret: process.env.SESSION_SECRET,

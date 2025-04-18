@@ -6,7 +6,7 @@ require('dotenv').config();
 const loadHomepage = async (req, res) => {
     try {
         
-        res.render('home', { user: req.session.user });
+        res.render('user/home', { user: req.session.user });
     } catch (error) {
         console.log('Home page not found:', error);
         res.status(500).send('Server error');
@@ -29,7 +29,7 @@ const loadSignup = (req, res) => {
         if (req.session) {
             req.session.message = '';
         }
-        res.render('signup', { message: '' });
+        res.render('user/signup', { message: '' });
     } catch (error) {
         console.error('Error loading signup page:', error);
         res.status(500).send('Internal Server Error');
@@ -162,7 +162,7 @@ const loadLogin = async (req, res) => {
         if (req.session.user) {
             return res.redirect('/');
         }
-        res.render('login', { message: req.session.message || '' });
+        res.render('user/login', { message: req.session.message || '' });
         if (req.session.message) {
             delete req.session.message;
         }
