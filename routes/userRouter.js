@@ -3,27 +3,28 @@ const router = express.Router();
 const passport = require("passport");
 const userController = require('../controllers/user/userController');
 
-router.get('/home', userController.loadHomepage);
-router.get('/pageNotfound', userController.pageNotfound);
-router.get('/signup', userController.loadSignup);
-router.post('/signup', userController.signup);
-router.get('/login', userController.loadLogin);
-router.post('/login', userController.login);
-router.post("/verify-otp", userController.verifyOtp);
-router.post("/resend-otp", userController.resendOtp);
-router.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
-router.get('/auth/google/callback', passport.authenticate('google', { failureRedirect: '/signup' }), (req, res) => {
+
+router.get('/', userController.loadHomepage);
+router.get('/user/pageNotfound', userController.pageNotfound);
+router.get('/user/signup', userController.loadSignup);
+router.post('/user/signup', userController.signup);
+router.get('/user/login', userController.loadLogin);
+router.post('/user/login', userController.login);
+router.post("/user/verify-otp", userController.verifyOtp);
+router.post("/user/resend-otp", userController.resendOtp);
+router.get('/user/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
+router.get('/user/auth/google/callback', passport.authenticate('google', { failureRedirect: '/signup' }), (req, res) => {
     const user = req.user;
     req.session.user = user;
     res.redirect('/user/home');
 });
-router.get('/logout', userController.logout);
+router.get('user/logout', userController.logout);
 
-router.get('/forgot-password', userController.forgotPassword);
-router.post('/forgot-password', userController.sendOtpForForgotPassword);
-router.get('/verify-otp-forgot', (req, res) => res.render('verify-otp-forgot', { message: req.session.message || '' }));
-router.post('/verify-otp-forgot', userController.verifyOtpForForgotPassword);
-router.get('/reset-password', userController.loadResetPassword);
-router.post('/reset-password', userController.resetPassword);
+router.get('/user/forgot-password', userController.forgotPassword);
+router.post('/user/forgot-password', userController.sendOtpForForgotPassword);
+router.get('/user/verify-otp-forgot', (req, res) => res.render('verify-otp-forgot', { message: req.session.message || '' }));
+router.post('/user/verify-otp-forgot', userController.verifyOtpForForgotPassword);
+router.get('/user/reset-password', userController.loadResetPassword);
+router.post('/user/reset-password', userController.resetPassword);
 
 module.exports = router;

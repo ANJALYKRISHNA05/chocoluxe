@@ -5,10 +5,8 @@ require('dotenv').config();
 
 const loadHomepage = async (req, res) => {
     try {
-        if (!req.session.user) {
-            return res.redirect('/user/login');
-        }
-        return res.render('home', { user: req.session.user });
+        
+        res.render('home', { user: req.session.user });
     } catch (error) {
         console.log('Home page not found:', error);
         res.status(500).send('Server error');
@@ -26,7 +24,7 @@ const pageNotfound = async (req, res) => {
 const loadSignup = (req, res) => {
     try {
         if (req.session.user) {
-            return res.redirect('/user/home');
+            return res.redirect('/');
         }
         if (req.session) {
             req.session.message = '';
@@ -152,7 +150,7 @@ const verifyOtp = async (req, res) => {
         };
         delete req.session.userOtp;
         delete req.session.userData; 
-        res.json({ success: true, redirectUrl: '/user/home' });
+        res.json({ success: true, redirectUrl: '/' });
     } catch (error) {
         console.error('Error verifying OTP:', error);
         res.json({ success: false, message: 'An error occurred. Please try again.' });
@@ -162,7 +160,7 @@ const verifyOtp = async (req, res) => {
 const loadLogin = async (req, res) => {
     try {
         if (req.session.user) {
-            return res.redirect('/user/home');
+            return res.redirect('/');
         }
         res.render('login', { message: req.session.message || '' });
         if (req.session.message) {
@@ -177,10 +175,10 @@ const loadLogin = async (req, res) => {
 const login = async (req, res) => {
     try {
         const { email, password } = req.body;
-        console.log('Login attempt - Email:', email, 'Password:', password); 
+        
 
         const user = await User.findOne({ isAdmin: 0, email });
-        console.log('Found user:', user); 
+        
 
         if (!user || !(await bcrypt.compare(password, user.password))) {
             req.session.message = 'Invalid email or password';
@@ -190,7 +188,7 @@ const login = async (req, res) => {
 
         if (user.isBlocked) {
             req.session.message = 'User is blocked';
-            console.log('Login failed - User blocked'); 
+          
             return res.redirect('/user/login', { message: "User is blocked by admin" });
         }
 
@@ -201,7 +199,7 @@ const login = async (req, res) => {
             isBlocked: user.isBlocked
         };
         console.log('Login successful - Session user:', req.session.user); 
-        res.redirect('/user/home');
+        res.redirect('/');
     } catch (error) {
         console.error('Login error:', error);
         req.session.message = 'An error occurred during login. Please try again.';
@@ -246,7 +244,7 @@ const resendOtp = async (req, res) => {
 const forgotPassword = async (req, res) => {
     try {
         if (req.session.user) {
-            return res.redirect('/user/home');
+            return res.redirect('/');
         }
         res.render('forgot-password', { message: req.session.message || '' });
         if (req.session.message) {
@@ -333,8 +331,7 @@ const resetPassword = async (req, res) => {
         const { newPassword, confirmPassword } = req.body;
         const email = req.session.forgotPasswordEmail;
         console.log('Resetting password for email:', email); 
-        console.log('New Password:', newPassword, 'Confirm Password:', confirmPassword); 
-
+       
         if (!email) {
             req.session.message = 'Session expired. Please start over.';
             return res.redirect('/user/forgot-password');
