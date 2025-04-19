@@ -1,0 +1,36 @@
+<!-- partials/admin/footer.ejs -->
+</div> <!-- Closing content-container div from header.ejs -->
+    
+<footer class="footer">
+    <div class="footer-content">
+        <p>&copy; <%= new Date().getFullYear() %> CHOCOLUXE Admin Panel. All rights reserved.</p>
+    </div>
+</footer>
+
+<style>
+    .footer {
+        background-color: var(--primary-color);
+        color: var(--text-color);
+        text-align: center;
+        padding: 15px;
+        margin-top: 20px;
+        margin-left: 250px; /* Width of sidebar */
+        font-size: 14px;
+    }
+</style>
+
+<script>
+    // Common admin panel JavaScript functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        // Handle logout button click
+        const logoutBtn = document.querySelector('.logout-btn');
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', function() {
+                // You can replace this with your actual logout logic
+                window.location.href = '/admin/logout';
+            });
+        }
+    });
+</script>
+</body>
+</html>

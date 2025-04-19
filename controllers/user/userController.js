@@ -92,7 +92,7 @@ const signup = async (req, res) => {
             return res.render('signup', { message: 'Please fill the form correctly' });
         }
 
-        const existingUser = await User.findOne({ $or: [{ email }, { name: username }] });
+        const existingUser = await User.findOne({ $or: [{ email }, { username: username }] });
         if (existingUser) {
             return res.render('signup', { message: 'User with this email or username already exists' });
         }
@@ -104,12 +104,12 @@ const signup = async (req, res) => {
         }
         req.session.userOtp = otp;
         req.session.userData = { username, email, phone, password };
-        res.render('verify-otp');
+        res.render('user/verify-otp');
         console.log('OTP sent:', otp);
     } catch (error) {
         console.error('Error during signup:', error);
         let errorMessage = 'An error occurred during signup. Please try again.';
-        if (error.name === 'ValidationError') {
+        if (error.username === 'ValidationError') {
             errorMessage = `Validation error: ${error.message}`;
         } else if (error.code === 11000) {
             errorMessage = 'A user with this email or username already exists.';
@@ -134,7 +134,7 @@ const verifyOtp = async (req, res) => {
         console.log(hashedPassword);
 
         const newUser = new User({
-            name: userData.username,
+            username: userData.username,
             email: userData.email,
             phone: userData.phone || null,
             password: hashedPassword
@@ -144,7 +144,7 @@ const verifyOtp = async (req, res) => {
 
         req.session.user = {
             id: newUser._id,
-            name: newUser.name,
+            username: newUser.username,
             email: newUser.email,
             isBlocked: newUser.isBlocked
         };
@@ -194,7 +194,7 @@ const login = async (req, res) => {
 
         req.session.user = {
             id: user._id,
-            name: user.name,
+            username: user.username,
             email: user.email,
             isBlocked: user.isBlocked
         };
