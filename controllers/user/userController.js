@@ -171,15 +171,12 @@ const loadLogin = async (req, res) => {
         res.status(500).send('Server error');
     }
 };
-
 const login = async (req, res) => {
     try {
         const { email, password } = req.body;
         
-
         const user = await User.findOne({ isAdmin: 0, email });
         
-
         if (!user || !(await bcrypt.compare(password, user.password))) {
             req.session.message = 'Invalid email or password';
             console.log('Login failed - Invalid credentials'); 
@@ -187,9 +184,9 @@ const login = async (req, res) => {
         }
 
         if (user.isBlocked) {
-            req.session.message = 'User is blocked';
-          
-            return res.redirect('/user/login', { message: "User is blocked by admin" });
+            req.session.message = 'User is blocked by admin';
+            console.log('Login failed - User is blocked');
+            return res.redirect('/user/login');
         }
 
         req.session.user = {

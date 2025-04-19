@@ -1,0 +1,413 @@
+
+<%- include('../partials/admin/header') %>
+
+<!-- Note: Ensure header.ejs includes the viewport meta tag and Bootstrap/Font Awesome -->
+<!-- Example header.ejs snippet:
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+-->
+
+<style>
+  /* Toggle Switch */
+  .toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 4rem;
+    height: 2rem;
+  }
+  
+  .toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+  
+  .slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+    border-radius: 2rem;
+  }
+  
+  .slider:before {
+    position: absolute;
+    content: "";
+    height: 1.5rem;
+    width: 1.5rem;
+    left: 0.25rem;
+    bottom: 0.25rem;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+  }
+  
+  input:checked + .slider {
+    background-color: #5C4033;
+  }
+  
+  input:focus + .slider {
+    box-shadow: 0 0 1px #5C4033;
+  }
+  
+  input:checked + .slider:before {
+    transform: translateX(2rem);
+  }
+  
+  .status-label {
+    margin-left: 5rem;
+    font-weight: 500;
+  }
+  
+  .status-active {
+    color: #28a745;
+  }
+  
+  .status-blocked {
+    color: #dc3545;
+  }
+  
+  /* Pagination */
+  .pagination {
+    justify-content: center;
+    margin-top: 1rem;
+  }
+  
+  .pagination .page-item.active .page-link {
+    background-color: #5C4033;
+    border-color: #5C4033;
+  }
+  
+  .pagination .page-link {
+    color: #5C4033;
+  }
+  
+  .pagination .page-link:hover {
+    color: #5C4033;
+    background-color: #F5F1E9;
+  }
+  
+  /* Search Bar */
+  .search-wrapper {
+    margin-bottom: 1rem;
+    width: 100%;
+  }
+  
+  .search-input {
+    border-color: #5C4033;
+  }
+  
+  .search-btn {
+    background-color: #5C4033;
+    border-color: #5C4033;
+  }
+  
+  .search-btn:hover {
+    background-color: #3d2a23;
+    border-color: #3d2a23;
+  }
+
+  /* Content Wrapper */
+  .content-wrapper {
+    background-color: #F5F1E9;
+    min-height: 100vh;
+    padding: 20px;
+    transition: margin-left 0.3s ease-in-out;
+    margin-left: 250px; /* Default for desktop */
+  }
+
+  /* Sidebar (assumed in sidebar.ejs) */
+  .sidebar {
+    width: 250px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    background-color: #5C4033;
+    color: white;
+    transition: transform 0.3s ease-in-out;
+    z-index: 1000; /* Ensure sidebar is above content */
+  }
+
+  /* Responsive Styles */
+  @media (max-width: 768px) {
+    .content-wrapper {
+      margin-left: 0; /* No margin on mobile */
+    }
+    .sidebar {
+      transform: translateX(-250px); /* Hide sidebar */
+    }
+    .sidebar.active {
+      transform: translateX(0); /* Show sidebar when active */
+    }
+    .toggle-switch {
+      width: 3rem;
+      height: 1.5rem;
+    }
+    .slider:before {
+      height: 1rem;
+      width: 1rem;
+      left: 0.2rem;
+      bottom: 0.2rem;
+    }
+    input:checked + .slider:before {
+      transform: translateX(1.5rem);
+    }
+    .status-label {
+      margin-left: 3.5rem;
+      font-size: 0.9rem;
+    }
+    .search-wrapper {
+      max-width: 100%;
+    }
+    .pagination .page-link {
+      font-size: 0.9rem;
+      padding: 0.5rem;
+    }
+  }
+
+  @media (max-width: 576px) {
+    .table th, .table td {
+      font-size: 0.85rem;
+    }
+    /* Optionally hide Phone column on mobile */
+    .table th:nth-child(4), .table td:nth-child(4) {
+      display: none;
+    }
+  }
+</style>
+
+<div class="content-wrapper">
+  <!-- Sidebar Toggle Button for Mobile -->
+  <button class="btn btn-primary d-md-none mb-3" type="button" id="sidebarToggle">
+    <i class="fas fa-bars"></i>
+  </button>
+
+  <%- include('../partials/admin/sidebar', { currentPage: 'users' }) %>
+  <div class="content-header">
+    <div class="container-fluid">
+      <div class="row mb-2">
+        <div class="col-12 col-sm-6">
+          <h1 class="m-0" style="color: #5C4033;">User Management</h1>
+        </div>
+        <div class="col-12 col-sm-6">
+          <ol class="breadcrumb float-sm-right">
+            <li class="breadcrumb-item"><a href="/admin/dashboard" style="color: #5C4033;">Home</a></li>
+            <li class="breadcrumb-item active" style="color: #5C4033;">Users</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <section class="content">
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-12">
+          <div class="card" style="border-color: #5C4033;">
+            <div class="card-header" style="background-color: #5C4033; color: white;">
+              <div class="d-flex justify-content-between align-items-center">
+                <h3 class="card-title">User List</h3>
+                <div class="search-wrapper">
+                  <form action="/admin/users" method="GET" class="d-flex">
+                    <div class="input-group">
+                      <input type="text" name="search" class="form-control search-input" placeholder="Search users..." value="<%= searchQuery %>">
+                      <div class="input-group-append">
+                        <button class="btn btn-light search-btn" type="submit">
+                          <i class="fas fa-search"></i>
+                        </button>
+                      </div>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="table-responsive">
+                <table id="usersTable" class="table table-bordered table-striped">
+                  <thead>
+                    <tr style="background-color: #5C4033; color: white;">
+                      <th>#</th>
+                      <th>Username</th>
+                      <th>Email</th>
+                      <th>Phone</th>
+                      <th>Registration Date</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <% if (users && users.length > 0) { %>
+                      <% users.forEach((user, index) => { %>
+                        <tr>
+                          <td><%= (currentPage - 1) * 5 + index + 1 %></td>
+                          <td><%= user.username %></td>
+                          <td><%= user.email %></td>
+                          <td><%= user.phone || 'Not provided' %></td>
+                          <td><%= new Date(user.createdAt).toLocaleDateString('en-US', { 
+                            year: 'numeric', 
+                            month: 'short', 
+                            day: 'numeric' 
+                          }) %></td>
+                          <td>
+                            <label class="toggle-switch">
+                              <input type="checkbox" class="user-status-toggle" 
+                                     data-user-id="<%= user._id %>" 
+                                     <%= user.isBlocked ? '' : 'checked' %>>
+                              <span class="slider"></span>
+                            </label>
+                            <span class="status-label <%= user.isBlocked ? 'status-blocked' : 'status-active' %>">
+                              <%= user.isBlocked ? 'Blocked' : 'Active' %>
+                            </span>
+                          </td>
+                        </tr>
+                      <% }); %>
+                    <% } else { %>
+                      <tr>
+                        <td colspan="6" class="text-center">No users found</td>
+                      </tr>
+                    <% } %>
+                  </tbody>
+                </table>
+              </div>
+              
+              <!-- Pagination -->
+              <% if (totalPages > 1) { %>
+                <nav aria-label="Page navigation">
+                  <ul class="pagination">
+                    <li class="page-item <%= currentPage === 1 ? 'disabled' : '' %>">
+                      <a class="page-link" href="/admin/users?page=<%= currentPage - 1 %><%= searchQuery ? '&search=' + searchQuery : '' %>" aria-label="Previous">
+                        <span aria-hidden="true">«</span>
+                      </a>
+                    </li>
+                    
+                    <% for (let i = 1; i <= totalPages; i++) { %>
+                      <li class="page-item <%= currentPage === i ? 'active' : '' %>">
+                        <a class="page-link" href="/admin/users?page=<%= i %><%= searchQuery ? '&search=' + searchQuery : '' %>"><%= i %></a>
+                      </li>
+                    <% } %>
+                    
+                    <li class="page-item <%= currentPage === totalPages ? 'disabled' : '' %>">
+                      <a class="page-link" href="/admin/users?page=<%= currentPage + 1 %><%= searchQuery ? '&search=' + searchQuery : '' %>" aria-label="Next">
+                        <span aria-hidden="true">»</span>
+                      </a>
+                    </li>
+                  </ul>
+                </nav>
+              <% } %>
+              
+              <div class="text-center mt-3">
+                <p>Showing <%= users.length %> of <%= totalUsers %> users</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- SweetAlert2 and other dependencies -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    // Sidebar Toggle for Mobile
+    const sidebarToggle = document.getElementById('sidebarToggle');
+    const sidebar = document.querySelector('.sidebar');
+    
+    if (sidebarToggle && sidebar) {
+      sidebarToggle.addEventListener('click', function () {
+        sidebar.classList.toggle('active');
+      });
+    }
+
+    // Block/Unblock Toggle Handler
+    document.querySelectorAll('.user-status-toggle').forEach(toggle => {
+      toggle.addEventListener('change', async function (e) {
+        const userId = this.dataset.userId;
+        const isCurrentlyActive = this.checked;
+        const actionText = isCurrentlyActive ? 'unblock' : 'block';
+        const switchElement = this;
+        const statusLabel = switchElement.closest('td').querySelector('.status-label');
+
+        // Show confirmation dialog
+        const result = await Swal.fire({
+          title: `Confirm ${actionText}?`,
+          text: isCurrentlyActive
+            ? "Are you sure you want to unblock this user? They will regain access to their account."
+            : "Are you sure you want to block this user? They won't be able to access their account",
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: isCurrentlyActive ? '#28a745' : '#dc3545',
+          cancelButtonColor: '#6c757d',
+          confirmButtonText: isCurrentlyActive ? 'Yes, unblock user' : 'Yes, block user',
+          cancelButtonText: 'Cancel'
+        });
+
+        if (result.isConfirmed) {
+          try {
+            const response = await fetch(`/admin/users/toggle-block/${userId}`, {
+              method: 'PATCH',
+              headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+              }
+            });
+            const data = await response.json();
+
+            if (data.success) {
+              Swal.fire({
+                icon: 'success',
+                title: 'Success!',
+                text: data.message,
+                confirmButtonColor: '#5C4033',
+                customClass: {
+                  confirmButton: 'btn btn-success'
+                }
+              });
+              
+              statusLabel.textContent = data.isBlocked ? 'Blocked' : 'Active';
+              statusLabel.className = `status-label ${data.isBlocked ? 'status-blocked' : 'status-active'}`;
+            } else {
+              switchElement.checked = !isCurrentlyActive;
+              Swal.fire({
+                icon: 'error',
+                title: 'Error!',
+                text: data.message || 'Something went wrong',
+                confirmButtonColor: '#5C4033',
+                customClass: {
+                  confirmButton: 'btn btn-danger'
+                }
+              });
+            }
+          } catch (error) {
+            console.error('Fetch Error:', error);
+            switchElement.checked = !isCurrentlyActive;
+            Swal.fire({
+              icon: 'error',
+              title: 'Error!',
+              text: 'Server error occurred',
+              confirmButtonColor: '#5C4033',
+              customClass: {
+                confirmButton: 'btn btn-danger'
+              }
+            });
+          }
+        } else {
+          switchElement.checked = !isCurrentlyActive; // Revert on cancel
+        }
+      });
+    });
+  });
+</script>
+
+<%- include('../partials/admin/footer') %>
