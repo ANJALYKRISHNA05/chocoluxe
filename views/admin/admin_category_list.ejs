@@ -1,0 +1,218 @@
+<%- include('../partials/admin/header') %>
+
+<%- include('../partials/admin/sidebar', { activePage: 'category' }) %>
+
+<div class="content-wrapper">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <div class="card mt-4">
+                    <div class="card-header d-flex flex-column align-items-center">
+                        <h3 class="card-title mb-3">Category Management</h3>
+                        <div class="d-flex justify-content-between w-100">
+                            <a href="/admin/category/add" class="btn btn-primary mb-2 me-3">
+                                <i class="fas fa-plus"></i> Add Category
+                            </a>
+                            <form action="/admin/category" method="GET" class="d-inline mb-2">
+                                <div class="input-group" style="width: 250px;">
+                                    <input type="text" class="form-control" name="search" value="<%= searchQuery || '' %>" placeholder="Search by name...">
+                                    <button type="submit" class="btn btn-outline-primary">
+                                        <i class="fas fa-search"></i>
+                                    </button>
+                                    <% if (searchQuery) { %>
+                                        <a href="/admin/category" class="btn btn-outline-secondary">
+                                            <i class="fas fa-times"></i> Clear
+                                        </a>
+                                    <% } %>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-bordered table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Description</th>
+                                    <th>Image</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% categories.forEach((category, index) => { %>
+                                <tr>
+                                    <td><%= category.name %></td>
+                                    <td><%= category.description || 'N/A' %></td>
+                                    <td>
+                                        <% if (category.image) { %>
+                                            <img src="<%= category.image %>" alt="<%= category.name %>" style="width: 50px; height: 50px; object-fit: cover;">
+                                        <% } else { %>
+                                            No Image
+                                        <% } %>
+                                    </td>
+                                    <td>
+                                        <span class="badge <%= category.isListed ? 'bg-success' : 'bg-danger' %>">
+                                            <%= category.isListed ? 'Listed' : 'Unlisted' %>
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <a href="/admin/category/edit/<%= category._id %>" class="btn btn-sm btn-warning me-1">
+                                            <i class="fas fa-edit"></i> Edit
+                                        </a>
+                                        <button class="btn btn-sm <%= category.isListed ? 'btn-danger' : 'btn-success' %> toggle-status" data-id="<%= category._id %>">
+                                            <i class="fas <%= category.isListed ? 'fa-ban' : 'fa-check' %>"></i>
+                                            <%= category.isListed ? 'Unlist' : 'List' %>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <% }) %>
+                            </tbody>
+                        </table>
+
+                        <!-- Pagination Controls -->
+                        <nav aria-label="Page navigation" class="mt-4">
+                            <ul class="pagination justify-content-center">
+                                <!-- Previous Button -->
+                                <li class="page-item <%= currentPage === 1 ? 'disabled' : '' %>">
+                                    <a class="page-link" href="/admin/category?page=<%= currentPage - 1 %>&limit=<%= limit %><%= searchQuery ? '&search=' + searchQuery : '' %>" aria-label="Previous">
+                                        <span aria-hidden="true">«</span>
+                                    </a>
+                                </li>
+
+                                <!-- Page Numbers -->
+                                <% for(let i = 1; i <= totalPages; i++) { %>
+                                    <li class="page-item <%= currentPage === i ? 'active' : '' %>">
+                                        <a class="page-link" href="/admin/category?page=<%= i %>&limit=<%= limit %><%= searchQuery ? '&search=' + searchQuery : '' %>"><%= i %></a>
+                                    </li>
+                                <% } %>
+
+                                <!-- Next Button -->
+                                <li class="page-item <%= currentPage === totalPages ? 'disabled' : '' %>">
+                                    <a class="page-link" href="/admin/category?page=<%= currentPage + 1 %>&limit=<%= limit %><%= searchQuery ? '&search=' + searchQuery : '' %>" aria-label="Next">
+                                        <span aria-hidden="true">»</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <%- include('../partials/admin/footer') %>
+</div>
+
+<style>
+    .card {
+        border: none;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+    .card-header {
+        background-color: #fff;
+        border-bottom: 1px solid #e0e0e0;
+        padding: 15px 20px;
+    }
+    .card-title {
+        margin: 0;
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #4a2c2a;
+        text-align: center;
+    }
+    .card-body {
+        padding: 20px;
+    }
+    .table {
+        margin-bottom: 0;
+    }
+    .table th {
+        background-color: #f8f9fa;
+        color: #4a2c2a;
+        font-weight: 600;
+    }
+    .table td {
+        vertical-align: middle;
+    }
+    .badge {
+        padding: 5px 10px;
+        font-size: 0.9rem;
+    }
+    .btn-sm {
+        padding: 5px 10px;
+        font-size: 0.9rem;
+    }
+    .pagination .page-link {
+        color: #4a2c2a;
+        border: 1px solid #e0e0e0;
+        margin: 0 2px;
+        border-radius: 4px;
+    }
+    .pagination .page-item.active .page-link {
+        background-color: #4a2c2a;
+        border-color: #4a2c2a;
+        color: #fff;
+    }
+    .pagination .page-item.disabled .page-link {
+        color: #6c757d;
+        cursor: not-allowed;
+    }
+    .input-group {
+        margin-bottom: 10px;
+    }
+    @media (max-width: 768px) {
+        .content-wrapper {
+            margin-left: 60px;
+        }
+        .card-title {
+            font-size: 1.2rem;
+        }
+        .card-header {
+            flex-direction: column;
+            align-items: center;
+        }
+        .card-header .btn {
+            margin-top: 10px;
+        }
+        .table {
+            font-size: 0.9rem;
+        }
+        .btn-sm {
+            padding: 4px 8px;
+            font-size: 0.8rem;
+        }
+        .pagination {
+            flex-wrap: wrap;
+        }
+        .pagination .page-item {
+            margin: 2px;
+        }
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.toggle-status').forEach(button => {
+            button.addEventListener('click', async () => {
+                const categoryId = button.getAttribute('data-id');
+                try {
+                    const response = await fetch(`/admin/category/toggle-status/${categoryId}`, {
+                        method: 'PATCH',
+                        headers: { 'Content-Type': 'application/json' }
+                    });
+                    const data = await response.json();
+                    if (data.success) {
+                        window.location.reload();
+                    } else {
+                        alert('Failed to toggle category status');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('Server error');
+                }
+            });
+        });
+    });
+</script>

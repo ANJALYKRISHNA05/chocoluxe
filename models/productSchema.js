@@ -27,12 +27,7 @@ const productSchema = new Schema({
         required: true,
         min: 0
     },
-    productOffer: {
-        type: Number,
-        default: 0,
-        min: 0,
-        max: 100
-    },
+    
     flavor: {
         type: String,
         required: true,

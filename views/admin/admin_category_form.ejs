@@ -1,0 +1,117 @@
+<%- include('../partials/admin/header') %>
+
+<%- include('../partials/admin/sidebar', { activePage: 'category' }) %>
+
+<div class="content-wrapper">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-6 offset-md-3">
+                <div class="card mt-4">
+                    <div class="card-header">
+                        <h3 class="card-title"><%= category ? 'Edit Category' : 'Add Category' %></h3>
+                    </div>
+                    <div class="card-body">
+                        <% if (error) { %>
+                            <div class="alert alert-danger"><%= error %></div>
+                        <% } %>
+                        <form action="<%= category ? '/admin/category/edit/' + category._id : '/admin/category/add' %>" method="POST" enctype="multipart/form-data">
+                            <div class="form-group mb-3">
+                                <label for="name">Category Name</label>
+                                <input type="text" class="form-control" id="name" name="name" value="<%= category ? category.name : '' %>" required>
+                            </div>
+                            <div class="form-group mb-3">
+                                <label for="description">Description</label>
+                                <textarea class="form-control" id="description" name="description" rows="4" required><%= category ? category.description : '' %></textarea>
+                            </div>
+                            <div class="form-group mb-3">
+                                <label for="image">Category Image</label>
+                                <input type="file" class="form-control" id="image" name="image" accept="image/*">
+                                <% if (category && category.image) { %>
+                                    <div class="mt-2">
+                                        <p>Current Image:</p>
+                                        <img src="<%= category.image %>" alt="<%= category.name %>" style="max-width: 100px; max-height: 100px; object-fit: cover;">
+                                    </div>
+                                <% } %>
+                            </div>
+                            <div class="form-check mb-3">
+                                <input type="checkbox" class="form-check-input" id="isListed" name="isListed" <% if (!category || category.isListed) { %>checked<% } %>>
+                                <label class="form-check-label" for="isListed">Listed</label>
+                            </div>
+                            <div class="d-flex gap-2">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save"></i> <%= category ? 'Update' : 'Add' %> Category
+                                </button>
+                                <a href="/admin/category" class="btn btn-secondary">
+                                    <i class="fas fa-times"></i> Cancel
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <%- include('../partials/admin/footer') %>
+</div>
+
+<style>
+    .card {
+        border: none;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+    .card-header {
+        background-color: #fff;
+        border-bottom: 1px solid #e0e0e0;
+        padding: 15px 20px;
+    }
+    .card-title {
+        margin: 0;
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #4a2c2a;
+    }
+    .card-body {
+        padding: 20px;
+    }
+    .form-group label {
+        font-weight: 600;
+        color: #4a2c2a;
+    }
+    .form-control, .form-control-file {
+        border-radius: 5px;
+    }
+    .btn-primary {
+        background-color: #d1a876;
+        border-color: #d1a876;
+        color: #4a2c2a;
+    }
+    .btn-primary:hover {
+        background-color: #c99b6b;
+        border-color: #c99b6b;
+    }
+    .btn-secondary {
+        background-color: #6c757d;
+        border-color: #6c757d;
+    }
+    .btn-secondary:hover {
+        background-color: #5a6268;
+        border-color: #5a6268;
+    }
+    @media (max-width: 768px) {
+        .content-wrapper {
+            margin-left: 60px;
+        }
+        .card-title {
+            font-size: 1.2rem;
+        }
+        .form-group label {
+            font-size: 0.9rem;
+        }
+        .btn {
+            padding: 8px 12px;
+            font-size: 0.9rem;
+        }
+    }
+</style>
