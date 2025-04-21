@@ -1,17 +1,18 @@
 const express = require('express');
 const router = express.Router();
-const { categoryStorage } = require('../config/cloudinary');
+const { productStorage } = require('../config/cloudinary');
 const multer = require('multer');
-const upload = multer({ storage: categoryStorage });
+const upload = multer({ storage: productStorage });
 
-router.post('/upload', upload.single('image'), (req, res) => {
+router.post('/upload', upload.array('images', 10), (req, res) => {
   try {
-    if (!req.file) {
-      return res.status(400).json({ success: false, message: 'No file uploaded' });
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({ success: false, message: 'No files uploaded' });
     }
-    res.json({ success: true, imageUrl: req.file.path });
+    const imageUrls = req.files.map(file => file.path);
+    res.json({ success: true, imageUrls });
   } catch (error) {
-    console.error('Error uploading image:', error);
+    console.error('Error uploading images:', error);
     res.status(500).json({ success: false, message: 'Server error' });
   }
 });

@@ -10,14 +10,25 @@ cloudinary.config({
 });
 
 const categoryStorage = new CloudinaryStorage({
-    cloudinary: cloudinary,
-    params: {
-      folder: 'category_images', 
-      allowed_formats: ['jpg', 'jpeg', 'png','webp', 'svg'],
-      transformation: [{ width: 500, height: 500, crop: 'limit' }]
-    }
-  });
+  cloudinary: cloudinary,
+  params: {
+    folder: 'category_images',
+    allowed_formats: ['jpg', 'jpeg', 'png', 'webp', 'svg'],
+    transformation: [{ width: 500, height: 500, crop: 'limit' }]
+  }
+});
+
+const productStorage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: 'product_images',
+    allowed_formats: ['jpg', 'jpeg', 'png', 'webp'],
+    transformation: [{ width: 500, height: 500, crop: 'limit' }]
+  }
+});
+
 module.exports = {
   cloudinary,
   categoryStorage,
+  productStorage
 };

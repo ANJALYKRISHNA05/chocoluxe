@@ -17,7 +17,7 @@ const categoryController = {
       }
 
       const totalCategories = await Category.countDocuments(query); // Count filtered categories
-      const categories = await Category.find(query) 
+      const categories = await Category.find(query)
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limit);
