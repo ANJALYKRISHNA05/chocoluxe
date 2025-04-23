@@ -14,8 +14,8 @@ async (accessToken, refreshToken, profile, done) => {
         if (user) {
             return done(null, user);
         } else {
-            user = new User({
-                name: profile.displayName,
+            user = new User({ 
+                username: profile.displayName,
                 email: profile.emails[0].value,
                 googleId: profile.id,
             });

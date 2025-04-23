@@ -89,18 +89,18 @@ const signup = async (req, res) => {
             (phone && (!phonePattern.test(phone) || /^0{10}$/.test(phone) || /^0/.test(phone))) ||
             Object.values(passwordPatterns).filter(Boolean).length < 4 ||
             password !== confirmPassword) {
-            return res.render('signup', { message: 'Please fill the form correctly' });
+            return res.render('user/signup', { message: 'Please fill the form correctly' });
         }
 
         const existingUser = await User.findOne({ $or: [{ email }, { username: username }] });
         if (existingUser) {
-            return res.render('signup', { message: 'User with this email or username already exists' });
+            return res.render('user/signup', { message: 'User with this email or username already exists' });
         }
 
         const otp = generateOtp();
         const emailSent = await sendVerificationEmail(email, otp);
         if (!emailSent) {
-            return res.render('signup', { message: 'Failed to send verification email. Please try again.' });
+            return res.render('user/signup', { message: 'Failed to send verification email. Please try again.' });
         }
         req.session.userOtp = otp;
         req.session.userData = { username, email, phone, password };
@@ -114,7 +114,7 @@ const signup = async (req, res) => {
         } else if (error.code === 11000) {
             errorMessage = 'A user with this email or username already exists.';
         }
-        res.render('signup', { message: errorMessage });
+        res.render('user/signup', { message: errorMessage });
     }
 };
 
@@ -218,13 +218,20 @@ const logout = (req, res) => {
 
 const resendOtp = async (req, res) => {
     try {
-        const email = req.session.forgotPasswordEmail;
+        // Check for email in either signup or forgot password session data
+        const email = req.session.userData?.email || req.session.forgotPasswordEmail;
         if (!email) {
             return res.status(400).json({ success: false, message: "Email not found in session" });
         }
 
         const otp = generateOtp();
-        req.session.forgotPasswordOtp = otp;
+        // Store OTP in the appropriate session variable
+        if (req.session.userData) {
+            req.session.userOtp = otp; // Signup flow
+        } else {
+            req.session.forgotPasswordOtp = otp; // Forgot password flow
+        }
+
         const emailSent = await sendVerificationEmail(email, otp);
         if (emailSent) {
             console.log("Resend OTP:", otp);
@@ -237,13 +244,12 @@ const resendOtp = async (req, res) => {
         res.status(500).json({ success: false, message: "Internal server error. Please try again" });
     }
 };
-
 const forgotPassword = async (req, res) => {
     try {
         if (req.session.user) {
             return res.redirect('/');
         }
-        res.render('forgot-password', { message: req.session.message || '' });
+        res.render('user/forgot-password', { message: req.session.message || '' });
         if (req.session.message) {
             delete req.session.message;
         }
@@ -254,6 +260,8 @@ const forgotPassword = async (req, res) => {
 };
 
 const sendOtpForForgotPassword = async (req, res) => {
+ 
+    
     try {
         const { email } = req.body;
         const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
@@ -313,7 +321,7 @@ const loadResetPassword = async (req, res) => {
         if (!req.session.forgotPasswordEmail) {
             return res.redirect('/user/forgot-password');
         }
-        res.render('reset-password', { email: req.session.forgotPasswordEmail, message: req.session.message || '' });
+        res.render('user/reset-password', { email: req.session.forgotPasswordEmail, message: req.session.message || '' });
         if (req.session.message) {
             delete req.session.message;
         }

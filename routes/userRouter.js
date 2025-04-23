@@ -16,13 +16,13 @@ router.get('/user/auth/google', passport.authenticate('google', { scope: ['profi
 router.get('/user/auth/google/callback', passport.authenticate('google', { failureRedirect: '/signup' }), (req, res) => {
     const user = req.user;
     req.session.user = user;
-    res.redirect('/user/home');
+    res.redirect('/');
 });
 router.get('user/logout', userController.logout);
 
 router.get('/user/forgot-password', userController.forgotPassword);
 router.post('/user/forgot-password', userController.sendOtpForForgotPassword);
-router.get('/user/verify-otp-forgot', (req, res) => res.render('verify-otp-forgot', { message: req.session.message || '' }));
+router.get('/user/verify-otp-forgot', (req, res) => res.render('user/verify-otp-forgot', { message: req.session.message || '' }));
 router.post('/user/verify-otp-forgot', userController.verifyOtpForForgotPassword);
 router.get('/user/reset-password', userController.loadResetPassword);
 router.post('/user/reset-password', userController.resetPassword);

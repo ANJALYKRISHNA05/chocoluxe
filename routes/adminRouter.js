@@ -31,12 +31,11 @@ router.post('/category/edit/:id', adminAuth, categoryController.editCategory);
 router.patch('/category/toggle-status/:id', adminAuth, categoryController.toggleCategoryStatus);
 
 // Product Routes
-router.get('/products', adminAuth, productController.getProducts);
-router.get('/products/add', adminAuth, productController.getAddProductPage);
-router.get('/products/edit/:id', adminAuth, productController.getEditProductPage);
-router.post('/products/add', adminAuth, productUpload.array('productImages', 10), productController.addProduct);
-router.post('/products/edit/:id', adminAuth, productUpload.array('productImages', 10), productController.editProduct);
-router.patch('/products/block/:id', adminAuth, productController.blockProduct);
-router.patch('/products/unblock/:id', adminAuth, productController.unblockProduct);
+router.get('/products', adminAuth, productController.loadProducts);
+router.get('/products/add', adminAuth, productController.loadProductForm);
+router.get('/products/edit/:id', adminAuth, productController.loadProductForm);
+router.post('/products/add', adminAuth, productUpload.any(), productController.addProduct);
+router.post('/products/edit/:id', adminAuth, productUpload.any(), productController.editProduct);
+router.patch('/products/toggle-status/:id', adminAuth, productController.toggleProductStatus);
 
 module.exports = router;

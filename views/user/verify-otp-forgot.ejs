@@ -225,38 +225,39 @@
         startTimer();
 
         document.getElementById("resendOtp").addEventListener("click", function () {
-            if (resendEnabled) {
-                $.ajax({
-                    url: '/user/resend-otp',
-                    type: 'POST',
-                    success: function (response) {
-                        if (response.success) {
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'OTP Resent',
-                                text: 'A new OTP has been sent to your email.',
-                                timer: 1000,
-                                showConfirmButton: false
-                            });
-                            startTimer();
-                        } else {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Error',
-                                text: response.message || 'Failed to resend OTP. Please try again.',
-                            });
-                        }
-                    },
-                    error: function () {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error',
-                            text: 'An error occurred. Please try again.',
-                        });
-                    }
+    if (resendEnabled) {
+        $.ajax({
+            url: '/user/resend-otp',
+            type: 'POST',
+            data: { flow: 'forgot-password' }, // Indicate forgot password flow
+            success: function (response) {
+                if (response.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'OTP Resent',
+                        text: 'A new OTP has been sent to your email.',
+                        timer: 1000,
+                        showConfirmButton: false
+                    });
+                    startTimer();
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: response.message || 'Failed to resend OTP. Please try again.',
+                    });
+                }
+            },
+            error: function () {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'An error occurred. Please try again.',
                 });
             }
         });
+    }
+});
 
         function validateOtp(event) {
             event.preventDefault();
