@@ -1,25 +1,646 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home Page</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            display: flex;
-            justify-content: center;
+<%- include('../partials/user/header') %>
+
+<main class="container-fluid">
+
+
+    <!-- Categories Section -->
+    <section class="categories-section">
+        <div class="container">
+            <div class="section-heading">
+                <h2>Shop by Category</h2>
+                <a href="/categories" class="view-all">View All</a>
+            </div>
+            <div class="category-slider">
+                <% categories.forEach(category => { %>
+                    <div class="category-item">
+                        <a href="/category/<%= category.slug %>" class="category-link">
+                            <div class="category-image">
+                                <img src="<%= category.image || '/images/placeholder.jpg' %>" alt="<%= category.name %>">
+                            </div>
+                            <h3><%= category.name %></h3>
+                        </a>
+                    </div>
+                <% }) %>
+            </div>
+        </div>
+    </section>
+
+    <!-- Featured Products Section -->
+    <section class="products-section">
+        <div class="container">
+            <div class="section-heading">
+                <h2>Our Finest Chocolates</h2>
+                <a href="/shop" class="view-all">View All</a>
+            </div>
+            <div class="product-grid">
+                <% products.forEach(product => { %>
+                    <div class="product-card">
+                        <div class="product-image">
+                            <img src="<%= product.variants[0].productImage[0] || '/images/placeholder.jpg' %>" alt="<%= product.productName %>">
+                            <div class="product-actions">
+                                <button class="action-btn wishlist-btn" title="Add to Wishlist">
+                                    <i class="fas fa-heart"></i>
+                                </button>
+                                <button class="action-btn quickview-btn" title="Quick View" data-product-id="<%= product._id %>">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="product-info">
+                            <h3 class="product-name"><%= product.productName %></h3>
+                            <p class="product-variant"><%= product.variants[0].flavor %> - <%= product.variants[0].weight %>g</p>
+                            <div class="product-price-actions">
+                                <span class="product-price">$<%= product.variants[0].salePrice.toFixed(2) %></span>
+                                <a href="/product/<%= product._id %>" class="btn btn-outline-primary view-btn">View</a>
+                            </div>
+                        </div>
+                    </div>
+                <% }) %>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Our Chocolate Section -->
+    <section class="about-section">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="about-image">
+                        <img src="/images/chocolate-making.jpg" alt="Chocolate Making Process" onerror="this.src='/images/placeholder.jpg'">
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="about-content">
+                        <h2>Crafted With Passion</h2>
+                        <p>At CHOCOLUXE, we believe chocolate is an art form. Our master chocolatiers carefully select the finest ingredients from around the world to create exquisite chocolate creations that delight the senses.</p>
+                        <p>Each piece is handcrafted with meticulous attention to detail, ensuring a perfect balance of flavor, texture, and visual appeal.</p>
+                        <a href="/about" class="btn btn-secondary">Learn More</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section class="testimonials-section">
+        <div class="container text-center">
+            <h2>What Our Customers Say</h2>
+            <div class="testimonial-slider">
+                <div class="testimonial-item">
+                    <div class="quote">"The most divine chocolate I've ever tasted. The truffle collection is absolutely exquisite!"</div>
+                    <div class="author">- Emily S.</div>
+                </div>
+                <div class="testimonial-item">
+                    <div class="quote">"Chocoluxe's gift boxes made the perfect present. Beautiful packaging and even more beautiful chocolates inside."</div>
+                    <div class="author">- Michael R.</div>
+                </div>
+                <div class="testimonial-item">
+                    <div class="quote">"As a chocolate connoisseur, I can confidently say these are among the finest artisanal chocolates available."</div>
+                    <div class="author">- Sarah T.</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Newsletter Section -->
+    <section class="newsletter-section">
+        <div class="container text-center">
+            <h2>Join Our Sweet Community</h2>
+            <p>Subscribe to receive exclusive offers, recipes, and chocolate inspiration</p>
+            <form class="newsletter-form">
+                <div class="input-group">
+                    <input type="email" class="form-control" placeholder="Your email address" required>
+                    <button type="submit" class="btn btn-primary">Subscribe</button>
+                </div>
+            </form>
+        </div>
+    </section>
+</main>
+
+<!-- Custom styles for the home page -->
+<style>
+    /* General Styles */
+    body {
+        background-color: #f8f5f2;
+        color: #4a2c2a;
+    }
+    
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 15px;
+    }
+    
+    h2 {
+        font-weight: 700;
+        color: #4a2c2a;
+    }
+    
+    section {
+        padding: 60px 0;
+    }
+    
+    .btn-primary {
+        background-color: #4a2c2a;
+        border-color: #4a2c2a;
+        color: white;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-primary:hover {
+        background-color: #3a1c1a;
+        border-color: #3a1c1a;
+    }
+    
+    .btn-secondary {
+        background-color: #d1a876;
+        border-color: #d1a876;
+        color: #4a2c2a;
+    }
+    
+    .btn-secondary:hover {
+        background-color: #c09866;
+        border-color: #c09866;
+    }
+    
+    .btn-outline-primary {
+        color: #4a2c2a;
+        border-color: #4a2c2a;
+    }
+    
+    .btn-outline-primary:hover {
+        background-color: #4a2c2a;
+        color: white;
+    }
+    
+    /* Section Heading */
+    .section-heading {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+    }
+    
+    .section-heading h2 {
+        margin: 0;
+        font-size: 2rem;
+    }
+    
+    .view-all {
+        color: #d1a876;
+        text-decoration: none;
+        font-weight: 600;
+    }
+    
+    .view-all:hover {
+        color: #4a2c2a;
+    }
+    
+    /* Hero Section */
+    .hero-section {
+        background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('/images/hero-chocolate.jpg');
+        background-size: cover;
+        background-position: center;
+        height: 500px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        color: white;
+        margin-bottom: 40px;
+    }
+    
+    .hero-content {
+        max-width: 800px;
+        padding: 0 20px;
+    }
+    
+    .hero-content h1 {
+        font-size: 3rem;
+        font-weight: 800;
+        margin-bottom: 20px;
+    }
+    
+    .hero-content p {
+        font-size: 1.2rem;
+        margin-bottom: 30px;
+    }
+    
+    .shop-now-btn {
+        padding: 12px 30px;
+        font-size: 1.1rem;
+        font-weight: 600;
+    }
+    
+    /* Categories Section */
+    .categories-section {
+        background-color: #fff;
+    }
+    
+    .category-slider {
+        display: flex;
+        overflow-x: auto;
+        gap: 20px;
+        padding: 10px 0;
+        scrollbar-width: thin;
+    }
+    
+    .category-slider::-webkit-scrollbar {
+        height: 6px;
+    }
+    
+    .category-slider::-webkit-scrollbar-thumb {
+        background-color: #d1a876;
+        border-radius: 10px;
+    }
+    
+    .category-item {
+        flex: 0 0 auto;
+        width: 200px;
+        transition: transform 0.3s ease;
+    }
+    
+    .category-item:hover {
+        transform: translateY(-5px);
+    }
+    
+    .category-link {
+        text-decoration: none;
+        color: #4a2c2a;
+        display: block;
+    }
+    
+    .category-image {
+        height: 180px;
+        overflow: hidden;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    .category-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.5s ease;
+    }
+    
+    .category-item:hover .category-image img {
+        transform: scale(1.05);
+    }
+    
+    .category-item h3 {
+        margin-top: 12px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        text-align: center;
+    }
+    
+    /* Products Section */
+    .product-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 30px;
+    }
+    
+    .product-card {
+        background-color: white;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .product-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    }
+    
+    .product-image {
+        position: relative;
+        height: 250px;
+        overflow: hidden;
+    }
+    
+    .product-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.5s ease;
+    }
+    
+    .product-card:hover .product-image img {
+        transform: scale(1.05);
+    }
+    
+    .product-actions {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+    
+    .product-card:hover .product-actions {
+        opacity: 1;
+    }
+    
+    .action-btn {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background-color: white;
+        border: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+    }
+    
+    .action-btn:hover {
+        background-color: #4a2c2a;
+        color: white;
+    }
+    
+    .product-info {
+        padding: 20px;
+    }
+    
+    .product-name {
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 5px;
+        color: #4a2c2a;
+    }
+    
+    .product-variant {
+        color: #666;
+        font-size: 0.9rem;
+        margin-bottom: 15px;
+    }
+    
+    .product-price-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .product-price {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: #4a2c2a;
+    }
+    
+    .view-btn {
+        padding: 6px 15px;
+        font-size: 0.9rem;
+    }
+    
+    /* About Section */
+    .about-section {
+        background-color: #f8f5f2;
+    }
+    
+    .about-image {
+        height: 400px;
+        overflow: hidden;
+        border-radius: 10px;
+    }
+    
+    .about-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    .about-content {
+        padding: 30px 0;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+    
+    .about-content h2 {
+        margin-bottom: 20px;
+        font-size: 2rem;
+    }
+    
+    .about-content p {
+        margin-bottom: 20px;
+        line-height: 1.6;
+    }
+    
+    /* Testimonials Section */
+    .testimonials-section {
+        background-color: #4a2c2a;
+        color: white;
+        padding: 80px 0;
+    }
+    
+    .testimonials-section h2 {
+        color: #d1a876;
+        margin-bottom: 40px;
+    }
+    
+    .testimonial-slider {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 30px;
+    }
+    
+    .testimonial-item {
+        background-color: rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+        padding: 30px;
+        max-width: 350px;
+    }
+    
+    .quote {
+        font-size: 1.1rem;
+        font-style: italic;
+        margin-bottom: 20px;
+        line-height: 1.6;
+    }
+    
+    .author {
+        color: #d1a876;
+        font-weight: 600;
+    }
+    
+    /* Newsletter Section */
+    .newsletter-section {
+        background-color: #f8f5f2;
+        padding: 80px 0;
+    }
+    
+    .newsletter-section h2 {
+        margin-bottom: 15px;
+    }
+    
+    .newsletter-section p {
+        margin-bottom: 30px;
+        max-width: 600px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    
+    .newsletter-form {
+        max-width: 500px;
+        margin: 0 auto;
+    }
+    
+    .input-group {
+        display: flex;
+    }
+    
+    .input-group .form-control {
+        border-radius: 30px 0 0 30px;
+        padding: 12px 20px;
+        border: 1px solid #d1a876;
+    }
+    
+    .input-group .btn {
+        border-radius: 0 30px 30px 0;
+        padding: 12px 25px;
+    }
+    
+    /* Responsive Adjustments */
+    @media (max-width: 991px) {
+        .hero-content h1 {
+            font-size: 2.5rem;
+        }
+        
+        .about-image {
+            height: 300px;
+            margin-bottom: 30px;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        section {
+            padding: 40px 0;
+        }
+        
+        .hero-section {
+            height: 400px;
+        }
+        
+        .hero-content h1 {
+            font-size: 2rem;
+        }
+        
+        .hero-content p {
+            font-size: 1rem;
+        }
+        
+        .product-grid {
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+        }
+        
+        .testimonial-slider {
+            flex-direction: column;
             align-items: center;
-            height: 100vh;
-            margin: 0;
-            background-color: #f0f0f0;
         }
-        h1 {
-            color: #333;
+        
+        .testimonial-item {
+            margin-bottom: 20px;
         }
-    </style>
-</head>
-<body>
-    <h1>This is the Home Page</h1>
-</body>
-</html>
+    }
+    
+    @media (max-width: 576px) {
+        .hero-section {
+            height: 350px;
+        }
+        
+        .hero-content h1 {
+            font-size: 1.8rem;
+        }
+        
+        .section-heading h2 {
+            font-size: 1.5rem;
+        }
+        
+        .product-grid {
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+        }
+        
+        .product-image {
+            height: 180px;
+        }
+        
+        .product-info {
+            padding: 15px;
+        }
+        
+        .product-name {
+            font-size: 1rem;
+        }
+        
+        .product-price {
+            font-size: 1.1rem;
+        }
+        
+        .view-btn {
+            padding: 4px 10px;
+            font-size: 0.8rem;
+        }
+    }
+</style>
+
+<script>
+    // For a real implementation, you might want to add:
+    // - Proper sliders for categories and testimonials
+    // - Quick view functionality
+    // - Add to wishlist functionality
+    // - Newsletter form submission
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        // Quick view functionality
+        const quickViewButtons = document.querySelectorAll('.quickview-btn');
+        quickViewButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const productId = this.getAttribute('data-product-id');
+                // Here you would implement a modal or redirect to show product details
+                console.log('Quick view for product:', productId);
+            });
+        });
+        
+        // Add to wishlist functionality
+        const wishlistButtons = document.querySelectorAll('.wishlist-btn');
+        wishlistButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                // Here you would implement wishlist functionality
+                console.log('Added to wishlist');
+                this.classList.toggle('active');
+                if (this.classList.contains('active')) {
+                    this.innerHTML = '<i class="fas fa-heart" style="color: #d1a876;"></i>';
+                } else {
+                    this.innerHTML = '<i class="fas fa-heart"></i>';
+                }
+            });
+        });
+        
+        // Newsletter form submission
+        const newsletterForm = document.querySelector('.newsletter-form');
+        if (newsletterForm) {
+            newsletterForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                // Here you would implement the newsletter subscription
+                const emailInput = this.querySelector('input[type="email"]');
+                console.log('Newsletter subscription:', emailInput.value);
+                alert('Thank you for subscribing!');
+                emailInput.value = '';
+            });
+        }
+    });
+</script>
+
+<%- include('../partials/user/footer') %>

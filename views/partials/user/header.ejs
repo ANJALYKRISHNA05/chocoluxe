@@ -18,6 +18,31 @@
         .navbar a:hover { color: #d1a876; }
         .navbar .search-bar { width: 200px; font-size: 0.9rem; padding: 5px 10px; }
         .navbar .menu-toggle { display: none; font-size: 1.5rem; cursor: pointer; }
+        .user-menu { position: relative; }
+        .user-dropdown { 
+            display: none; 
+            position: absolute; 
+            top: 30px; 
+            right: 0; 
+            background-color: #4a2c2a; 
+            border: 1px solid #d1a876; 
+            border-radius: 5px; 
+            padding: 10px; 
+            z-index: 1000; 
+        }
+        .user-dropdown a { 
+            display: block; 
+            padding: 8px 15px; 
+            color: white; 
+            font-size: 0.9rem; 
+        }
+        .user-dropdown a:hover { 
+            background-color: #5a3c3a; 
+            color: #d1a876; 
+        }
+        .user-menu.active .user-dropdown { 
+            display: block; 
+        }
         @media (max-width: 768px) {
             .navbar { padding: 15px; flex-direction: column; align-items: flex-start; }
             .navbar .brand { margin-bottom: 15px; }
@@ -26,6 +51,15 @@
             .navbar.active .nav-links, .navbar.active .nav-icons { display: flex; flex-direction: column; width: 100%; background-color: #4a2c2a; padding: 15px 0; }
             .navbar.active .nav-links a, .navbar.active .nav-icons a { margin: 10px 20px; }
             .navbar.active .search-bar { width: 100%; margin: 10px 20px; }
+            .user-dropdown { 
+                position: static; 
+                border: none; 
+                background-color: transparent; 
+                padding: 0; 
+            }
+            .user-dropdown a { 
+                margin: 10px 20px; 
+            }
         }
         @media (max-width: 480px) {
             .navbar .brand { font-size: 1.2rem; }
@@ -42,14 +76,18 @@
         <div class="nav-links">
             <a href="#">Home</a>
             <a href="#">Categories</a>
-            <a href="#">About</a>
-            <a href="#">Contact</a>
+            <a href="/chocolates">Products</a>
         </div>
         <div class="nav-icons">
             <input type="text" class="form-control search-bar" placeholder="Search products...">
             <a href="#" class="ms-3"><i class="fas fa-heart"></i></a>
             <a href="#" class="ms-3"><i class="fas fa-shopping-cart"></i></a>
-            <a href="#" class="ms-3"><i class="fas fa-user"></i></a>
+            <div class="user-menu ms-3">
+                <a href="#" onclick="toggleUserMenu()"><i class="fas fa-user"></i></a>
+                <div class="user-dropdown">
+                    <a href="/user/logout">Logout</a>
+                </div>
+            </div>
         </div>
     </nav>
     <script>
@@ -57,4 +95,20 @@
             const navbar = document.querySelector('.navbar');
             navbar.classList.toggle('active');
         }
+
+        function toggleUserMenu() {
+            const userMenu = document.querySelector('.user-menu');
+            userMenu.classList.toggle('active');
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            const userMenu = document.querySelector('.user-menu');
+            const isClickInside = userMenu.contains(event.target);
+            if (!isClickInside && userMenu.classList.contains('active')) {
+                userMenu.classList.remove('active');
+            }
+        });
     </script>
+</body>
+</html>

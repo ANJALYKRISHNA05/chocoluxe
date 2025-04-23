@@ -2,9 +2,15 @@ const express = require('express');
 const router = express.Router();
 const passport = require("passport");
 const userController = require('../controllers/user/userController');
+const shopController = require('../controllers/user/shopController');
+
+// Homepage route using shopController
+router.get('/', shopController.loadShopHomepage);
+
+router.get('/chocolates', shopController.loadProductListing);
 
 
-router.get('/', userController.loadHomepage);
+// Other existing routes
 router.get('/user/pageNotfound', userController.pageNotfound);
 router.get('/user/signup', userController.loadSignup);
 router.post('/user/signup', userController.signup);
@@ -18,7 +24,7 @@ router.get('/user/auth/google/callback', passport.authenticate('google', { failu
     req.session.user = user;
     res.redirect('/');
 });
-router.get('user/logout', userController.logout);
+router.get('/user/logout', userController.logout);
 
 router.get('/user/forgot-password', userController.forgotPassword);
 router.post('/user/forgot-password', userController.sendOtpForForgotPassword);
