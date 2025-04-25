@@ -39,7 +39,7 @@
                     <td style="padding: 12px; vertical-align: middle;">
                       <% product.variants.forEach((variant, index) => { %>
                         <div>
-                          Variant <%= index + 1 %>: <%= variant.flavor %>, <%= variant.sugarLevel %>, <%= variant.weight %>g, Stock: <%= variant.stock_quantity %>, Price: $<%= variant.salePrice.toFixed(2) %>
+                          Variant <%= index + 1 %>: <%= variant.flavor %>, <%= variant.sugarLevel %>, <%= variant.weight %>g, Stock: <%= variant.stock_quantity %>, Price: ₹<%= variant.salePrice.toFixed(2) %>
                         </div>
                       <% }) %>
                     </td>
@@ -56,7 +56,7 @@
             </table>
           </div>
 
-          <!-- Pagination -->
+        
           <% if (totalPages > 1) { %>
             <nav aria-label="Page navigation">
               <ul class="pagination justify-content-center">
@@ -93,7 +93,7 @@
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      // Check for success query parameter
+    
       const urlParams = new URLSearchParams(window.location.search);
       if (urlParams.get('success') === 'true') {
         Swal.fire({
@@ -103,7 +103,7 @@
           timer: 2000,
           showConfirmButton: false
         }).then(() => {
-          // Remove the success query parameter from the URL
+          
           window.history.replaceState({}, document.title, window.location.pathname);
         });
       }

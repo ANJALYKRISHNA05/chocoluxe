@@ -1,8 +1,8 @@
 
 <%- include('../partials/admin/header') %>
 
-<!-- Note: Ensure header.ejs includes the viewport meta tag and Bootstrap/Font Awesome -->
-<!-- Example header.ejs snippet:
+
+<!-- 
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,7 +12,7 @@
 -->
 
 <style>
-  /* Toggle Switch */
+ 
   .toggle-switch {
     position: relative;
     display: inline-block;
@@ -95,7 +95,7 @@
     background-color: #F5F1E9;
   }
   
-  /* Search Bar */
+  
   .search-wrapper {
     margin-bottom: 1rem;
     width: 100%;
@@ -115,16 +115,15 @@
     border-color: #3d2a23;
   }
 
-  /* Content Wrapper */
+
   .content-wrapper {
     background-color: #F5F1E9;
     min-height: 100vh;
     padding: 20px;
     transition: margin-left 0.3s ease-in-out;
-    margin-left: 250px; /* Default for desktop */
+    margin-left: 250px; 
   }
 
-  /* Sidebar (assumed in sidebar.ejs) */
   .sidebar {
     width: 250px;
     position: fixed;
@@ -134,19 +133,19 @@
     background-color: #5C4033;
     color: white;
     transition: transform 0.3s ease-in-out;
-    z-index: 1000; /* Ensure sidebar is above content */
+    z-index: 1000; 
   }
 
-  /* Responsive Styles */
+
   @media (max-width: 768px) {
     .content-wrapper {
-      margin-left: 0; /* No margin on mobile */
+      margin-left: 0; 
     }
     .sidebar {
-      transform: translateX(-250px); /* Hide sidebar */
+      transform: translateX(-250px); 
     }
     .sidebar.active {
-      transform: translateX(0); /* Show sidebar when active */
+      transform: translateX(0); 
     }
     .toggle-switch {
       width: 3rem;
@@ -178,7 +177,7 @@
     .table th, .table td {
       font-size: 0.85rem;
     }
-    /* Optionally hide Phone column on mobile */
+   
     .table th:nth-child(4), .table td:nth-child(4) {
       display: none;
     }
@@ -186,7 +185,7 @@
 </style>
 
 <div class="content-wrapper">
-  <!-- Sidebar Toggle Button for Mobile -->
+
   <button class="btn btn-primary d-md-none mb-3" type="button" id="sidebarToggle">
     <i class="fas fa-bars"></i>
   </button>
@@ -224,6 +223,11 @@
                         <button class="btn btn-light search-btn" type="submit">
                           <i class="fas fa-search"></i>
                         </button>
+                        <% if (searchQuery) { %>
+                          <a href="/admin/users?page=1" class="btn btn-light search-btn" title="Clear Search">
+                            <i class="fas fa-times"></i>
+                          </a>
+                        <% } %>
                       </div>
                     </div>
                   </form>
@@ -320,7 +324,7 @@
 
 <script>
   document.addEventListener('DOMContentLoaded', function () {
-    // Sidebar Toggle for Mobile
+
     const sidebarToggle = document.getElementById('sidebarToggle');
     const sidebar = document.querySelector('.sidebar');
     
@@ -330,7 +334,7 @@
       });
     }
 
-    // Block/Unblock Toggle Handler
+  
     document.querySelectorAll('.user-status-toggle').forEach(toggle => {
       toggle.addEventListener('change', async function (e) {
         const userId = this.dataset.userId;
@@ -339,7 +343,7 @@
         const switchElement = this;
         const statusLabel = switchElement.closest('td').querySelector('.status-label');
 
-        // Show confirmation dialog
+       
         const result = await Swal.fire({
           title: `Confirm ${actionText}?`,
           text: isCurrentlyActive
@@ -403,7 +407,7 @@
             });
           }
         } else {
-          switchElement.checked = !isCurrentlyActive; // Revert on cancel
+          switchElement.checked = !isCurrentlyActive; 
         }
       });
     });

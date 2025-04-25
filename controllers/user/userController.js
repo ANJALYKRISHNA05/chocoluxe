@@ -3,15 +3,6 @@ const User = require('../../models/userSchema');
 const nodemailer = require('nodemailer');
 require('dotenv').config();
 
-const loadHomepage = async (req, res) => {
-    try {
-        
-        res.render('user/home', { user: req.session.user });
-    } catch (error) {
-        console.log('Home page not found:', error);
-        res.status(500).send('Server error');
-    }
-};
 
 const pageNotfound = async (req, res) => {
     try {
@@ -42,7 +33,7 @@ function generateOtp() {
 
 async function sendVerificationEmail(email, otp) {
     try {
-        const transporter = nodemailer.createTransport({
+        const transporter = nodemailer.createTransport({ 
             service: 'gmail',
             port: 587,
             secure: false,
@@ -123,7 +114,7 @@ const verifyOtp = async (req, res) => {
         const { otp } = req.body;
         const storedOtp = req.session.userOtp;
         const userData = req.session.userData;
-        console.log(userData);
+        
 
         if (!storedOtp || !userData || otp !== storedOtp) {
             return res.json({ success: false, message: 'Invalid OTP. Please try again.' });
@@ -177,7 +168,7 @@ const login = async (req, res) => {
         
         const user = await User.findOne({ isAdmin: 0, email });
         
-        if (!user || !(await bcrypt.compare(password, user.password))) {
+        if (!user || !( await bcrypt.compare(password, user.password))) {
             req.session.message = 'Invalid email or password';
             console.log('Login failed - Invalid credentials'); 
             return res.redirect('/user/login');
@@ -218,18 +209,18 @@ const logout = (req, res) => {
 
 const resendOtp = async (req, res) => {
     try {
-        // Check for email in either signup or forgot password session data
+
         const email = req.session.userData?.email || req.session.forgotPasswordEmail;
         if (!email) {
             return res.status(400).json({ success: false, message: "Email not found in session" });
         }
 
         const otp = generateOtp();
-        // Store OTP in the appropriate session variable
+   
         if (req.session.userData) {
-            req.session.userOtp = otp; // Signup flow
+            req.session.userOtp = otp; 
         } else {
-            req.session.forgotPasswordOtp = otp; // Forgot password flow
+            req.session.forgotPasswordOtp = otp; 
         }
 
         const emailSent = await sendVerificationEmail(email, otp);
@@ -379,7 +370,7 @@ const resetPassword = async (req, res) => {
 };
 
 module.exports = {
-    loadHomepage,
+
     pageNotfound,
     loadSignup,
     signup,

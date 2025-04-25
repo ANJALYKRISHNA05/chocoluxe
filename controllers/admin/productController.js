@@ -53,10 +53,10 @@ exports.addProduct = async (req, res) => {
     const { productName, description, category, variants } = req.body;
     const files = req.files;
 
-    // Parse variants (comes as array of objects or JSON string)
+   
     let parsedVariants = Array.isArray(variants) ? variants : JSON.parse(variants);
 
-    // Group images by variant index
+   
     const variantImages = {};
     files.forEach(file => {
       const match = file.fieldname.match(/variants\[(\d+)\]\[images\]/);
@@ -67,7 +67,7 @@ exports.addProduct = async (req, res) => {
       }
     });
 
-    // Validate variants and images
+
     const errors = [];
     parsedVariants = parsedVariants.map((variant, index) => {
       const images = variantImages[index] || [];
@@ -102,7 +102,7 @@ exports.addProduct = async (req, res) => {
     });
 
     await product.save();
-    // Redirect to product list page with success query parameter
+    
     res.redirect('/admin/products?success=true');
   } catch (error) {
     console.error('Error adding product:', error);

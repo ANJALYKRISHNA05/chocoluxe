@@ -229,7 +229,7 @@
         $.ajax({
             url: '/user/resend-otp',
             type: 'POST',
-            data: { flow: 'forgot-password' }, // Indicate forgot password flow
+            data: { flow: 'forgot-password' }, 
             success: function (response) {
                 if (response.success) {
                     Swal.fire({

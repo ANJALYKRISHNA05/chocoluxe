@@ -3,7 +3,7 @@
 <main class="container-fluid">
 
 
-    <!-- Categories Section -->
+    
     <section class="categories-section">
         <div class="container">
             <div class="section-heading">
@@ -25,7 +25,7 @@
         </div>
     </section>
 
-    <!-- Featured Products Section -->
+    
     <section class="products-section">
         <div class="container">
             <div class="section-heading">
@@ -50,7 +50,7 @@
                             <h3 class="product-name"><%= product.productName %></h3>
                             <p class="product-variant"><%= product.variants[0].flavor %> - <%= product.variants[0].weight %>g</p>
                             <div class="product-price-actions">
-                                <span class="product-price">$<%= product.variants[0].salePrice.toFixed(2) %></span>
+                                <span class="product-price">₹<%= product.variants[0].salePrice.toFixed(2) %></span>
                                 <a href="/product/<%= product._id %>" class="btn btn-outline-primary view-btn">View</a>
                             </div>
                         </div>
@@ -60,13 +60,13 @@
         </div>
     </section>
 
-    <!-- About Our Chocolate Section -->
+   
     <section class="about-section">
         <div class="container">
             <div class="row">
                 <div class="col-md-6">
                     <div class="about-image">
-                        <img src="/images/chocolate-making.jpg" alt="Chocolate Making Process" onerror="this.src='/images/placeholder.jpg'">
+                        <img src="/images/chocolate-making.webp" alt="Chocolate Making Process" onerror="this.src='/images/placeholder.jpg'">
                     </div>
                 </div>
                 <div class="col-md-6">
@@ -81,7 +81,7 @@
         </div>
     </section>
 
-    <!-- Testimonials Section -->
+   
     <section class="testimonials-section">
         <div class="container text-center">
             <h2>What Our Customers Say</h2>
@@ -102,7 +102,7 @@
         </div>
     </section>
 
-    <!-- Newsletter Section -->
+   
     <section class="newsletter-section">
         <div class="container text-center">
             <h2>Join Our Sweet Community</h2>
@@ -117,9 +117,9 @@
     </section>
 </main>
 
-<!-- Custom styles for the home page -->
+
 <style>
-    /* General Styles */
+  
     body {
         background-color: #f8f5f2;
         color: #4a2c2a;
@@ -173,7 +173,7 @@
         color: white;
     }
     
-    /* Section Heading */
+    
     .section-heading {
         display: flex;
         justify-content: space-between;
@@ -196,7 +196,7 @@
         color: #4a2c2a;
     }
     
-    /* Hero Section */
+   
     .hero-section {
         background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('/images/hero-chocolate.jpg');
         background-size: cover;
@@ -232,7 +232,7 @@
         font-weight: 600;
     }
     
-    /* Categories Section */
+  
     .categories-section {
         background-color: #fff;
     }
@@ -294,8 +294,7 @@
         font-weight: 600;
         text-align: center;
     }
-    
-    /* Products Section */
+
     .product-grid {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
@@ -435,7 +434,7 @@
         line-height: 1.6;
     }
     
-    /* Testimonials Section */
+
     .testimonials-section {
         background-color: #4a2c2a;
         color: white;
@@ -473,7 +472,7 @@
         font-weight: 600;
     }
     
-    /* Newsletter Section */
+
     .newsletter-section {
         background-color: #f8f5f2;
         padding: 80px 0;
@@ -510,7 +509,7 @@
         padding: 12px 25px;
     }
     
-    /* Responsive Adjustments */
+  
     @media (max-width: 991px) {
         .hero-content h1 {
             font-size: 2.5rem;
@@ -595,52 +594,6 @@
     }
 </style>
 
-<script>
-    // For a real implementation, you might want to add:
-    // - Proper sliders for categories and testimonials
-    // - Quick view functionality
-    // - Add to wishlist functionality
-    // - Newsletter form submission
-    
-    document.addEventListener('DOMContentLoaded', function() {
-        // Quick view functionality
-        const quickViewButtons = document.querySelectorAll('.quickview-btn');
-        quickViewButtons.forEach(button => {
-            button.addEventListener('click', function() {
-                const productId = this.getAttribute('data-product-id');
-                // Here you would implement a modal or redirect to show product details
-                console.log('Quick view for product:', productId);
-            });
-        });
-        
-        // Add to wishlist functionality
-        const wishlistButtons = document.querySelectorAll('.wishlist-btn');
-        wishlistButtons.forEach(button => {
-            button.addEventListener('click', function() {
-                // Here you would implement wishlist functionality
-                console.log('Added to wishlist');
-                this.classList.toggle('active');
-                if (this.classList.contains('active')) {
-                    this.innerHTML = '<i class="fas fa-heart" style="color: #d1a876;"></i>';
-                } else {
-                    this.innerHTML = '<i class="fas fa-heart"></i>';
-                }
-            });
-        });
-        
-        // Newsletter form submission
-        const newsletterForm = document.querySelector('.newsletter-form');
-        if (newsletterForm) {
-            newsletterForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-                // Here you would implement the newsletter subscription
-                const emailInput = this.querySelector('input[type="email"]');
-                console.log('Newsletter subscription:', emailInput.value);
-                alert('Thank you for subscribing!');
-                emailInput.value = '';
-            });
-        }
-    });
-</script>
+
 
 <%- include('../partials/user/footer') %>

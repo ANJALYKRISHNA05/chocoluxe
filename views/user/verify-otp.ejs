@@ -228,7 +228,7 @@
         $.ajax({
             url: '/user/resend-otp',
             type: 'POST',
-            data: { flow: 'signup' }, // Indicate signup flow
+            data: { flow: 'signup' }, 
             success: function (response) {
                 if (response.success) {
                     Swal.fire({

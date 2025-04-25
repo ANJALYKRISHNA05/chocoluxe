@@ -4,13 +4,6 @@ const passport = require("passport");
 const userController = require('../controllers/user/userController');
 const shopController = require('../controllers/user/shopController');
 
-// Homepage route using shopController
-router.get('/', shopController.loadShopHomepage);
-
-router.get('/chocolates', shopController.loadProductListing);
-
-
-// Other existing routes
 router.get('/user/pageNotfound', userController.pageNotfound);
 router.get('/user/signup', userController.loadSignup);
 router.post('/user/signup', userController.signup);
@@ -32,5 +25,6 @@ router.get('/user/verify-otp-forgot', (req, res) => res.render('user/verify-otp-
 router.post('/user/verify-otp-forgot', userController.verifyOtpForForgotPassword);
 router.get('/user/reset-password', userController.loadResetPassword);
 router.post('/user/reset-password', userController.resetPassword);
+router.get('/', shopController.loadShopHomepage);
 
 module.exports = router;

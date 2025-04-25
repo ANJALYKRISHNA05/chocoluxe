@@ -4,9 +4,8 @@ const bcrypt = require('bcrypt');
 
 
 const pageerror=async(req,res)=>{
-    res.render("admin-error")
+    res.render("pageerror")
 }
-
 
 const loadLogin = (req, res) => {
     if (req.session.admin) {
@@ -23,8 +22,6 @@ const login = async (req, res) => {
         if (!admin) {
             return res.render('admin/login', { message: 'Invalid credentials' });
         }
-
-       
         const passwordMatch = await bcrypt.compare(password, admin.password);
 
         if (!passwordMatch) {
@@ -46,7 +43,7 @@ const loadDashboard = async (req, res) => {
             res.render('admin/dashboard');
         } catch (error) {
             console.error('Dashboard error:', error);
-            res.redirect('/pageerror');
+            res.redirect('/admin/pageerror');
         }
     } else {
         res.redirect('/admin/login');
@@ -59,14 +56,14 @@ const logout=async(req,res)=>{
         req.session.destroy(err=>{
             if(err){
                 consoel.log("Error destroying session",err)
-                return res.redirect("/pageerror")
+                return res.redirect("/admin/pageerror")
             }
             res.redirect("/admin/login")
         })
         
     } catch (error) {
         console.log(("unexpected error during logout",error))
-        res.redirect("/pageerror")
+        res.redirect("/admin/pageerror")
         
     }
 }

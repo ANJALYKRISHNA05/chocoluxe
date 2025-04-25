@@ -9,14 +9,14 @@ const categoryController = {
       const page = parseInt(req.query.page) || 1;
       const limit = parseInt(req.query.limit) || 3;
       const skip = (page - 1) * limit;
-      const searchQuery = req.query.search || ''; // Get search term from query
+      const searchQuery = req.query.search || ''; 
 
-      let query = {}; // Base query
+      let query = {}; 
       if (searchQuery) {
-        query.name = { $regex: searchQuery, $options: 'i' }; // Case-insensitive search on name
+        query.name = { $regex: searchQuery, $options: 'i' }; 
       }
 
-      const totalCategories = await Category.countDocuments(query); // Count filtered categories
+      const totalCategories = await Category.countDocuments(query); 
       const categories = await Category.find(query)
         .sort({ createdAt: -1 })
         .skip(skip)
@@ -29,7 +29,7 @@ const categoryController = {
         currentPage: page,
         totalPages: Math.ceil(totalCategories / limit),
         limit,
-        searchQuery // Pass search query to retain in the input
+        searchQuery 
       });
     } catch (error) {
       console.error('Error loading categories:', error);
@@ -37,12 +37,12 @@ const categoryController = {
     }
   },
 
-  // Load add/edit category form
+  
   loadCategoryForm: async (req, res) => {
     try {
       const categoryId = req.params.id;
       
-      // If id exists, this is an edit operation
+      
       if (categoryId) {
         const category = await Category.findById(categoryId);
         if (!category) {
@@ -57,7 +57,7 @@ const categoryController = {
         });
       }
       
-      // Otherwise, this is for adding a new category
+    
       res.render('admin/admin_category_form', {
         category: null,
         error: null,
@@ -70,13 +70,13 @@ const categoryController = {
     }
   },
 
-  // Add new category
+  
   addCategory: [
     upload.single('image'),
     async (req, res) => {
       try {
         const { name, description } = req.body;
-        const isListed = req.body.isListed === 'on'; // Convert checkbox to boolean
+        const isListed = req.body.isListed === 'on'; 
         const slug = name.toLowerCase().replace(/\s+/g, '-');
         const image = req.file ? req.file.path : '';
 
@@ -107,13 +107,13 @@ const categoryController = {
     }
   ],
 
-  // Edit existing category
+ 
   editCategory: [
     upload.single('image'),
     async (req, res) => {
       try {
         const { name, description } = req.body;
-        const isListed = req.body.isListed === 'on'; // Convert checkbox to boolean
+        const isListed = req.body.isListed === 'on'; 
         const categoryId = req.params.id;
         const slug = name.toLowerCase().replace(/\s+/g, '-');
 
@@ -122,7 +122,7 @@ const categoryController = {
           return res.redirect('/admin/category');
         }
 
-        // Check if name is unique (excluding current category)
+       
         const existingCategory = await Category.findOne({ name, _id: { $ne: categoryId } });
         if (existingCategory) {
           return res.render('admin/admin_category_form', {
@@ -157,7 +157,7 @@ const categoryController = {
     }
   ],
 
-  // Toggle category listing status
+  
   toggleCategoryStatus: async (req, res) => {
     try {
       const categoryId = req.params.id;
