@@ -1,0 +1,570 @@
+<!-- user/product_details.ejs -->
+<%- include('../partials/user/header') %>
+
+<section class="product-details-section py-5">
+  <div class="container">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="/">Home</a></li>
+        <li class="breadcrumb-item"><a href="/shop"><%= product.category.name %></a></li>
+        <li class="breadcrumb-item active" aria-current="page"><%= product.productName %></li>
+      </ol>
+    </nav>
+
+    <div class="row">
+      <!-- Product Images -->
+      <div class="col-lg-6 mb-4">
+        <% if (product.variants && product.variants.length > 0) { %>
+          <div class="product-image-container">
+            <div class="main-image-container mb-3">
+              <img id="main-product-image" src="<%= product.variants[0].productImage[0] %>" class="img-fluid rounded main-image" alt="<%= product.productName %>">
+              <div class="zoom-lens"></div>
+            </div>
+            <div class="zoom-result"></div>
+            <div class="product-thumbnails d-flex">
+              <% product.variants[0].productImage.forEach((image, index) => { %>
+                <div class="thumbnail-container me-2">
+                  <img src="<%= image %>" class="img-thumbnail product-thumbnail <%= index === 0 ? 'active' : '' %>" 
+                       alt="Thumbnail <%= index + 1 %>"
+                       onclick="changeMainImage('<%= image %>', this)">
+                </div>
+              <% }); %>
+            </div>
+          </div>
+        <% } %>
+      </div>
+
+      <!-- Product Info -->
+      <div class="col-lg-6">
+        <h1 class="product-title mb-3"><%= product.productName %></h1>
+        <div class="product-category mb-3">
+          <span class="badge bg-secondary"><%= product.category.name %></span>
+        </div>
+
+        <div class="product-pricing mb-4">
+          <% if (product.variants && product.variants.length > 0) { %>
+            <% const variant = product.variants[0]; %>
+            <% if (variant.salePrice < variant.regularPrice) { %>
+              <span class="sale-price fs-2">₹<%= variant.salePrice.toFixed(2) %></span>
+              <span class="regular-price text-decoration-line-through ms-2">₹<%= variant.regularPrice.toFixed(2) %></span>
+              <% const discount = Math.round((variant.regularPrice - variant.salePrice) / variant.regularPrice * 100); %>
+              <span class="discount-badge badge bg-success ms-2"><%= discount %>% OFF</span>
+            <% } else { %>
+              <span class="regular-price fs-2">₹<%= variant.regularPrice.toFixed(2) %></span>
+            <% } %>
+          <% } %>
+        </div>
+
+        <div class="product-description mb-4">
+          <h5>Description</h5>
+          <p><%= product.description %></p>
+        </div>
+
+        <div class="product-variants mb-4">
+          <h5>Product Variants</h5>
+          <form id="add-to-cart-form">
+            <input type="hidden" name="productId" value="<%= product._id %>">
+            <input type="hidden" id="selected-variant-id" name="variantId" value="<%= product.variants[0]._id %>">
+            
+            <!-- Variant Cards Container -->
+            <div class="variant-cards-container mb-4">
+              <div class="row">
+                <% product.variants.forEach((variant, index) => { %>
+                  <div class="col-md-4 col-sm-6 mb-3">
+                    <div class="card variant-card <%= index === 0 ? 'selected' : '' %>" 
+                         data-variant-id="<%= variant._id %>"
+                         data-flavor="<%= variant.flavor %>"
+                         data-sugar="<%= variant.sugarLevel %>"
+                         data-weight="<%= variant.weight %>"
+                         data-stock="<%= variant.stock_quantity %>"
+                         data-regular-price="<%= variant.regularPrice.toFixed(2) %>"
+                         data-sale-price="<%= variant.salePrice.toFixed(2) %>"
+                         data-images="<%= JSON.stringify(variant.productImage) %>">
+                      <div class="card-body">
+                        <h6 class="variant-flavor"><%= variant.flavor %></h6>
+                        <div class="variant-details">
+                          <span class="badge bg-light text-dark me-1"><%= variant.sugarLevel %> sugar</span>
+                          <span class="badge bg-light text-dark"><%= variant.weight %>g</span>
+                        </div>
+                        <div class="variant-price mt-2">
+                          <% if (variant.salePrice < variant.regularPrice) { %>
+                            <span class="sale-price">₹<%= variant.salePrice.toFixed(2) %></span>
+                            <span class="regular-price text-decoration-line-through ms-1">₹<%= variant.regularPrice.toFixed(2) %></span>
+                          <% } else { %>
+                            <span class="regular-price">₹<%= variant.regularPrice.toFixed(2) %></span>
+                          <% } %>
+                        </div>
+                        <div class="stock-info mt-1 <%= variant.stock_quantity > 0 ? 'text-success' : 'text-danger' %>">
+                          <%= variant.stock_quantity > 0 ? `In Stock: ${variant.stock_quantity}` : 'Out of Stock' %>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                <% }); %>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="quantity" class="form-label">Quantity</label>
+              <div class="input-group quantity-selector" style="width: 150px;">
+                <button type="button" class="btn btn-outline-secondary" id="quantity-minus">-</button>
+                <input type="number" class="form-control text-center" id="quantity" name="quantity" value="1" min="1" max="10">
+                <button type="button" class="btn btn-outline-secondary" id="quantity-plus">+</button>
+              </div>
+              <div id="stock-status" class="text-success mt-2">
+                In Stock: <span id="available-stock">
+                  <% if (product.variants && product.variants.length > 0) { %>
+                    <%= product.variants[0].stock_quantity %>
+                  <% } else { %>
+                    0
+                  <% } %>
+                </span> items
+              </div>
+            </div>
+
+            <div class="product-actions">
+              <button type="button" id="add-to-cart-btn" class="btn btn-primary btn-lg me-2">
+                <i class="fas fa-shopping-cart me-2"></i>Add to Cart
+              </button>
+              <button type="button" id="add-to-wishlist-btn" class="btn btn-outline-danger btn-lg">
+                <i class="fas fa-heart me-2"></i>Wishlist
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Related Products -->
+    <% if (relatedProducts && relatedProducts.length > 0) { %>
+      <div class="related-products mt-5">
+        <h3 class="section-title mb-4">Related Products</h3>
+        <div class="row">
+          <% relatedProducts.forEach(relProduct => { %>
+            <div class="col-md-3 col-sm-6 mb-4">
+              <div class="card product-card h-100">
+                <% if (relProduct.variants && relProduct.variants.length > 0) { %>
+                  <a href="/product/<%= relProduct._id %>">
+                    <img src="<%= relProduct.variants[0].productImage[0] %>" class="card-img-top product-image" alt="<%= relProduct.productName %>">
+                  </a>
+                  <div class="card-body">
+                    <h5 class="card-title">
+                      <a href="/product/<%= relProduct._id %>" class="text-decoration-none text-dark"><%= relProduct.productName %></a>
+                    </h5>
+                    <p class="card-text text-truncate"><%= relProduct.description %></p>
+                    <div class="product-price">
+                      <% const variant = relProduct.variants[0]; %>
+                      <% if (variant.salePrice < variant.regularPrice) { %>
+                        <span class="sale-price">₹<%= variant.salePrice.toFixed(2) %></span>
+                        <span class="regular-price text-decoration-line-through ms-2">₹<%= variant.regularPrice.toFixed(2) %></span>
+                      <% } else { %>
+                        <span class="regular-price">₹<%= variant.regularPrice.toFixed(2) %></span>
+                      <% } %>
+                    </div>
+                  </div>
+                <% } %>
+              </div>
+            </div>
+          <% }); %>
+        </div>
+      </div>
+    <% } %>
+  </div>
+</section>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Product variants data
+    const productVariants = <%- JSON.stringify(product.variants) %>;
+    let currentVariant = productVariants[0];
+    
+    // DOM elements
+    const variantCards = document.querySelectorAll('.variant-card');
+    const quantityInput = document.getElementById('quantity');
+    const stockStatus = document.getElementById('available-stock');
+    const addToCartBtn = document.getElementById('add-to-cart-btn');
+    const addToWishlistBtn = document.getElementById('add-to-wishlist-btn');
+    const mainImage = document.getElementById('main-product-image');
+    const selectedVariantIdInput = document.getElementById('selected-variant-id');
+    const zoomLens = document.querySelector('.zoom-lens');
+    const zoomResult = document.querySelector('.zoom-result');
+    
+    // Zoom functionality
+    const zoomFactor = 2.5; // Magnification level
+    
+    function initializeZoom() {
+      zoomResult.style.backgroundImage = `url(${mainImage.src})`;
+      zoomResult.style.backgroundSize = `${mainImage.width * zoomFactor}px ${mainImage.height * zoomFactor}px`;
+      
+      mainImage.parentElement.addEventListener('mousemove', moveLens);
+      mainImage.parentElement.addEventListener('mouseenter', showLens);
+      mainImage.parentElement.addEventListener('mouseleave', hideLens);
+      
+      // Support for touch devices
+      mainImage.parentElement.addEventListener('touchmove', handleTouchMove);
+      mainImage.parentElement.addEventListener('touchstart', showLens);
+      mainImage.parentElement.addEventListener('touchend', hideLens);
+    }
+    
+    function showLens() {
+      zoomLens.style.display = 'block';
+      zoomResult.style.display = 'block';
+    }
+    
+    function hideLens() {
+      zoomLens.style.display = 'none';
+      zoomResult.style.display = 'none';
+    }
+    
+    function moveLens(e) {
+      e.preventDefault();
+      const pos = getCursorPos(e);
+      let x = pos.x - (zoomLens.offsetWidth / 2);
+      let y = pos.y - (zoomLens.offsetHeight / 2);
+      
+      // Prevent lens from moving outside image
+      if (x > mainImage.width - zoomLens.offsetWidth) x = mainImage.width - zoomLens.offsetWidth;
+      if (x < 0) x = 0;
+      if (y > mainImage.height - zoomLens.offsetHeight) y = mainImage.height - zoomLens.offsetHeight;
+      if (y < 0) y = 0;
+      
+      zoomLens.style.left = x + 'px';
+      zoomLens.style.top = y + 'px';
+      
+      // Update zoomed image position
+      zoomResult.style.backgroundPosition = `-${x * zoomFactor}px -${y * zoomFactor}px`;
+    }
+    
+    function handleTouchMove(e) {
+      e.preventDefault();
+      const touch = e.touches[0];
+      moveLens({ clientX: touch.clientX, clientY: touch.clientY });
+    }
+    
+    function getCursorPos(e) {
+      const rect = mainImage.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      return { x, y };
+    }
+    
+    // Quantity selector
+    document.getElementById('quantity-minus').addEventListener('click', function() {
+      const currentValue = parseInt(quantityInput.value);
+      if (currentValue > 1) {
+        quantityInput.value = currentValue - 1;
+      }
+    });
+    
+    document.getElementById('quantity-plus').addEventListener('click', function() {
+      const currentValue = parseInt(quantityInput.value);
+      if (currentValue < currentVariant.stock_quantity) {
+        quantityInput.value = currentValue + 1;
+      }
+    });
+    
+    // Update product info based on variant card selection
+    function updateProductInfo(variantCard) {
+      // Get variant data from card
+      const variantId = variantCard.dataset.variantId;
+      const stockQuantity = parseInt(variantCard.dataset.stock);
+      const regularPrice = parseFloat(variantCard.dataset.regularPrice);
+      const salePrice = parseFloat(variantCard.dataset.salePrice);
+      const images = JSON.parse(variantCard.dataset.images);
+      
+      // Find the matching variant in our data
+      currentVariant = productVariants.find(v => v._id === variantId);
+      
+      if (currentVariant) {
+        // Update selected variant ID in form
+        selectedVariantIdInput.value = variantId;
+        
+        // Update price
+        const priceContainer = document.querySelector('.product-pricing');
+        if (salePrice < regularPrice) {
+          const discount = Math.round((regularPrice - salePrice) / regularPrice * 100);
+          priceContainer.innerHTML = `
+            <span class="sale-price fs-2">₹${salePrice}</span>
+            <span class="regular-price text-decoration-line-through ms-2">₹${regularPrice}</span>
+            <span class="discount-badge badge bg-success ms-2">${discount}% OFF</span>
+          `;
+        } else {
+          priceContainer.innerHTML = `<span class="regular-price fs-2">₹${regularPrice}</span>`;
+        }
+        
+        // Update stock
+        stockStatus.textContent = stockQuantity;
+        
+        // Update images
+        if (images && images.length > 0) {
+          mainImage.src = images[0];
+          zoomResult.style.backgroundImage = `url(${mainImage.src})`;
+          
+          // Update thumbnails
+          const thumbnailContainer = document.querySelector('.product-thumbnails');
+          thumbnailContainer.innerHTML = '';
+          
+          images.forEach((image, index) => {
+            const thumbnailDiv = document.createElement('div');
+            thumbnailDiv.className = 'thumbnail-container me-2';
+            thumbnailDiv.innerHTML = `
+              <img src="${image}" class="img-thumbnail product-thumbnail ${index === 0 ? 'active' : ''}" 
+                   alt="Thumbnail ${index + 1}" onclick="changeMainImage('${image}', this)">
+            `;
+            thumbnailContainer.appendChild(thumbnailDiv);
+          });
+        }
+        
+        // Update add to cart button state
+        if (stockQuantity > 0) {
+          addToCartBtn.disabled = false;
+          stockStatus.parentElement.className = 'text-success mt-2';
+          quantityInput.max = stockQuantity;
+          if (parseInt(quantityInput.value) > stockQuantity) {
+            quantityInput.value = stockQuantity;
+          }
+        } else {
+          addToCartBtn.disabled = true;
+          stockStatus.parentElement.className = 'text-danger mt-2';
+        }
+      }
+    }
+    
+    // Add event listeners to variant cards
+    variantCards.forEach(card => {
+      card.addEventListener('click', function() {
+        // Remove selected class from all cards
+        variantCards.forEach(c => c.classList.remove('selected'));
+        
+        // Add selected class to clicked card
+        this.classList.add('selected');
+        
+        // Update product info
+        updateProductInfo(this);
+      });
+    });
+    
+    // Add to cart functionality
+    addToCartBtn.addEventListener('click', function() {
+      const productId = document.querySelector('input[name="productId"]').value;
+      const variantId = document.getElementById('selected-variant-id').value;
+      const quantity = parseInt(document.getElementById('quantity').value);
+      
+      fetch('/add-to-cart', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          productId,
+          variantId,
+          quantity
+        }),
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          alert('Product added to cart successfully!');
+        } else {
+          alert(data.message || 'Failed to add product to cart');
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred. Please try again.');
+      });
+    });
+    
+    // Add to wishlist functionality
+    addToWishlistBtn.addEventListener('click', function() {
+      const productId = document.querySelector('input[name="productId"]').value;
+      
+      fetch('/add-to-wishlist', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          productId
+        }),
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          alert('Product added to wishlist successfully!');
+        } else {
+          alert(data.message || 'Failed to add product to wishlist');
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred. Please try again.');
+      });
+    });
+    
+    // Init
+    if (variantCards.length > 0) {
+      updateProductInfo(variantCards[0]);
+    }
+    initializeZoom();
+  });
+  
+  // Function to change main image when thumbnail is clicked
+  function changeMainImage(imageSrc, thumbnailElement) {
+    const mainImage = document.getElementById('main-product-image');
+    const zoomResult = document.querySelector('.zoom-result');
+    const zoomFactor = 2.5;
+    
+    mainImage.src = imageSrc;
+    zoomResult.style.backgroundImage = `url(${imageSrc})`;
+    
+    // Wait for the image to load before updating background size
+    mainImage.onload = function() {
+      zoomResult.style.backgroundSize = `${mainImage.width * zoomFactor}px ${mainImage.height * zoomFactor}px`;
+    };
+    
+    // Update active state on thumbnails
+    document.querySelectorAll('.product-thumbnail').forEach(thumb => {
+      thumb.classList.remove('active');
+    });
+    thumbnailElement.classList.add('active');
+  }
+</script>
+
+<style>
+  .product-image-container {
+    position: relative;
+  }
+  
+  .main-image-container {
+    height: 400px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    position: relative;
+  }
+  
+  .main-image {
+    max-height: 100%;
+    object-fit: contain;
+  }
+  
+  .zoom-lens {
+    position: absolute;
+    width: 100px;
+    height: 100px;
+    border: 2px solid #0d6efd;
+    background-color: rgba(0, 0, 0, 0.2);
+    cursor: none;
+    display: none;
+    border-radius: 50%;
+  }
+  
+  .zoom-result {
+    position: absolute;
+    top: 0;
+    left: 100%;
+    width: 300px;
+    height: 300px;
+    border: 1px solid #dee2e6;
+    background-repeat: no-repeat;
+    display: none;
+    border-radius: 8px;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    z-index: 1000;
+  }
+  
+  .product-thumbnails {
+    display: flex;
+    overflow-x: auto;
+  }
+  
+  .thumbnail-container {
+    width: 80px;
+    height: 80px;
+    overflow: hidden;
+    border-radius: 4px;
+  }
+  
+  .product-thumbnail {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: 2px solid transparent;
+  }
+  
+  .product-thumbnail.active {
+    border-color: #0d6efd;
+  }
+  
+  .product-title {
+    font-weight: 700;
+  }
+  
+  .sale-price {
+    font-weight: bold;
+    color: #dc3545;
+  }
+  
+  .regular-price {
+    color: #6c757d;
+  }
+  
+  .product-card {
+    transition: transform 0.3s;
+    border: 1px solid #dee2e6;
+  }
+  
+  .product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+  }
+  
+  .product-card .product-image {
+    height: 200px;
+    object-fit: cover;
+  }
+  
+  .product-card .card-title {
+    font-size: 1rem;
+    font-weight: 600;
+  }
+  
+  /* Variant Cards Styling */
+  .variant-card {
+    cursor: pointer;
+    transition: all 0.3s;
+    border: 2px solid transparent;
+  }
+  
+  .variant-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  }
+  
+  .variant-card.selected {
+    border-color: #0d6efd;
+    background-color: rgba(13, 110, 253, 0.05);
+  }
+  
+  .variant-flavor {
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+  
+  .variant-details {
+    margin-bottom: 8px;
+  }
+  
+  .stock-info {
+    font-size: 0.8rem;
+    font-weight: 500;
+  }
+</style>
+
+<%- include('../partials/user/footer') %>

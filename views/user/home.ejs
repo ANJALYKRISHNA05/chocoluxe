@@ -2,41 +2,36 @@
 
 <main class="container-fluid">
 
-
-    
-    <section class="categories-section">
+    <!-- New Banner Section (Replacing Categories Section) -->
+    <section class="banner-section">
         <div class="container">
-            <div class="section-heading">
-                <h2>Shop by Category</h2>
-                <a href="/categories" class="view-all">View All</a>
-            </div>
-            <div class="category-slider">
-                <% categories.forEach(category => { %>
-                    <div class="category-item">
-                        <a href="/category/<%= category.slug %>" class="category-link">
-                            <div class="category-image">
-                                <img src="<%= category.image || '/images/placeholder.jpg' %>" alt="<%= category.name %>">
-                            </div>
-                            <h3><%= category.name %></h3>
-                        </a>
-                    </div>
-                <% }) %>
+            <div class="banner">
+                <div class="banner-content">
+                    <h2>Premium Handcrafted Chocolates</h2>
+                    <p>Discover our exquisite collection of artisanal treats</p>
+                    <a href="/shop" class="btn btn-primary">Shop Now</a>
+                </div>
             </div>
         </div>
     </section>
 
-    
+    <!-- Products Section (Updated) -->
     <section class="products-section">
         <div class="container">
-            <div class="section-heading">
-                <h2>Our Finest Chocolates</h2>
-                <a href="/shop" class="view-all">View All</a>
+            <div class="section-heading-wrapper">
+                <div class="section-heading">
+                    <h2>Our Finest Chocolates</h2>
+                    <a href="/shop" class="view-all">View All</a>
+                </div>
             </div>
             <div class="product-grid">
                 <% products.forEach(product => { %>
                     <div class="product-card">
                         <div class="product-image">
-                            <img src="<%= product.variants[0].productImage[0] || '/images/placeholder.jpg' %>" alt="<%= product.productName %>">
+                            <!-- Make the image clickable -->
+                            <a href="/product/<%= product._id %>">
+                                <img src="<%= product.variants[0].productImage[0] || '/images/placeholder.jpg' %>" alt="<%= product.productName %>">
+                            </a>
                             <div class="product-actions">
                                 <button class="action-btn wishlist-btn" title="Add to Wishlist">
                                     <i class="fas fa-heart"></i>
@@ -47,7 +42,10 @@
                             </div>
                         </div>
                         <div class="product-info">
-                            <h3 class="product-name"><%= product.productName %></h3>
+                            <!-- Make the product name clickable too -->
+                            <h3 class="product-name">
+                                <a href="/product/<%= product._id %>"><%= product.productName %></a>
+                            </h3>
                             <p class="product-variant"><%= product.variants[0].flavor %> - <%= product.variants[0].weight %>g</p>
                             <div class="product-price-actions">
                                 <span class="product-price">₹<%= product.variants[0].salePrice.toFixed(2) %></span>
@@ -60,7 +58,7 @@
         </div>
     </section>
 
-   
+    <!-- About Section (Unchanged) -->
     <section class="about-section">
         <div class="container">
             <div class="row">
@@ -81,7 +79,7 @@
         </div>
     </section>
 
-   
+    <!-- Testimonials Section (Unchanged) -->
     <section class="testimonials-section">
         <div class="container text-center">
             <h2>What Our Customers Say</h2>
@@ -102,7 +100,7 @@
         </div>
     </section>
 
-   
+    <!-- Newsletter Section (Unchanged) -->
     <section class="newsletter-section">
         <div class="container text-center">
             <h2>Join Our Sweet Community</h2>
@@ -117,11 +115,10 @@
     </section>
 </main>
 
-
 <style>
-  
+    /* Base Styles (Unchanged) */
     body {
-        background-color: #f8f5f2;
+        background-color: #efd5ba;
         color: #4a2c2a;
     }
     
@@ -143,7 +140,7 @@
     .btn-primary {
         background-color: #4a2c2a;
         border-color: #4a2c2a;
-        color: white;
+        color: rgb(255, 255, 255);
         transition: all 0.3s ease;
     }
     
@@ -173,17 +170,18 @@
         color: white;
     }
     
+    /* Section Heading (Updated) */
+    .section-heading-wrapper {
+        background-color: #f8f5f2; /* Cream color matching the background */
+        padding: 20px 0;
+        border-radius: 10px 10px 0 0;
+    }
     
     .section-heading {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 30px;
-    }
-    
-    .section-heading h2 {
         margin: 0;
-        font-size: 2rem;
     }
     
     .view-all {
@@ -195,10 +193,9 @@
     .view-all:hover {
         color: #4a2c2a;
     }
-    
-   
+  
     .hero-section {
-        background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('/images/hero-chocolate.jpg');
+        background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('public/images/hero-chocolate.jpg');
         background-size: cover;
         background-position: center;
         height: 500px;
@@ -232,69 +229,57 @@
         font-weight: 600;
     }
     
-  
-    .categories-section {
-        background-color: #fff;
+    /* New Banner Section (Replaces Categories Section) */
+    .banner-section {
+        padding: 40px 0;
     }
     
-    .category-slider {
-        display: flex;
-        overflow-x: auto;
-        gap: 20px;
-        padding: 10px 0;
-        scrollbar-width: thin;
-    }
-    
-    .category-slider::-webkit-scrollbar {
-        height: 6px;
-    }
-    
-    .category-slider::-webkit-scrollbar-thumb {
-        background-color: #d1a876;
+    .banner {
+        background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('images/hero-chocolate.jpg');
+        background-size: cover;
+        background-position: center;
+        height: 300px;
         border-radius: 10px;
-    }
-    
-    .category-item {
-        flex: 0 0 auto;
-        width: 200px;
-        transition: transform 0.3s ease;
-    }
-    
-    .category-item:hover {
-        transform: translateY(-5px);
-    }
-    
-    .category-link {
-        text-decoration: none;
-        color: #4a2c2a;
-        display: block;
-    }
-    
-    .category-image {
-        height: 180px;
-        overflow: hidden;
-        border-radius: 8px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    }
-    
-    .category-image img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        transition: transform 0.5s ease;
-    }
-    
-    .category-item:hover .category-image img {
-        transform: scale(1.05);
-    }
-    
-    .category-item h3 {
-        margin-top: 12px;
-        font-size: 1.1rem;
-        font-weight: 600;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         text-align: center;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    .banner-content {
+        color: white;
+        z-index: 1;
+        padding: 30px;
+        max-width: 800px;
+    }
+    
+    .banner-content h2 {
+        color: white;
+        font-size: 2.5rem;
+        margin-bottom: 15px;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    }
+    
+    .banner-content p {
+        font-size: 1.2rem;
+        margin-bottom: 25px;
+        text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+    }
+    
+    .banner-content .btn {
+        padding: 10px 25px;
+        font-weight: 600;
     }
 
+    /* Products Section Styles (Updated) */
+    .products-section {
+        background-color: #fff; /* White background for product cards */
+        padding: 0 0 60px 0; /* Adjusted padding to account for heading wrapper */
+    }
+    
     .product-grid {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
@@ -399,7 +384,7 @@
         font-size: 0.9rem;
     }
     
-    /* About Section */
+    /* About Section (Unchanged) */
     .about-section {
         background-color: #f8f5f2;
     }
@@ -434,7 +419,7 @@
         line-height: 1.6;
     }
     
-
+    /* Testimonials Section (Unchanged) */
     .testimonials-section {
         background-color: #4a2c2a;
         color: white;
@@ -472,7 +457,7 @@
         font-weight: 600;
     }
     
-
+    /* Newsletter Section (Unchanged) */
     .newsletter-section {
         background-color: #f8f5f2;
         padding: 80px 0;
@@ -509,7 +494,7 @@
         padding: 12px 25px;
     }
     
-  
+    /* Responsive Styles (Updated) */
     @media (max-width: 991px) {
         .hero-content h1 {
             font-size: 2.5rem;
@@ -518,6 +503,10 @@
         .about-image {
             height: 300px;
             margin-bottom: 30px;
+        }
+        
+        .banner-content h2 {
+            font-size: 2rem;
         }
     }
     
@@ -535,6 +524,18 @@
         }
         
         .hero-content p {
+            font-size: 1rem;
+        }
+        
+        .banner {
+            height: 250px;
+        }
+        
+        .banner-content h2 {
+            font-size: 1.8rem;
+        }
+        
+        .banner-content p {
             font-size: 1rem;
         }
         
@@ -566,6 +567,14 @@
             font-size: 1.5rem;
         }
         
+        .banner {
+            height: 200px;
+        }
+        
+        .banner-content h2 {
+            font-size: 1.5rem;
+        }
+        
         .product-grid {
             grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
             gap: 15px;
@@ -593,7 +602,5 @@
         }
     }
 </style>
-
-
 
 <%- include('../partials/user/footer') %>

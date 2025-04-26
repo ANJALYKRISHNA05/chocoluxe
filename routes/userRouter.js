@@ -27,4 +27,19 @@ router.get('/user/reset-password', userController.loadResetPassword);
 router.post('/user/reset-password', userController.resetPassword);
 router.get('/', shopController.loadShopHomepage);
 
+
+
+
+router.get('/product/:id', shopController.loadProductDetails);
+
+
+
+router.get('/products', shopController.loadProductListing);
+
+
+// Add these routes to userRoutes.js
+router.post('/add-to-cart', shopController.addToCart);
+router.post('/add-to-wishlist', shopController.addToWishlist);
+
+
 module.exports = router;
