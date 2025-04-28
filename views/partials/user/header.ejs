@@ -18,7 +18,7 @@
         .navbar a:hover { color: #d1a876; }
         .navbar .search-bar { width: 200px; font-size: 0.9rem; padding: 5px 10px; }
         .navbar .menu-toggle { display: none; font-size: 1.5rem; cursor: pointer; }
-        .user-menu { position: relative; }
+        .user-menu { position: relative; display: flex; align-items: center; }
         .user-dropdown { 
             display: none; 
             position: absolute; 
@@ -29,13 +29,17 @@
             border-radius: 5px; 
             padding: 10px; 
             z-index: 1000; 
+            min-width: 180px; 
         }
         .user-dropdown a { 
-            display: block; 
-            padding: 8px 15px; 
+            display: flex; 
+            align-items: center; 
+            padding: 10px 15px; 
             color: white; 
             font-size: 0.9rem; 
+            gap: 10px; 
         }
+        .user-dropdown a i { font-size: 1rem; }
         .user-dropdown a:hover { 
             background-color: #5a3c3a; 
             color: #d1a876; 
@@ -51,6 +55,7 @@
             .navbar.active .nav-links, .navbar.active .nav-icons { display: flex; flex-direction: column; width: 100%; background-color: #4a2c2a; padding: 15px 0; }
             .navbar.active .nav-links a, .navbar.active .nav-icons a { margin: 10px 20px; }
             .navbar.active .search-bar { width: 100%; margin: 10px 20px; }
+            .navbar.active .user-menu { width: 100%; justify-content: flex-start; margin: 10px 20px; }
             .user-dropdown { 
                 position: static; 
                 border: none; 
@@ -85,7 +90,10 @@
             <div class="user-menu ms-3">
                 <a href="#" onclick="toggleUserMenu()"><i class="fas fa-user"></i></a>
                 <div class="user-dropdown">
-                    <a href="/user/logout">Logout</a>
+                    <a href="/user/profile"><i class="fas fa-user-circle"></i> Profile</a>
+                    <a href="#"><i class="fas fa-box"></i> My Orders</a>
+                    <a href="#"><i class="fas fa-wallet"></i> My Wallet</a>
+                    <a href="/user/logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
                 </div>
             </div>
         </div>

@@ -1,0 +1,81 @@
+<div class="sidebar bg-white rounded p-4 w-100 h-100 d-flex flex-column border border-light">
+    <!-- User Profile Section -->
+    <div class="user-profile d-flex flex-column align-items-center mb-4">
+        <div class="profile-image mb-3 position-relative" style="width: 64px; height: 64px; overflow: hidden; border-radius: 50%;">
+            <img id="sidebarProfileImage" src="<%= user ? user.profileImage : '/Images/default-profile.jpg' %>" alt="Profile Photo" class="rounded-circle" style="width: 100%; height: 100%; object-fit: cover; border: 2px solid white; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);">
+            <div class="position-absolute bottom-0 end-0 bg-primary rounded-circle p-1">
+                <i class="fas fa-user text-white" style="font-size: 0.75rem;"></i>
+            </div>
+        </div>
+        <h3 class="username fw-medium text-dark mb-1" style="font-size: 1rem;"><%= user ? user.username : 'Username' %></h3>
+        <p class="email text-muted small mt-0"><%= user ? user.email : 'user@example.com' %></p>
+    </div>
+    
+    <!-- Navigation Links -->
+    <nav class="flex-grow">
+        <ul class="list-unstyled mb-0">
+            <li>
+                <a href="/user/profile" class="d-flex align-items-center py-2 px-3 rounded text-muted <%= activeTab === 'details' ? 'bg-primary bg-opacity-10 text-primary' : '' %> hover-bg-light">
+                    <i class="fas fa-user mr-3"></i>
+                    <span class="small">My Details</span>
+                    <% if (activeTab === 'details') { %>
+                        <span class="ms-auto" style="width: 6px; height: 6px; background-color: #2563eb; border-radius: 50%;"></span>
+                    <% } %>
+                </a>
+            </li>
+            <li>
+                <a href="/user/edit-profile" class="d-flex align-items-center py-2 px-3 rounded text-muted <%= activeTab === 'edit' ? 'bg-primary bg-opacity-10 text-primary' : '' %> hover-bg-light">
+                    <i class="fas fa-edit mr-3"></i>
+                    <span class="small">Edit Profile</span>
+                    <% if (activeTab === 'edit') { %>
+                        <span class="ms-auto" style="width: 6px; height: 6px; background-color: #2563eb; border-radius: 50%;"></span>
+                    <% } %>
+                </a>
+            </li>
+            <li>
+                <a href="/user/address" class="d-flex align-items-center py-2 px-3 rounded text-muted <%= activeTab === 'address' ? 'bg-primary bg-opacity-10 text-primary' : '' %> hover-bg-light">
+                    <i class="fas fa-map-marker-alt mr-3"></i>
+                    <span class="small">My Address</span>
+                    <% if (activeTab === 'address') { %>
+                        <span class="ms-auto" style="width: 6px; height: 6px; background-color: #2563eb; border-radius: 50%;"></span>
+                    <% } %>
+                </a>
+            </li>
+            <li>
+                <a href="/user/orders" class="d-flex align-items-center py-2 px-3 rounded text-muted <%= activeTab === 'orders' ? 'bg-primary bg-opacity-10 text-primary' : '' %> hover-bg-light">
+                    <i class="fas fa-box mr-3"></i>
+                    <span class="small">My Orders</span>
+                    <% if (activeTab === 'orders') { %>
+                        <span class="ms-auto" style="width: 6px; height: 6px; background-color: #2563eb; border-radius: 50%;"></span>
+                    <% } %>
+                </a>
+            </li>
+            <li>
+                <a href="/user/wallet" class="d-flex align-items-center py-2 px-3 rounded text-muted <%= activeTab === 'wallet' ? 'bg-primary bg-opacity-10 text-primary' : '' %> hover-bg-light">
+                    <i class="fas fa-wallet mr-3"></i>
+                    <span class="small">My Wallet</span>
+                    <% if (activeTab === 'wallet') { %>
+                        <span class="ms-auto" style="width: 6px; height: 6px; background-color: #2563eb; border-radius: 50%;"></span>
+                    <% } %>
+                </a>
+            </li>
+            <li>
+                <a href="/user/change-password" class="d-flex align-items-center py-2 px-3 rounded text-muted <%= activeTab === 'password' ? 'bg-primary bg-opacity-10 text-primary' : '' %> hover-bg-light">
+                    <i class="fas fa-lock mr-3"></i>
+                    <span class="small">Change Password</span>
+                    <% if (activeTab === 'password') { %>
+                        <span class="ms-auto" style="width: 6px; height: 6px; background-color: #2563eb; border-radius: 50%;"></span>
+                    <% } %>
+                </a>
+            </li>
+        </ul>
+    </nav>
+    
+    <!-- Logout Button -->
+    <div class="mt-auto pt-3 border-top border-light">
+        <a href="/user/logout" class="d-flex align-items-center py-2 px-3 text-muted rounded hover-bg-light">
+            <i class="fas fa-sign-out-alt mr-3"></i>
+            <span class="small">Logout</span>
+        </a>
+    </div>
+</div>

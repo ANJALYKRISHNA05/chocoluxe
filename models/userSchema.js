@@ -1,6 +1,5 @@
-const mongoose=require("mongoose");
-const{schema}=mongoose;
-
+const mongoose = require("mongoose");
+const { Schema } = mongoose;
 
 const userSchema = new mongoose.Schema({
   username: {
@@ -14,9 +13,9 @@ const userSchema = new mongoose.Schema({
   },
   phone: {
     type: String,
-    sparse:true,
-    required:false,
-    unique:false,
+    sparse: true,
+    required: false,
+    unique: false,
     default: null,
   },
   googleId: {
@@ -28,7 +27,11 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: function () {
       return !this.googleId;
-    }, 
+    },
+  },
+  profileImage: {
+    type: String,
+    default: "/Images/default-profile.jpg",
   },
   isBlocked: {
     type: Boolean,
@@ -38,8 +41,12 @@ const userSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
-
-  
+  addresses: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Address",
+    },
+  ],
   createdAt: {
     type: Date,
     default: Date.now,

@@ -27,8 +27,20 @@ const productStorage = new CloudinaryStorage({
   }
 });
 
+const profileStorage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+      folder: 'profile-images',
+      allowed_formats: ['jpg', 'jpeg', 'png'],
+      transformation: [{ width: 500, height: 500, crop: 'limit' }]
+  }
+});
+
+
 module.exports = {
   cloudinary,
   categoryStorage,
-  productStorage
+  productStorage,
+  profileStorage
 };
+

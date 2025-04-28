@@ -1,62 +1,66 @@
-const mongoose=require("mongoose");
-const {schema}=mongoose;
-const addressSchema=new Schema({
+const mongoose = require("mongoose");
+
+const addressSchema = new mongoose.Schema(
+  {
     userId: {
-      type:Schema.Types.ObjectId,
+      type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
     },
-    address:[{
-        addressType:{
-            type:String,
-            required:true
+    name: {
+      type: String,
+      required: [true, "Name is required"],
+      trim: true,
+    },
+    addressType: {
+      type: String,
+      enum: ["HOME", "WORK", "OTHER"],
+      default: "HOME",
+    },
+    address: {
+      type: String,
+      required: [true, "Address is required"],
+      trim: true,
+    },
+    city: {
+      type: String,
+      required: [true, "City is required"],
+      trim: true,
+    },
+    state: {
+      type: String,
+      required: [true, "State is required"],
+      trim: true,
+    },
+    pincode: {
+      type: String,
+      required: [true, "Pincode is required"],
+      validate: {
+        validator: function (v) {
+          return /^\d{6}$/.test(v);
         },
-        name:{
-            type:String
+        message: "Invalid pincode format (must be 6 digits)",
+      },
+      trim: true,
+    },
+    phone: {
+      type: String,
+      required: [true, "Phone number is required"],
+      validate: {
+        validator: function (v) {
+          return /^\d{10}$/.test(v);
         },
-        phone: {
-            type: String,
-            required: [true, "Phone number is required"],
-            validate: {
-              validator: function (v) {
-                return /^\d{10}$/.test(v);
-              },
-              message: "Invalid phone number format (must be 10 digits)",
-            },
-            trim: true,
-          },
+        message: "Invalid phone number format (must be 10 digits)",
+      },
+      trim: true,
+    },
+ 
+    isDefault: {
+      type: Boolean,
+      default: false,
+    },
+  },
+  { timestamps: true },
+);
 
-        city: {
-            type: String,
-            required: true
-        },
-        state: {
-            type: String,
-            required: true
-        },
-        pincode: {
-            type: String,
-            required: [true, "Pincode is required"],
-            validate: {
-              validator: function (v) {
-                return /^\d{6}$/.test(v);
-              },
-              message: "Invalid pincode format (must be 6 digits)",
-            },
-            trim: true,
-          },
-        
-   
-    }],
-    createdOn: {
-        type: Date,
-        default: Date.now
-    }
-});
-const Address=mongoose.model("Address",addressSchema);
-module.exports=Address;
-
-        
-
-    
-
+module.exports = mongoose.model("Address", addressSchema);

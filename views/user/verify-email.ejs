@@ -1,0 +1,105 @@
+V<%- include('../partials/header') %>
+
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card border-0 shadow-lg">
+                <div class="card-body p-5">
+                    <div class="text-center mb-4">
+                        <div class="bg-primary bg-opacity-10 p-3 rounded-circle d-inline-flex mb-3">
+                            <i class="fas fa-envelope text-primary" style="font-size: 2rem;"></i>
+                        </div>
+                        <h3>Verify Your Email</h3>
+                        <p class="text-muted">We've sent a verification code to <strong><%= newEmail %></strong></p>
+                    </div>
+
+                    <% if (message) { %>
+                        <div class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
+                            <%= message %>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    <% } %>
+
+                    <form id="verifyForm" action="/user/verify-email" method="POST">
+                        <div class="mb-4">
+                            <label for="otp" class="form-label">Verification Code</label>
+                            <input type="text" class="form-control form-control-lg text-center" id="otp" name="otp" placeholder="Enter 6-digit code" maxlength="6" required>
+                        </div>
+                        
+                        <div class="d-grid gap-2 mb-4">
+                            <button type="submit" class="btn btn-primary btn-lg">Verify Email</button>
+                            <button type="button" id="resendBtn" class="btn btn-outline-secondary">
+                                Resend Code <span id="timer" class="ms-1"></span>
+                            </button>
+                        </div>
+                    </form>
+                    
+                    <div class="text-center">
+                        <a href="/user/edit-profile" class="text-decoration-none">
+                            <i class="fas fa-arrow-left me-1"></i> Back to Edit Profile
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<%- include('../partials/footer') %>
+
+<script>
+    // Timer for resend button
+    let countdown = 30;
+    const timerElement = document.getElementById('timer');
+    const resendBtn = document.getElementById('resendBtn');
+    
+    function updateTimer() {
+        timerElement.textContent = `(${countdown}s)`;
+        
+        if (countdown <= 0) {
+            clearInterval(timerInterval);
+            timerElement.textContent = '';
+            resendBtn.disabled = false;
+        } else {
+            countdown--;
+        }
+    }
+    
+    // Initialize timer
+    resendBtn.disabled = true;
+    updateTimer();
+    const timerInterval = setInterval(updateTimer, 1000);
+    
+    // Resend OTP
+    resendBtn.addEventListener('click', function() {
+        fetch('/user/resend-email-verification-otp', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Reset timer
+                countdown = 30;
+                resendBtn.disabled = true;
+                timerElement.textContent = `(${countdown}s)`;
+                clearInterval(timerInterval);
+                timerInterval = setInterval(updateTimer, 1000);
+                
+                // Show success message
+                alert('Verification code resent successfully!');
+            } else {
+                alert('Failed to resend verification code. Please try again.');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred. Please try again.');
+        });
+    });
+    
+    // Focus on OTP input
+    document.getElementById('otp').focus();
+</script>

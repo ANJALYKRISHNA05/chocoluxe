@@ -3,6 +3,8 @@ const router = express.Router();
 const { productStorage } = require('../config/cloudinary');
 const multer = require('multer');
 const upload = multer({ storage: productStorage });
+const { profileStorage } = require('../config/cloudinary');
+const profileUpload = multer({ storage: profileStorage });
 
 router.post('/upload', upload.any(), (req, res) => {
   try {

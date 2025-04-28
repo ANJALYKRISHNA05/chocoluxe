@@ -3,6 +3,13 @@ const router = express.Router();
 const passport = require("passport");
 const userController = require('../controllers/user/userController');
 const shopController = require('../controllers/user/shopController');
+const { userAuth } = require('../middlewares/auth');
+const { profileStorage } = require('../config/cloudinary');
+const multer = require('multer');
+const profileUpload = multer({ storage: profileStorage });
+
+
+
 
 router.get('/user/pageNotfound', userController.pageNotfound);
 router.get('/user/signup', userController.loadSignup);
@@ -15,6 +22,9 @@ router.get('/user/auth/google', passport.authenticate('google', { scope: ['profi
 router.get('/user/auth/google/callback', passport.authenticate('google', { failureRedirect: '/signup' }), (req, res) => {
     const user = req.user;
     req.session.user = user;
+    console.log(user);
+    console.log(req.session);
+    
     res.redirect('/');
 });
 router.get('/user/logout', userController.logout);
@@ -27,9 +37,6 @@ router.get('/user/reset-password', userController.loadResetPassword);
 router.post('/user/reset-password', userController.resetPassword);
 router.get('/', shopController.loadShopHomepage);
 
-
-
-
 router.get('/product/:id', shopController.loadProductDetails);
 
 
@@ -37,9 +44,22 @@ router.get('/product/:id', shopController.loadProductDetails);
 router.get('/products', shopController.loadProductListing);
 
 
-// Add these routes to userRoutes.js
-router.post('/add-to-cart', shopController.addToCart);
-router.post('/add-to-wishlist', shopController.addToWishlist);
+
+
+
+
+
+router.get('/user/profile', userAuth, userController.loadProfile);
+router.get('/user/edit-profile', userAuth, userController.loadEditProfile);
+router.post('/user/update-profile', userAuth, profileUpload.single('profileImage'), userController.updateProfile);
+router.post('/user/verify-email-update', userAuth, userController.verifyEmailUpdate);
+router.post('/user/resend-email-update-otp', userAuth, userController.resendEmailUpdateOtp);
+
+
+
+
+
+
 
 
 module.exports = router;
