@@ -3,6 +3,7 @@ const router = express.Router();
 const passport = require("passport");
 const userController = require('../controllers/user/userController');
 const shopController = require('../controllers/user/shopController');
+
 const { userAuth } = require('../middlewares/auth');
 const { profileStorage } = require('../config/cloudinary');
 const multer = require('multer');
@@ -56,8 +57,17 @@ router.post('/user/verify-email-update', userAuth, userController.verifyEmailUpd
 router.post('/user/resend-email-update-otp', userAuth, userController.resendEmailUpdateOtp);
 
 
+router.get('/user/address', userAuth, userController.loadAddresses);
+router.get('/user/address/add', userAuth, userController.loadAddAddressForm);
+router.get('/user/address/edit/:id', userAuth, userController.loadEditAddressForm);
+router.post('/user/address/add', userAuth, userController.addAddress);
+router.post('/user/address/update', userAuth, userController.updateAddress);
+router.post('/user/address/delete', userAuth, userController.deleteAddress);
+router.post('/user/address/set-default', userAuth, userController.setDefaultAddress);
 
 
+router.get('/user/change-password', userAuth, userController.loadChangePassword);
+router.post('/user/change-password', userAuth, userController.changePassword);
 
 
 

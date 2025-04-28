@@ -1,0 +1,158 @@
+<%- include('../partials/user/header') %>
+
+<div class="container my-5">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3 mb-4">
+            <%- include('../partials/user/sidebar', { activeTab: 'address' }) %>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="col-md-9">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h4 class="mb-0">My Addresses</h4>
+                        <a href="/user/address/add" class="btn btn-dark">
+                            <i class="fas fa-plus me-2"></i> Add New Address
+                        </a>
+                    </div>
+                    
+                    <% if (message) { %>
+                        <div class="alert alert-info alert-dismissible fade show" role="alert">
+                            <%= message %>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    <% } %>
+                    
+                    <% if (addresses && addresses.length > 0) { %>
+                        <div class="row">
+                            <% addresses.forEach(address => { %>
+                                <div class="col-md-6 mb-4">
+                                    <div class="card h-100 border-light">
+                                        <div class="card-body">
+                                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                                <div>
+                                                    <h5 class="mb-1">
+                                                        <%= address.name %> 
+                                                        <span class="badge bg-secondary ms-2"><%= address.addressType %></span>
+                                                        <% if (address.isDefault) { %>
+                                                            <span class="badge bg-primary ms-1">Default</span>
+                                                        <% } %>
+                                                    </h5>
+                                                </div>
+                                            </div>
+                                            <p class="mb-1"><%= address.address %></p>
+                                            <p class="mb-1"><%= address.city %>, <%= address.state %> - <%= address.pincode %></p>
+                                            <p class="mb-2"><i class="fas fa-phone-alt me-2"></i><%= address.phone %></p>
+                                            
+                                            <div class="d-flex mt-3">
+                                                <a href="/user/address/edit/<%= address._id %>" class="btn btn-sm btn-outline-dark me-2">
+                                                    <i class="fas fa-edit"></i> Edit
+                                                </a>
+                                                
+                                                <% if (!address.isDefault) { %>
+                                                    <button class="btn btn-sm btn-outline-primary me-2 set-default-btn" 
+                                                            data-address-id="<%= address._id %>">
+                                                        Set Default
+                                                    </button>
+                                                <% } %>
+                                                
+                                                <button class="btn btn-sm btn-outline-danger delete-address-btn" 
+                                                        data-address-id="<%= address._id %>">
+                                                    <i class="fas fa-trash"></i> Delete
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            <% }) %>
+                        </div>
+                    <% } else { %>
+                        <div class="text-center py-5">
+                            <i class="fas fa-map-marker-alt fa-3x text-muted mb-3"></i>
+                            <h5>No addresses found</h5>
+                            <p class="text-muted">Add a new address to continue shopping</p>
+                            <a href="/user/address/add" class="btn btn-dark mt-2">
+                                <i class="fas fa-plus me-2"></i> Add New Address
+                            </a>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Forms for POST requests -->
+<form id="deleteAddressForm" action="/user/address/delete" method="POST" style="display:none;">
+    <input type="hidden" name="addressId" id="deleteAddressId">
+</form>
+
+<form id="setDefaultForm" action="/user/address/set-default" method="POST" style="display:none;">
+    <input type="hidden" name="addressId" id="setDefaultAddressId">
+</form>
+
+<!-- SweetAlert JavaScript -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Delete address button click handler
+        const deleteButtons = document.querySelectorAll('.delete-address-btn');
+        deleteButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const addressId = this.getAttribute('data-address-id');
+                
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: "You won't be able to revert this!",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#dc3545',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: 'Yes, delete it!'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        document.getElementById('deleteAddressId').value = addressId;
+                        document.getElementById('deleteAddressForm').submit();
+                    }
+                });
+            });
+        });
+        
+        // Set default button click handler
+        const defaultButtons = document.querySelectorAll('.set-default-btn');
+        defaultButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const addressId = this.getAttribute('data-address-id');
+                
+                Swal.fire({
+                    title: 'Set as default?',
+                    text: "This will be used as your default shipping address",
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#007bff',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: 'Yes, set as default'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        document.getElementById('setDefaultAddressId').value = addressId;
+                        document.getElementById('setDefaultForm').submit();
+                    }
+                });
+            });
+        });
+        
+        // Show SweetAlert for success messages if any
+        <% if (message) { %>
+            Swal.fire({
+                icon: 'success',
+                title: 'Success',
+                text: '<%= message %>',
+                timer: 3000,
+                timerProgressBar: true
+            });
+        <% } %>
+    });
+</script>
+
+<%- include('../partials/user/footer') %>
