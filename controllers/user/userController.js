@@ -374,8 +374,6 @@ const resetPassword = async (req, res) => {
 
 
 
-// Add these functions to your userController.js file
-
 const loadProfile = async (req, res) => {
     try {
         const user = await User.findById(req.session.user._id);
@@ -419,30 +417,27 @@ const updateProfile = async (req, res) => {
         const { username, phone, currentEmail, newEmail } = req.body;
         const userId = req.session.user._id;
         
-        // Input validation
+        
         const usernamePattern = /^[a-zA-Z0-9_]{5,20}$/;
         const phonePattern = /^[6-9]\d{9}$/;
         const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-        
-        // Validate username
+      
         if (!username || !usernamePattern.test(username)) {
             req.session.message = 'Username must be 5-20 characters long and can only contain letters, numbers, and underscores';
             return res.redirect('/user/edit-profile');
         }
         
-        // Validate phone if provided
+   
         if (phone && !phonePattern.test(phone)) {
             req.session.message = 'Please enter a valid 10-digit phone number starting with 6-9';
             return res.redirect('/user/edit-profile');
         }
         
-        // Validate new email if provided
         if (newEmail && !emailPattern.test(newEmail)) {
             req.session.message = 'Please enter a valid email address';
             return res.redirect('/user/edit-profile');
         }
-        
-        // Check if the username is already taken by another user
+       
         if (username !== req.session.user.username) {
             const existingUsername = await User.findOne({ username, _id: { $ne: userId } });
             if (existingUsername) {
@@ -450,31 +445,26 @@ const updateProfile = async (req, res) => {
                 return res.redirect('/user/edit-profile');
             }
         }
-        
-        // Update profile data
+      
         const updateData = {
             username,
             phone: phone || null
         };
-        
-        // Handle profile image upload if there's one
+   
         if (req.file) {
             updateData.profileImage = req.file.path;
         }
-        
-        // If email is being changed, store new email in session and send OTP
-       // In userController.js, inside the updateProfile function
+       
 if (newEmail && newEmail !== currentEmail) {
-    // Check if the new email is already registered
+
     const existingEmail = await User.findOne({ email: newEmail, _id: { $ne: userId } });
     if (existingEmail) {
         req.session.message = 'Email already registered to another account';
         return res.redirect('/user/edit-profile');
     }
     
-    // Generate and send OTP for email verification
     const otp = generateOtp();
-    console.log(`OTP for email update to ${newEmail}: ${otp}`); // Clear OTP log
+    console.log(`OTP for email update to ${newEmail}: ${otp}`); 
     const emailSent = await sendVerificationEmail(newEmail, otp);
     
     if (!emailSent) {
@@ -482,7 +472,7 @@ if (newEmail && newEmail !== currentEmail) {
         return res.redirect('/user/edit-profile');
     }
     
-    // Store data in session for verification
+  
     req.session.emailUpdateData = {
         userId,
         newEmail,
@@ -492,18 +482,17 @@ if (newEmail && newEmail !== currentEmail) {
         profileImage: updateData.profileImage
     };
     
-    // Render OTP verification page
+    
     return res.render('user/verify-email-update', { email: newEmail });
 }
-        
-        // Update user profile without email change
+      
         const updatedUser = await User.findByIdAndUpdate(
             userId,
             updateData,
             { new: true }
         );
         
-        // Update session data
+        
         req.session.user = {
             _id: updatedUser._id,
             username: updatedUser.username,
@@ -534,7 +523,7 @@ const verifyEmailUpdate = async (req, res) => {
             return res.json({ success: false, message: 'Invalid OTP. Please try again.' });
         }
         
-        // Update user data with new email
+      
         const updatedUser = await User.findByIdAndUpdate(
             updateData.userId,
             {
@@ -546,7 +535,6 @@ const verifyEmailUpdate = async (req, res) => {
             { new: true }
         );
         
-        // Update session data
         req.session.user = {
             _id: updatedUser._id,
             username: updatedUser.username,
@@ -554,7 +542,7 @@ const verifyEmailUpdate = async (req, res) => {
             isBlocked: updatedUser.isBlocked
         };
         
-        // Clear update data from session
+       
         delete req.session.emailUpdateData;
         
         return res.json({ success: true, redirectUrl: '/user/profile' });
@@ -574,14 +562,14 @@ const resendEmailUpdateOtp = async (req, res) => {
         }
         
         const otp = generateOtp();
-        console.log(`Resent OTP for email update to ${updateData.newEmail}: ${otp}`); // Clear OTP log
+        console.log(`Resent OTP for email update to ${updateData.newEmail}: ${otp}`); 
         const emailSent = await sendVerificationEmail(updateData.newEmail, otp);
         
         if (!emailSent) {
             return res.status(500).json({ success: false, message: 'Failed to send verification email' });
         }
         
-        // Update OTP in session
+      
         req.session.emailUpdateData.otp = otp;
         
         return res.json({ success: true, message: 'OTP sent successfully' });
@@ -596,12 +584,11 @@ const resendEmailUpdateOtp = async (req, res) => {
 
 
 
-// Load the address page
 const loadAddresses = async (req, res) => {
     try {
         const userId = req.session.user._id;
         
-        // Fetch all addresses for this user
+     
         const addresses = await Address.find({ userId }).sort({ isDefault: -1, createdAt: -1 });
         
         res.render('user/address', {
@@ -621,7 +608,7 @@ const loadAddresses = async (req, res) => {
     }
 };
 
-// Load the add address form page
+
 const loadAddAddressForm = async (req, res) => {
     try {
         res.render('user/address-form', {
@@ -641,13 +628,13 @@ const loadAddAddressForm = async (req, res) => {
     }
 };
 
-// Load the edit address form page
+
 const loadEditAddressForm = async (req, res) => {
     try {
         const userId = req.session.user._id;
         const addressId = req.params.id;
         
-        // Find the address to edit
+       
         const address = await Address.findOne({ _id: addressId, userId });
         
         if (!address) {
@@ -673,14 +660,13 @@ const loadEditAddressForm = async (req, res) => {
     }
 };
 
-// Add a new address
-// Add a new address
+
 const addAddress = async (req, res) => {
     try {
         const userId = req.session.user._id;
         let { name, addressType, address, city, state, pincode, phone, isDefault } = req.body;
         
-        // Trim all string inputs
+       
         name = name ? name.trim() : '';
         addressType = addressType ? addressType.trim() : '';
         address = address ? address.trim() : '';
@@ -689,26 +675,26 @@ const addAddress = async (req, res) => {
         pincode = pincode ? pincode.trim() : '';
         phone = phone ? phone.trim() : '';
         
-        // Input validation
+     
         if (!name || !addressType || !address || !city || !state || !pincode || !phone) {
             req.session.message = 'All fields are required.';
             return res.redirect('/user/address/add');
         }
         
-        // Validate name (only letters, spaces, and some special characters)
+        
         const namePattern = /^[A-Za-z\s\.\-']{2,50}$/;
         if (!namePattern.test(name)) {
             req.session.message = 'Name must contain only letters, spaces, and basic punctuation (2-50 characters).';
             return res.redirect('/user/address/add');
         }
         
-        // Validate address (prevent just spaces or very short addresses)
+       
         if (address.length < 5) {
             req.session.message = 'Please enter a valid address (minimum 5 characters).';
             return res.redirect('/user/address/add');
         }
         
-        // Validate city and state (only letters and spaces)
+       
         const locationPattern = /^[A-Za-z\s\-']{2,30}$/;
         if (!locationPattern.test(city)) {
             req.session.message = 'City must contain only letters and spaces (2-30 characters).';
@@ -720,7 +706,7 @@ const addAddress = async (req, res) => {
             return res.redirect('/user/address/add');
         }
         
-        // Validate pincode and phone
+        
         const pincodePattern = /^\d{6}$/;
         const phonePattern = /^\d{10}$/;
         
@@ -734,14 +720,14 @@ const addAddress = async (req, res) => {
             return res.redirect('/user/address/add');
         }
         
-        // Validate addressType (common types only)
+       
         const validAddressTypes = ['home', 'work', 'office', 'other'];
         if (!validAddressTypes.includes(addressType.toLowerCase())) {
             req.session.message = 'Please select a valid address type.';
             return res.redirect('/user/address/add');
         }
         
-        // If setting as default, unset any existing default
+        
         if (isDefault === 'true') {
             await Address.updateMany(
                 { userId },
@@ -749,7 +735,7 @@ const addAddress = async (req, res) => {
             );
         }
         
-        // Create the new address
+       
         const newAddress = new Address({
             userId,
             name,
@@ -764,7 +750,7 @@ const addAddress = async (req, res) => {
         
         await newAddress.save();
         
-        // Add reference to user's addresses array
+        
         await User.findByIdAndUpdate(
             userId,
             { $push: { addresses: newAddress._id } }
@@ -779,14 +765,13 @@ const addAddress = async (req, res) => {
     }
 };
 
-// Update an existing address
 const updateAddress = async (req, res) => {
     try {
         const userId = req.session.user._id;
         const addressId = req.body.addressId;
         let { name, addressType, address, city, state, pincode, phone, isDefault } = req.body;
         
-        // Trim all string inputs
+      
         name = name ? name.trim() : '';
         addressType = addressType ? addressType.trim() : '';
         address = address ? address.trim() : '';

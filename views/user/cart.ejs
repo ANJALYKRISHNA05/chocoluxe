@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %> - CHOCOLUXE</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <style>
+    body {
+      font-family: 'Nunito Sans', sans-serif;
+      background-color: #f5e8d4;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+    .cart-section {
+      flex: 1;
+    }
+    .cart-item {
+      border: 1px solid #dee2e6;
+      border-radius: 8px;
+      padding: 15px;
+      margin-bottom: 20px;
+      background-color: #fff;
+      transition: box-shadow 0.3s;
+    }
+    .cart-item:hover {
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    .cart-item img {
+      width: 100px;
+      height: 100px;
+      object-fit: cover;
+      border-radius: 4px;
+    }
+    .quantity-selector {
+      width: 120px;
+    }
+    .cart-summary {
+      border: 1px solid #dee2e6;
+      border-radius: 8px;
+      padding: 20px;
+      background-color: #fff;
+    }
+    .empty-cart {
+      text-align: center;
+      padding: 50px 0;
+    }
+    .empty-cart img {
+      width: 200px;
+      margin-bottom: 20px;
+    }
+    @media (max-width: 768px) {
+      .cart-item img {
+        width: 80px;
+        height: 80px;
+      }
+      .quantity-selector {
+        width: 100px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <%- include('../partials/user/header') %>
+
+  <section class="cart-section py-5">
+    <div class="container">
+      <h2 class="mb-4">Your Cart</h2>
+
+      <% if (cartItems.length > 0) { %>
+        <div class="row">
+          <!-- Cart Items -->
+          <div class="col-lg-8">
+            <% cartItems.forEach(item => { %>
+              <div class="cart-item d-flex align-items-center" data-item-id="<%= item._id %>">
+                <img src="<%= item.productImage %>" alt="<%= item.product.productName %>" class="me-3">
+                <div class="flex-grow-1">
+                  <h5><%= item.product.productName %></h5>
+                  <p class="mb-1">
+                    Flavor: <%= item.flavor %> | Sugar: <%= item.sugarLevel %> | Weight: <%= item.weight %>g
+                  </p>
+                  <p class="mb-1">Price: ₹<%= (item.price / item.quantity).toFixed(2) %> x <%= item.quantity %></p>
+                  <p class="fw-bold subtotal">Subtotal: ₹<%= item.subtotal.toFixed(2) %></p>
+                </div>
+                <div class="d-flex align-items-center">
+                  <div class="input-group quantity-selector me-3">
+                    <button type="button" class="btn btn-outline-secondary quantity-minus" data-item-id="<%= item._id %>">-</button>
+                    <input type="number" class="form-control text-center quantity-input" value="<%= item.quantity %>" min="1" data-item-id="<%= item._id %>" readonly>
+                    <button type="button" class="btn btn-outline-secondary quantity-plus" data-item-id="<%= item._id %>">+</button>
+                  </div>
+                  <button type="button" class="btn btn-danger remove-item" data-item-id="<%= item._id %>">
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </div>
+              </div>
+            <% }); %>
+          </div>
+
+          <!-- Cart Summary -->
+          <div class="col-lg-4">
+            <div class="cart-summary">
+              <h4>Cart Summary</h4>
+              <hr>
+              <div class="d-flex justify-content-between mb-2">
+                <span>Total</span>
+                <span class="fw-bold">₹<%= total.toFixed(2) %></span>
+              </div>
+              <button type="button" class="btn btn-primary btn-lg w-100 mt-3" onclick="location.href='/checkout'">
+                Proceed to Checkout
+              </button>
+            </div>
+          </div>
+        </div>
+      <% } else { %>
+        <div class="empty-cart">
+          <img src="/images/empty-cart.png" alt="Empty Cart">
+          <h3>Your cart is empty</h3>
+          <p>Explore our products and add some delicious items to your cart!</p>
+          <a href="/products" class="btn btn-primary">Shop Now</a>
+        </div>
+      <% } %>
+    </div>
+  </section>
+
+  <%- include('../partials/user/footer') %>
+
+  <script>
+    // Update cart badge
+    function updateCartBadge(count) {
+      const badge = document.querySelector('.cart-badge');
+      if (badge) {
+        if (count > 0) {
+          badge.textContent = count;
+          badge.style.display = 'inline-block';
+        } else {
+          badge.style.display = 'none';
+        }
+      }
+    }
+
+    // Fetch current cart item count
+    function fetchCartItemCount() {
+      fetch('/cart/item-count', {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' }
+      })
+      .then(response => response.json())
+      .then(data => {
+        updateCartBadge(data.itemCount || 0);
+      })
+      .catch(error => console.error('Error fetching cart count:', error));
+    }
+
+    // Quantity update
+    document.querySelectorAll('.quantity-minus, .quantity-plus').forEach(button => {
+      button.addEventListener('click', function() {
+        const itemId = this.dataset.itemId;
+        const input = document.querySelector(`.quantity-input[data-item-id="${itemId}"]`);
+        let quantity = parseInt(input.value);
+        
+        if (this.classList.contains('quantity-minus') && quantity > 1) {
+          quantity--;
+        } else if (this.classList.contains('quantity-plus')) {
+          quantity++;
+        } else {
+          return; // No change in quantity
+        }
+
+        fetch('/cart/update-quantity', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ itemId, quantity })
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            input.value = quantity;
+            const cartItem = document.querySelector(`.cart-item[data-item-id="${itemId}"]`);
+            cartItem.querySelector('.subtotal').textContent = `Subtotal: ₹${data.itemSubtotal.toFixed(2)}`;
+            document.querySelector('.cart-summary .fw-bold').textContent = `₹${data.cartTotal.toFixed(2)}`;
+            updateCartBadge(data.itemCount); // Update badge with number of unique items
+            Swal.fire('Success', 'Quantity updated', 'success');
+          } else {
+            Swal.fire('Error', data.message, 'error');
+          }
+        })
+        .catch(error => {
+          console.error('Error updating quantity:', error);
+          Swal.fire('Error', 'An error occurred while updating quantity', 'error');
+        });
+      });
+    });
+
+    // Remove item
+    document.querySelectorAll('.remove-item').forEach(button => {
+      button.addEventListener('click', function() {
+        const itemId = this.dataset.itemId;
+        
+        Swal.fire({
+          title: 'Are you sure?',
+          text: 'Do you want to remove this item from your cart?',
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonText: 'Yes, remove it!'
+        }).then(result => {
+          if (result.isConfirmed) {
+            fetch('/cart/remove', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ itemId })
+            })
+            .then(response => response.json())
+            .then(data => {
+              if (data.success) {
+                const cartItem = document.querySelector(`.cart-item[data-item-id="${itemId}"]`);
+                if (cartItem) {
+                  cartItem.remove();
+                }
+                document.querySelector('.cart-summary .fw-bold').textContent = `₹${data.cartTotal.toFixed(2)}`;
+                updateCartBadge(data.itemCount); // Update badge with number of unique items
+                if (data.itemCount === 0) {
+                  location.reload();
+                }
+                Swal.fire('Removed', 'Item removed from cart', 'success');
+              } else {
+                Swal.fire('Error', data.message, 'error');
+              }
+            })
+            .catch(error => {
+              console.error('Error removing item:', error);
+              Swal.fire('Error', 'An error occurred while removing item', 'error');
+            });
+          }
+        });
+      });
+    });
+
+    // Initialize cart badge
+    document.addEventListener('DOMContentLoaded', fetchCartItemCount);
+  </script>
+</body>
+</html>

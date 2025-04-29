@@ -147,11 +147,18 @@
           <% products.forEach(product => { %>
             <div class="col">
               <div class="card h-100 shadow-sm product-card">
-                <a href="/product/<%= product._id %>" class="text-decoration-none text-dark">
-                  <!-- Product Image - Using the pre-selected displayVariant -->
-                  <img src="<%= product.displayVariant.productImage[0] %>" class="card-img-top" alt="<%= product.productName %>" style="height: 200px; object-fit: cover;">
-                  
-                  <div class="card-body">
+                <div class="product-image position-relative">
+                  <a href="/product/<%= product._id %>">
+                    <img src="<%= product.displayVariant.productImage[0] %>" class="card-img-top" alt="<%= product.productName %>" style="height: 200px; object-fit: cover;">
+                  </a>
+                  <div class="product-actions">
+                    <button class="action-btn wishlist-btn" title="Add to Wishlist" data-product-id="<%= product._id %>">
+                      <i class="fas fa-heart"></i>
+                    </button>
+                  </div>
+                </div>
+                <div class="card-body">
+                  <a href="/product/<%= product._id %>" class="text-decoration-none text-dark">
                     <!-- Product Name -->
                     <h5 class="card-title"><%= product.productName %></h5>
                     
@@ -185,8 +192,8 @@
                         <span class="badge bg-danger">Out of Stock</span>
                       <% } %>
                     </p>
-                  </div>
-                </a>
+                  </a>
+                </div>
               </div>
             </div>
           <% }); %>
@@ -195,6 +202,73 @@
     </div>
   </div>
 </div>
+
+<style>
+  /* Product Card Styling */
+  .product-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .product-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  }
+
+  .product-image {
+    position: relative;
+    height: 200px;
+    overflow: hidden;
+  }
+
+  .product-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+  }
+
+  .product-card:hover .product-image img {
+    transform: scale(1.05);
+  }
+
+  .product-actions {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .product-card:hover .product-actions {
+    opacity: 1;
+  }
+
+  .action-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background-color: white;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+  }
+
+  .action-btn:hover {
+    background-color: #4a2c2a;
+    color: white;
+  }
+
+  .wishlist-btn i {
+    font-size: 16px;
+  }
+</style>
 
 <script>
   // Function to apply filters when checkboxes are clicked
@@ -215,6 +289,18 @@
   function clearAllFilters() {
     window.location.href = '/products';
   }
+
+  // Wishlist button click handler
+  document.querySelectorAll('.wishlist-btn').forEach(button => {
+    button.addEventListener('click', function() {
+      const productId = this.dataset.productId;
+      if (productId) {
+        console.log(`Add product ${productId} to wishlist`);
+        // Replace with actual wishlist logic (e.g., AJAX request to backend)
+        // Example: fetch('/wishlist/add', { method: 'POST', body: JSON.stringify({ productId }) })
+      }
+    });
+  });
 </script>
 
 <%- include('../partials/user/footer') %>
