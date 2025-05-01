@@ -81,9 +81,9 @@
                 <div class="flex-grow-1">
                   <h5><%= item.product.productName %></h5>
                   <p class="mb-1">
-                    Flavor: <%= item.flavor %> | Sugar: <%= item.sugarLevel %> | Weight: <%= item.weight %>g
+                    Flavor: <%= item.variant.flavor %> | Sugar: <%= item.variant.sugarLevel %> | Weight: <%= item.variant.weight %>g
                   </p>
-                  <p class="mb-1">Price: ₹<%= (item.price / item.quantity).toFixed(2) %> x <%= item.quantity %></p>
+                  <p class="mb-1">Price: ₹<%= (item.variant.salePrice ? item.variant.salePrice : 0).toFixed(2) %> x <%= item.quantity %></p>
                   <p class="fw-bold subtotal">Subtotal: ₹<%= item.subtotal.toFixed(2) %></p>
                 </div>
                 <div class="d-flex align-items-center">
@@ -160,8 +160,12 @@
       button.addEventListener('click', function() {
         const itemId = this.dataset.itemId;
         const input = document.querySelector(`.quantity-input[data-item-id="${itemId}"]`);
+        if (!input) {
+          console.error(`Quantity input not found for itemId: ${itemId}`);
+          return;
+        }
         let quantity = parseInt(input.value);
-        
+
         if (this.classList.contains('quantity-minus') && quantity > 1) {
           quantity--;
         } else if (this.classList.contains('quantity-plus')) {
@@ -170,20 +174,40 @@
           return; // No change in quantity
         }
 
+        // Disable button to prevent multiple clicks
+        this.disabled = true;
+
         fetch('/cart/update-quantity', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ itemId, quantity })
         })
-        .then(response => response.json())
+        .then(response => {
+          if (response.status === 401 || response.redirected) {
+            Swal.fire('Session Expired', 'Please log in to continue', 'warning')
+              .then(() => {
+                window.location.href = '/user/login';
+              });
+            return null;
+          }
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          return response.json();
+        })
         .then(data => {
+          if (!data) return; // Return if redirected
           if (data.success) {
             input.value = quantity;
             const cartItem = document.querySelector(`.cart-item[data-item-id="${itemId}"]`);
-            cartItem.querySelector('.subtotal').textContent = `Subtotal: ₹${data.itemSubtotal.toFixed(2)}`;
-            document.querySelector('.cart-summary .fw-bold').textContent = `₹${data.cartTotal.toFixed(2)}`;
-            updateCartBadge(data.itemCount); // Update badge with number of unique items
-            Swal.fire('Success', 'Quantity updated', 'success');
+            if (cartItem) {
+              cartItem.querySelector('.subtotal').textContent = `Subtotal: ₹${data.itemSubtotal.toFixed(2)}`;
+              document.querySelector('.cart-summary .fw-bold').textContent = `₹${data.cartTotal.toFixed(2)}`;
+              updateCartBadge(data.itemCount);
+              Swal.fire('Success', 'Quantity updated', 'success');
+            } else {
+              console.error(`Cart item not found for itemId: ${itemId}`);
+            }
           } else {
             Swal.fire('Error', data.message, 'error');
           }
@@ -191,6 +215,9 @@
         .catch(error => {
           console.error('Error updating quantity:', error);
           Swal.fire('Error', 'An error occurred while updating quantity', 'error');
+        })
+        .finally(() => {
+          this.disabled = false;
         });
       });
     });
@@ -199,7 +226,7 @@
     document.querySelectorAll('.remove-item').forEach(button => {
       button.addEventListener('click', function() {
         const itemId = this.dataset.itemId;
-        
+
         Swal.fire({
           title: 'Are you sure?',
           text: 'Do you want to remove this item from your cart?',
@@ -208,24 +235,42 @@
           confirmButtonText: 'Yes, remove it!'
         }).then(result => {
           if (result.isConfirmed) {
+            // Disable button to prevent multiple clicks
+            this.disabled = true;
+
             fetch('/cart/remove', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ itemId })
             })
-            .then(response => response.json())
+            .then(response => {
+              if (response.status === 401 || response.redirected) {
+                Swal.fire('Session Expired', 'Please log in to continue', 'warning')
+                  .then(() => {
+                    window.location.href = '/user/login';
+                  });
+                return null;
+              }
+              if (!response.ok) {
+                throw new Error('Network response was not ok');
+              }
+              return response.json();
+            })
             .then(data => {
+              if (!data) return; // Return if redirected
               if (data.success) {
                 const cartItem = document.querySelector(`.cart-item[data-item-id="${itemId}"]`);
                 if (cartItem) {
                   cartItem.remove();
+                  document.querySelector('.cart-summary .fw-bold').textContent = `₹${data.cartTotal.toFixed(2)}`;
+                  updateCartBadge(data.itemCount);
+                  if (data.itemCount === 0) {
+                    location.reload();
+                  }
+                  Swal.fire('Removed', 'Item removed from cart', 'success');
+                } else {
+                  console.error(`Cart item not found for itemId: ${itemId}`);
                 }
-                document.querySelector('.cart-summary .fw-bold').textContent = `₹${data.cartTotal.toFixed(2)}`;
-                updateCartBadge(data.itemCount); // Update badge with number of unique items
-                if (data.itemCount === 0) {
-                  location.reload();
-                }
-                Swal.fire('Removed', 'Item removed from cart', 'success');
               } else {
                 Swal.fire('Error', data.message, 'error');
               }
@@ -233,6 +278,9 @@
             .catch(error => {
               console.error('Error removing item:', error);
               Swal.fire('Error', 'An error occurred while removing item', 'error');
+            })
+            .finally(() => {
+              this.disabled = false;
             });
           }
         });

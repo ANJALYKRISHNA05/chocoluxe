@@ -4,6 +4,7 @@ const passport = require("passport");
 const userController = require('../controllers/user/userController');
 const shopController = require('../controllers/user/shopController');
 const cartController = require('../controllers/user/cartController');
+const wishlistController = require('../controllers/user/wishlistController');
 
 const { userAuth } = require('../middlewares/auth');
 const { profileStorage } = require('../config/cloudinary');
@@ -58,15 +59,11 @@ router.post('/add-to-cart', userAuth, cartController.addToCart);
 router.get('/cart', userAuth, cartController.loadCart);
 router.post('/cart/update-quantity', userAuth, cartController.updateCartQuantity);
 router.post('/cart/remove', userAuth, cartController.removeFromCart);
-router.get('/cart/item-count', userAuth, async (req, res) => {
-    try {
-        const cart = await require('../models/cartSchema').findOne({ user: req.session.user });
-        const itemCount = cart ? cart.items.length : 0; // Count unique items
-        res.json({ itemCount });
-    } catch (error) {
-        console.error('Error fetching cart count:', error);
-        res.status(500).json({ itemCount: 0 });
-    }
-});
+router.get('/cart/item-count', userAuth, cartController.getCartItemCount);
+
+router.post('/add-to-wishlist', userAuth, wishlistController.addToWishlist);
+router.get('/wishlist', userAuth, wishlistController.loadWishlist);
+router.post('/wishlist/remove', userAuth, wishlistController.removeFromWishlist);
+router.get('/wishlist/item-count', userAuth, wishlistController.getWishlistItemCount);
 
 module.exports = router;

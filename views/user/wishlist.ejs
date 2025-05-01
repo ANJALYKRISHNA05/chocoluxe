@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %> - CHOCOLUXE</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <style>
+    body, html { height: 100%; margin: 0; background-color: #f5e8d4; font-family: 'Nunito Sans', sans-serif; display: flex; flex-direction: column; }
+    .wishlist-section { flex: 1 0 auto; padding: 40px 0; }
+    .wishlist-table { background-color: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+    .wishlist-table img { width: 80px; height: 80px; object-fit: cover; border-radius: 4px; }
+    .wishlist-table .product-name { font-weight: 600; color: #4a2c2a; }
+    .wishlist-table .variant-info { font-size: 0.9rem; color: #6c757d; }
+    .wishlist-table .sale-price { font-weight: bold; color: #dc3545; }
+    .wishlist-table .regular-price { color: #6c757d; text-decoration: line-through; }
+    .wishlist-table .stock-status { font-size: 0.9rem; }
+    .wishlist-table .action-btn { padding: 8px 15px; font-size: 0.9rem; }
+    .empty-wishlist { text-align: center; padding: 50px; background-color: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+    .empty-wishlist i { font-size: 3rem; color: #dc3545; margin-bottom: 20px; }
+    @media (max-width: 768px) {
+      .wishlist-table { font-size: 0.9rem; }
+      .wishlist-table img { width: 60px; height: 60px; }
+      .wishlist-table .action-btn { padding: 6px 10px; font-size: 0.8rem; }
+    }
+    @media (max-width: 480px) {
+      .wishlist-section { padding: 20px 0; }
+      .wishlist-table { font-size: 0.8rem; }
+      .wishlist-table img { width: 50px; height: 50px; }
+      .empty-wishlist { padding: 30px; }
+      .empty-wishlist i { font-size: 2rem; }
+    }
+  </style>
+</head>
+<body>
+  <%- include('../partials/user/header') %>
+
+  <section class="wishlist-section">
+    <div class="container">
+      <h2 class="mb-4">My Wishlist</h2>
+      <% if (wishlistItems && wishlistItems.length > 0) { %>
+        <div class="table-responsive">
+          <table class="table wishlist-table">
+            <thead>
+              <tr>
+                <th>Product</th>
+                <th>Variant</th>
+                <th>Price</th>
+                <th>Availability</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% wishlistItems.forEach(item => { %>
+                <tr>
+                  <td>
+                    <div class="d-flex align-items-center">
+                      <img src="<%= item.productImage %>" alt="<%= item.productName %>">
+                      <div class="ms-3">
+                        <a href="/product/<%= item.productId %>" class="product-name"><%= item.productName %></a>
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="variant-info">
+                      <span><%= item.flavor %></span><br>
+                      <span><%= item.sugarLevel %> sugar</span><br>
+                      <span><%= item.weight %>g</span>
+                    </div>
+                  </td>
+                  <td>
+                    <% if (item.salePrice < item.regularPrice) { %>
+                      <span class="sale-price">₹<%= item.salePrice.toFixed(2) %></span>
+                      <span class="regular-price ms-2">₹<%= item.regularPrice.toFixed(2) %></span>
+                    <% } else { %>
+                      <span class="sale-price">₹<%= item.regularPrice.toFixed(2) %></span>
+                    <% } %>
+                  </td>
+                  <td>
+                    <span class="stock-status <%= item.stockQuantity > 0 ? 'text-success' : 'text-danger' %>">
+                      <%= item.stockQuantity > 0 ? 'In Stock' : 'Out of Stock' %>
+                    </span>
+                  </td>
+                  <td>
+                    <button class="btn btn-primary action-btn add-to-cart-btn" 
+                            data-product-id="<%= item.productId %>"
+                            data-variant-id="<%= item.variantId %>"
+                            <%= item.stockQuantity === 0 ? 'disabled' : '' %>>
+                      <i class="fas fa-shopping-cart"></i> Add to Cart
+                    </button>
+                    <button class="btn btn-danger action-btn remove-from-wishlist-btn"
+                            data-product-id="<%= item.productId %>"
+                            data-variant-id="<%= item.variantId %>">
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </td>
+                </tr>
+              <% }); %>
+            </tbody>
+          </table>
+        </div>
+      <% } else { %>
+        <div class="empty-wishlist">
+          <i class="fas fa-heart-broken"></i>
+          <h3>Your Wishlist is Empty</h3>
+          <p>Add some products to your wishlist to see them here.</p>
+          <a href="/products" class="btn btn-primary">Shop Now</a>
+        </div>
+      <% } %>
+    </div>
+  </section>
+
+  <%- include('../partials/user/footer') %>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Update wishlist badge
+      function updateWishlistBadge(count) {
+        const badge = document.querySelector('.wishlist-badge');
+        if (badge) {
+          if (count > 0) {
+            badge.textContent = count;
+            badge.style.display = 'inline-block';
+          } else {
+            badge.style.display = 'none';
+          }
+        }
+      }
+
+      // Fetch wishlist item count
+      function fetchWishlistItemCount() {
+        fetch('/wishlist/item-count', {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' }
+        })
+        .then(response => response.json())
+        .then(data => {
+          updateWishlistBadge(data.itemCount || 0);
+        })
+        .catch(error => console.error('Error fetching wishlist count:', error));
+      }
+
+      // Add to cart from wishlist
+      document.querySelectorAll('.add-to-cart-btn').forEach(button => {
+        button.addEventListener('click', function() {
+          const productId = this.dataset.productId;
+          const variantId = this.dataset.variantId;
+
+          fetch('/add-to-cart', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ productId, variantId, quantity: 1 })
+          })
+          .then(response => response.json())
+          .then(data => {
+            if (data.success) {
+              Swal.fire('Success', 'Product added to cart successfully!', 'success');
+              const cartBadge = document.querySelector('.cart-badge');
+              cartBadge.textContent = data.itemCount;
+              cartBadge.style.display = 'inline-block';
+            } else {
+              Swal.fire('Error', data.message || 'Failed to add product to cart', 'error');
+            }
+          })
+          .catch(error => {
+            console.error('Error:', error);
+            Swal.fire('Error', 'An error occurred. Please try again.', 'error');
+          });
+        });
+      });
+
+      // Remove from wishlist
+      document.querySelectorAll('.remove-from-wishlist-btn').forEach(button => {
+        button.addEventListener('click', function() {
+          const productId = this.dataset.productId;
+          const variantId = this.dataset.variantId;
+
+          Swal.fire({
+            title: 'Are you sure?',
+            text: 'Do you want to remove this product from your wishlist?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, remove it!',
+            cancelButtonText: 'No, keep it'
+          }).then(result => {
+            if (result.isConfirmed) {
+              fetch('/wishlist/remove', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ productId, variantId })
+              })
+              .then(response => response.json())
+              .then(data => {
+                if (data.success) {
+                  Swal.fire('Removed', 'Product removed from wishlist', 'success');
+                  this.closest('tr').remove();
+                  updateWishlistBadge(data.itemCount);
+                  if (document.querySelectorAll('.wishlist-table tbody tr').length === 0) {
+                    location.reload(); // Reload to show empty wishlist message
+                  }
+                } else {
+                  Swal.fire('Error', data.message || 'Failed to remove product from wishlist', 'error');
+                }
+              })
+              .catch(error => {
+                console.error('Error:', error);
+                Swal.fire('Error', 'An error occurred. Please try again.', 'error');
+              });
+            }
+          });
+        });
+      });
+
+      // Initialize wishlist badge
+      fetchWishlistItemCount();
+    });
+  </script>
+</body>
+</html>

@@ -9,7 +9,7 @@ require('dotenv').config();
 
 const pageNotfound = async (req, res) => {
     try {
-        res.render('page-404');
+        res.render('user/page-404');
     } catch (error) {
         res.redirect('/pageNotfound');
     }
