@@ -166,30 +166,45 @@
         }
 
         // Fetch and update cart badge
-        function fetchCartItemCount() {
-            fetch('/cart/item-count', {
-                method: 'GET',
-                headers: { 'Content-Type': 'application/json' }
-            })
-            .then(response => response.json())
-            .then(data => {
-                updateCartBadge(data.itemCount || 0);
-            })
-            .catch(error => console.error('Error fetching cart count:', error));
+      // Fetch and update cart badge
+function fetchCartItemCount() {
+    fetch('/cart/item-count', {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' }
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
         }
+        return response.json();
+    })
+    .then(data => {
+        if (data.itemCount !== undefined) {
+            updateCartBadge(data.itemCount || 0);
+        }
+    })
+    .catch(error => console.error('Error fetching cart count:', error));
+}
 
-        // Fetch and update wishlist badge
-        function fetchWishlistItemCount() {
-            fetch('/wishlist/item-count', {
-                method: 'GET',
-                headers: { 'Content-Type': 'application/json' }
-            })
-            .then(response => response.json())
-            .then(data => {
-                updateWishlistBadge(data.itemCount || 0);
-            })
-            .catch(error => console.error('Error fetching wishlist count:', error));
+// Fetch and update wishlist badge
+function fetchWishlistItemCount() {
+    fetch('/wishlist/item-count', {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' }
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
         }
+        return response.json();
+    })
+    .then(data => {
+        if (data.itemCount !== undefined) {
+            updateWishlistBadge(data.itemCount || 0);
+        }
+    })
+    .catch(error => console.error('Error fetching wishlist count:', error));
+}
 
         // Initialize badges
         document.addEventListener('DOMContentLoaded', function() {

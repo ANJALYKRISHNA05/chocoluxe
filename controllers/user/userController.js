@@ -117,7 +117,6 @@ const verifyOtp = async (req, res) => {
         const { otp } = req.body;
         const storedOtp = req.session.userOtp;
         const userData = req.session.userData;
-        
 
         if (!storedOtp || !userData || otp !== storedOtp) {
             return res.json({ success: false, message: 'Invalid OTP. Please try again.' });
@@ -125,7 +124,6 @@ const verifyOtp = async (req, res) => {
 
         const saltRounds = 10;
         const hashedPassword = await bcrypt.hash(userData.password, saltRounds);
-        console.log(hashedPassword);
 
         const newUser = new User({
             username: userData.username,
@@ -136,14 +134,17 @@ const verifyOtp = async (req, res) => {
 
         await newUser.save();
 
-        req.session.user = {
-            id: newUser._id,
+        // Set req.session.user as the user ID (string)
+        req.session.user = newUser._id.toString();
+        // Optionally store additional user data in a separate session variable
+        req.session.userData = {
             username: newUser.username,
             email: newUser.email,
             isBlocked: newUser.isBlocked
         };
+
         delete req.session.userOtp;
-        delete req.session.userData; 
+        delete req.session.userData; // This deletes the signup form data, not the new userData
         res.json({ success: true, redirectUrl: '/' });
     } catch (error) {
         console.error('Error verifying OTP:', error);
@@ -373,16 +374,16 @@ const resetPassword = async (req, res) => {
 };
 
 
-
 const loadProfile = async (req, res) => {
     try {
-        const user = await User.findById(req.session.user._id);
+        const user = await User.findById(req.session.user);
         if (!user) {
             return res.redirect('/user/login');
         }
         
         res.render('user/profile', {
             user: user,
+            userData: req.session.userData, 
             activeTab: 'details'
         });
     } catch (error) {

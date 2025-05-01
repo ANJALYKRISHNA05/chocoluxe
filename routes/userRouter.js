@@ -21,7 +21,14 @@ router.post("/user/resend-otp", userController.resendOtp);
 router.get('/user/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
 router.get('/user/auth/google/callback', passport.authenticate('google', { failureRedirect: '/signup' }), (req, res) => {
     const user = req.user;
-    req.session.user = user;
+    // Set req.session.user as the user ID (string)
+    req.session.user = user._id.toString();
+    // Optionally store additional user data
+    req.session.userData = {
+        username: user.username,
+        email: user.email,
+        isBlocked: user.isBlocked
+    };
     res.redirect('/');
 });
 router.get('/user/logout', userController.logout);
