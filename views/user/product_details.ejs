@@ -23,7 +23,7 @@
       </nav>
 
       <div class="row">
-        <!-- Product Images -->
+      
         <div class="col-lg-6 mb-4">
           <% if (product.variants && product.variants.length > 0) { %>
             <div class="product-image-container">
@@ -45,7 +45,7 @@
           <% } %>
         </div>
 
-        <!-- Product Info -->
+       
         <div class="col-lg-6">
           <h1 class="product-title mb-3"><%= product.productName %></h1>
           <div class="product-category mb-3">
@@ -77,7 +77,7 @@
               <input type="hidden" name="productId" value="<%= product._id %>">
               <input type="hidden" id="selected-variant-id" name="variantId" value="<%= product.variants[0]._id %>">
               
-              <!-- Variant Cards Container -->
+           
               <div class="variant-cards-container mb-4">
                 <div class="row">
                   <% product.variants.forEach((variant, index) => { %>
@@ -146,7 +146,7 @@
         </div>
       </div>
 
-      <!-- Related Products -->
+      
       <% if (relatedProducts && relatedProducts.length > 0) { %>
         <div class="related-products mt-5">
           <h3 class="section-title mb-4">Related Products</h3>
@@ -185,11 +185,11 @@
 
   <script>
     document.addEventListener('DOMContentLoaded', function() {
-      // Product variants data
+   
       const productVariants = <%- JSON.stringify(product.variants) %>;
       let currentVariant = productVariants[0];
       
-      // DOM elements
+  
       const variantCards = document.querySelectorAll('.variant-card');
       const quantityInput = document.getElementById('quantity');
       const stockStatus = document.getElementById('available-stock');
@@ -200,7 +200,7 @@
       const zoomLens = document.querySelector('.zoom-lens');
       const zoomResult = document.querySelector('.zoom-result');
       
-      // Zoom functionality
+
       const zoomFactor = 2.5;
       
       function initializeZoom() {
@@ -256,7 +256,7 @@
         return { x, y };
       }
       
-      // Quantity selector
+      
       document.getElementById('quantity-minus').addEventListener('click', function() {
         const currentValue = parseInt(quantityInput.value);
         if (currentValue > 1) {
@@ -271,7 +271,7 @@
         }
       });
       
-      // Update product info based on variant card selection
+     
       function updateProductInfo(variantCard) {
         const variantId = variantCard.dataset.variantId;
         const stockQuantity = parseInt(variantCard.dataset.stock);
@@ -330,7 +330,7 @@
         }
       }
       
-      // Add event listeners to variant cards
+    
       variantCards.forEach(card => {
         card.addEventListener('click', function() {
           variantCards.forEach(c => c.classList.remove('selected'));
@@ -338,8 +338,7 @@
           updateProductInfo(this);
         });
       });
-      
-      // Add to cart functionality
+  
       addToCartBtn.addEventListener('click', function() {
         const productId = document.querySelector('input[name="productId"]').value;
         const variantId = document.getElementById('selected-variant-id').value;
@@ -360,7 +359,7 @@
         .then(data => {
           if (data.success) {
             Swal.fire('Success', 'Product added to cart successfully!', 'success');
-            // Update cart badge
+       
             const badge = document.querySelector('.cart-badge');
             badge.textContent = data.itemCount;
             badge.style.display = 'inline-block';
@@ -373,8 +372,7 @@
           Swal.fire('Error', 'An error occurred. Please try again.', 'error');
         });
       });
-      
-      // Add to wishlist functionality
+  
       addToWishlistBtn.addEventListener('click', function() {
         const productId = document.querySelector('input[name="productId"]').value;
         const variantId = document.getElementById('selected-variant-id').value;
@@ -406,14 +404,14 @@
         });
       });
       
-      // Init
+ 
       if (variantCards.length > 0) {
         updateProductInfo(variantCards[0]);
       }
       initializeZoom();
     });
     
-    // Function to change main image when thumbnail is clicked
+
     function changeMainImage(imageSrc, thumbnailElement) {
       const mainImage = document.getElementById('main-product-image');
       const zoomResult = document.querySelector('.zoom-result');

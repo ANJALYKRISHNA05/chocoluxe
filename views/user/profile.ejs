@@ -142,7 +142,7 @@
             flex: 1;
         }
 
-        /* Sidebar Styles (for sidebar.ejs) */
+       
         .sidebar {
             background-color: white;
             border-radius: 8px;
@@ -203,7 +203,7 @@
             color: #ef4444;
         }
 
-        /* Profile Card Styles (from profile.ejs) */
+      
         .profile-card {
             background-color: var(--card-bg);
             border-radius: 15px;
@@ -293,7 +293,7 @@
             border: 1px solid #c3e6cb;
         }
 
-        /* Footer Styles (from footer.ejs) */
+     
         .footer {
             background-color: var(--primary);
             color: white;
@@ -317,7 +317,7 @@
             margin: 5px;
         }
 
-        /* Responsive Styles */
+       
         @media (max-width: 992px) {
             .content-container {
                 flex-direction: column;
@@ -429,7 +429,7 @@
             }
         }
 
-        /* Custom hover background for sidebar links */
+       
         .hover-bg-light:hover {
             background-color: #f9fafb !important;
         }
@@ -453,10 +453,7 @@
             <div class="profile-card">
                 <div class="profile-header">
                     <img class="profile-image" src="<%= user.profileImage %>" alt="Profile Image">
-                    <div class="profile-title">
-                        <h2><%= user.username %></h2>
-                        <p>Member since <%= new Date(user.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) %></p>
-                    </div>
+                   
                 </div>
                 
                 <div class="profile-info">

@@ -21,13 +21,13 @@ router.post("/user/resend-otp", userController.resendOtp);
 router.get('/user/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
 router.get('/user/auth/google/callback', passport.authenticate('google', { failureRedirect: '/signup' }), (req, res) => {
     const user = req.user;
-    // Set req.session.user as the user ID (string)
-    req.session.user = user._id.toString();
-    // Optionally store additional user data
-    req.session.userData = {
+    
+    req.session.user = {
+        _id: user._id.toString(),
         username: user.username,
         email: user.email,
-        isBlocked: user.isBlocked
+        isBlocked: user.isBlocked,
+        profileImage: user.profileImage || '/Images/default-profile.jpg' 
     };
     res.redirect('/');
 });
@@ -61,16 +61,13 @@ router.post('/user/address/set-default', userAuth, userController.setDefaultAddr
 router.get('/user/change-password', userAuth, userController.loadChangePassword);
 router.post('/user/change-password', userAuth, userController.changePassword);
 
-// Cart routes
+
 router.post('/add-to-cart', userAuth, cartController.addToCart);
 router.get('/cart', userAuth, cartController.loadCart);
 router.post('/cart/update-quantity', userAuth, cartController.updateCartQuantity);
 router.post('/cart/remove', userAuth, cartController.removeFromCart);
 router.get('/cart/item-count', userAuth, cartController.getCartItemCount);
 
-router.post('/add-to-wishlist', userAuth, wishlistController.addToWishlist);
-router.get('/wishlist', userAuth, wishlistController.loadWishlist);
-router.post('/wishlist/remove', userAuth, wishlistController.removeFromWishlist);
-router.get('/wishlist/item-count', userAuth, wishlistController.getWishlistItemCount);
+
 
 module.exports = router;

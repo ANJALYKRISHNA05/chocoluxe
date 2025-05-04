@@ -2,7 +2,7 @@
 
 <div class="container my-5">
   <div class="row">
-    <!-- Filter Sidebar -->
+   
     <div class="col-lg-3 mb-4">
       <div class="card shadow-sm">
         <div class="card-header bg-primary text-white">
@@ -10,7 +10,7 @@
         </div>
         <div class="card-body">
           <form id="filterForm" action="/products" method="GET">
-            <!-- Search Box -->
+            
             <div class="mb-3">
               <label for="search" class="form-label">Search Products</label>
               <div class="input-group">
@@ -23,7 +23,7 @@
               </div>
             </div>
 
-            <!-- Sort Options -->
+           
             <div class="mb-3">
               <label for="sort" class="form-label">Sort By</label>
               <select class="form-select" name="sort" id="sort" onchange="this.form.submit()">
@@ -37,7 +37,7 @@
 
             <hr>
 
-            <!-- Category Filter -->
+           
             <div class="mb-3">
               <label class="form-label">Category</label>
               <div class="overflow-auto" style="max-height: 150px;">
@@ -56,7 +56,7 @@
 
             <hr>
 
-            <!-- Flavor Filter -->
+           
             <div class="mb-3">
               <label class="form-label">Flavor</label>
               <% flavors.forEach(flavor => { %>
@@ -73,7 +73,7 @@
 
             <hr>
 
-            <!-- Sugar Level Filter -->
+           
             <div class="mb-3">
               <label class="form-label">Sugar Level</label>
               <% sugarLevels.forEach(level => { %>
@@ -90,7 +90,7 @@
 
             <hr>
 
-            <!-- Weight Filter -->
+           
             <div class="mb-3">
               <label class="form-label">Weight (grams)</label>
               <% weights.forEach(weight => { %>
@@ -107,7 +107,7 @@
 
             <hr>
 
-            <!-- Price Range Filter -->
+            
             <div class="mb-3">
               <label class="form-label">Price Range</label>
               <div class="d-flex gap-2">
@@ -131,7 +131,7 @@
       </div>
     </div>
 
-    <!-- Product Listing -->
+    
     <div class="col-lg-9">
       <div class="d-flex justify-content-between align-items-center mb-4">
         <h2>Products</h2>
@@ -159,22 +159,22 @@
                 </div>
                 <div class="card-body">
                   <a href="/product/<%= product._id %>" class="text-decoration-none text-dark">
-                    <!-- Product Name -->
+                    
                     <h5 class="card-title"><%= product.productName %></h5>
                     
-                    <!-- Category -->
+              
                     <p class="card-text text-muted mb-1">
                       <small><%= product.category.name %></small>
                     </p>
                     
-                    <!-- Variant Details - Using the pre-selected displayVariant -->
+                 
                     <p class="card-text mb-1">
                       <span class="badge bg-light text-dark"><%= product.displayVariant.flavor %></span>
                       <span class="badge bg-light text-dark"><%= product.displayVariant.sugarLevel %></span>
                       <span class="badge bg-light text-dark"><%= product.displayVariant.weight %>g</span>
                     </p>
                     
-                    <!-- Pricing - Using the pre-selected displayVariant -->
+                  
                     <div class="d-flex align-items-center mt-2">
                       <% if (product.displayVariant.salePrice < product.displayVariant.regularPrice) { %>
                         <h5 class="m-0 text-danger">₹<%= product.displayVariant.salePrice.toFixed(2) %></h5>
@@ -183,8 +183,7 @@
                         <h5 class="m-0">₹<%= product.displayVariant.regularPrice.toFixed(2) %></h5>
                       <% } %>
                     </div>
-                    
-                    <!-- Stock Status - Using the pre-selected displayVariant -->
+                
                     <p class="card-text mt-2">
                       <% if (product.displayVariant.stock_quantity > 0) { %>
                         <span class="badge bg-success">In Stock</span>
@@ -204,7 +203,7 @@
 </div>
 
 <style>
-  /* Product Card Styling */
+
   .product-card {
     transition: transform 0.3s ease, box-shadow 0.3s ease;
   }
@@ -271,26 +270,26 @@
 </style>
 
 <script>
-  // Function to apply filters when checkboxes are clicked
+ 
   document.querySelectorAll('.filter-checkbox').forEach(checkbox => {
     checkbox.addEventListener('change', function() {
       document.getElementById('filterForm').submit();
     });
   });
   
-  // Function to clear search
+
   function clearSearch() {
     const searchInput = document.getElementById('search');
     searchInput.value = '';
     document.getElementById('filterForm').submit();
   }
   
-  // Function to clear all filters
+
   function clearAllFilters() {
     window.location.href = '/products';
   }
 
-  // Wishlist button click handler
+ 
   document.querySelectorAll('.wishlist-btn').forEach(button => {
     button.addEventListener('click', function() {
       const productId = this.dataset.productId;

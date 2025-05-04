@@ -1,9 +1,12 @@
-const User=require("../models/userSchema")
+const User = require("../models/userSchema");
+
 const userAuth = (req, res, next) => {
     if (req.session.user) {
-        User.findById(req.session.user)
+        User.findById(req.session.user._id)
             .then(data => {
                 if (data && !data.isBlocked) {
+                  
+                    req.session.user.profileImage = data.profileImage || '/Images/default-profile.jpg';
                     next();
                 } else {
                     res.status(401).json({ success: false, message: 'User is blocked or not found' });
@@ -18,23 +21,22 @@ const userAuth = (req, res, next) => {
     }
 };
 
-const adminAuth=(req,res,next)=>{
-    User.findOne({isAdmin:true})
-    .then(data=>{
-        if(data){
-            next();
-        }else{
-            res.redirect("admin/login")
-        }
-    })
-    .catch(error=>{
-        console.log("Error in adminauth middleware",error);
-        res.status(500).send("Internal Server Error")
+const adminAuth = (req, res, next) => {
+    User.findOne({ isAdmin: true })
+        .then(data => {
+            if (data) {
+                next();
+            } else {
+                res.redirect("admin/login");
+            }
+        })
+        .catch(error => {
+            console.log("Error in adminauth middleware", error);
+            res.status(500).send("Internal Server Error");
+        });
+};
 
-    })
-}
-
-module.exports={
+module.exports = {
     userAuth,
     adminAuth,
-}
+};

@@ -42,7 +42,7 @@
         }
         .user-dropdown a i { font-size: 1rem; }
         .user-dropdown a:hover { 
-            background-color: #  background-color: #5a3c3a; 
+            background-color: #5a3c3a; 
             color: #d1a876; 
         }
         .user-menu.active .user-dropdown { 
@@ -95,11 +95,11 @@
         <div class="brand">CHOCOLUXE <small>TASTE THE LUXURY</small></div>
         <div class="nav-links">
             <a href="/">Home</a>
-            <a href="#">Categories</a>
+       
             <a href="/products">Products</a>
         </div>
         <div class="nav-icons">
-            <input type="text" class="form-control search-bar" placeholder="Search products...">
+           
             <a href="/wishlist" class="ms-3 position-relative">
                 <i class="fas fa-heart"></i>
                 <span class="wishlist-badge"></span>
@@ -130,7 +130,6 @@
             userMenu.classList.toggle('active');
         }
 
-        // Close dropdown when clicking outside
         document.addEventListener('click', function(event) {
             const userMenu = document.querySelector('.user-menu');
             const isClickInside = userMenu.contains(event.target);
@@ -139,7 +138,7 @@
             }
         });
 
-        // Update cart badge
+        
         function updateCartBadge(count) {
             const badge = document.querySelector('.cart-badge');
             if (badge) {
@@ -152,7 +151,7 @@
             }
         }
 
-        // Update wishlist badge
+        
         function updateWishlistBadge(count) {
             const badge = document.querySelector('.wishlist-badge');
             if (badge) {
@@ -165,8 +164,7 @@
             }
         }
 
-        // Fetch and update cart badge
-      // Fetch and update cart badge
+      
 function fetchCartItemCount() {
     fetch('/cart/item-count', {
         method: 'GET',
@@ -186,7 +184,7 @@ function fetchCartItemCount() {
     .catch(error => console.error('Error fetching cart count:', error));
 }
 
-// Fetch and update wishlist badge
+
 function fetchWishlistItemCount() {
     fetch('/wishlist/item-count', {
         method: 'GET',
@@ -206,7 +204,7 @@ function fetchWishlistItemCount() {
     .catch(error => console.error('Error fetching wishlist count:', error));
 }
 
-        // Initialize badges
+        
         document.addEventListener('DOMContentLoaded', function() {
             fetchCartItemCount();
             fetchWishlistItemCount();

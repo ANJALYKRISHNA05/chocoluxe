@@ -2,12 +2,12 @@
 
 <div class="container my-5">
     <div class="row">
-        <!-- Sidebar -->
+      
         <div class="col-md-3 mb-4">
             <%- include('../partials/user/sidebar', { activeTab: 'address' }) %>
         </div>
         
-        <!-- Main Content -->
+       
         <div class="col-md-9">
             <div class="card border-0 shadow-sm">
                 <div class="card-body p-4">
@@ -84,7 +84,7 @@
     </div>
 </div>
 
-<!-- Forms for POST requests -->
+
 <form id="deleteAddressForm" action="/user/address/delete" method="POST" style="display:none;">
     <input type="hidden" name="addressId" id="deleteAddressId">
 </form>
@@ -93,10 +93,10 @@
     <input type="hidden" name="addressId" id="setDefaultAddressId">
 </form>
 
-<!-- SweetAlert JavaScript -->
+
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Delete address button click handler
+      
         const deleteButtons = document.querySelectorAll('.delete-address-btn');
         deleteButtons.forEach(button => {
             button.addEventListener('click', function() {
@@ -119,7 +119,7 @@
             });
         });
         
-        // Set default button click handler
+      
         const defaultButtons = document.querySelectorAll('.set-default-btn');
         defaultButtons.forEach(button => {
             button.addEventListener('click', function() {
@@ -142,7 +142,7 @@
             });
         });
         
-        // Show SweetAlert for success messages if any
+       
         <% if (message) { %>
             Swal.fire({
                 icon: 'success',

@@ -1,13 +1,11 @@
 const Cart = require("../../models/cartSchema");
 const Product = require("../../models/productSchema");
 
-// Add to cart
 exports.addToCart = async (req, res) => {
   try {
     const { productId, variantId, quantity } = req.body;
     const userId = req.session.user;
-
-   
+    const MAX_QUANTITY_PER_ITEM = 5;
 
     if (!userId) {
       return res.status(401).json({
@@ -43,13 +41,23 @@ exports.addToCart = async (req, res) => {
     );
 
     if (existingItemIndex > -1) {
-      
-      cart.items[existingItemIndex].quantity += quantity;
+      const newQuantity = cart.items[existingItemIndex].quantity + quantity;
+      if (newQuantity > MAX_QUANTITY_PER_ITEM) {
+        return res.status(400).json({
+          success: false,
+          message: `Cannot add more than ${MAX_QUANTITY_PER_ITEM} units of this item to the cart`,
+        });
+      }
+      cart.items[existingItemIndex].quantity = newQuantity;
       cart.items[existingItemIndex].price =
         variant.salePrice * cart.items[existingItemIndex].quantity;
     } else {
-     
-
+      if (quantity > MAX_QUANTITY_PER_ITEM) {
+        return res.status(400).json({
+          success: false,
+          message: `Cannot add more than ${MAX_QUANTITY_PER_ITEM} units of this item to the cart`,
+        });
+      }
       cart.items.push({
         product: productId,
         sku: variant.sku,
@@ -59,7 +67,7 @@ exports.addToCart = async (req, res) => {
     }
 
     await cart.save();
-    const itemCount = cart.items.length; // Count unique items
+    const itemCount = cart.items.length;
 
     res.json({ success: true, message: "Product added to cart", itemCount });
   } catch (error) {
@@ -68,7 +76,6 @@ exports.addToCart = async (req, res) => {
   }
 };
 
-// Load cart page
 exports.loadCart = async (req, res) => {
   try {
     const userId = req.session.user;
@@ -81,20 +88,31 @@ exports.loadCart = async (req, res) => {
     let total = 0;
 
     if (cart && cart.items.length > 0) {
-      cartItems = cart.items.map((item) => {
-        const product = item.product;
-        const variant = product.variants.find((v) => v.sku === item.sku);
-        const price = variant && typeof variant.salePrice === 'number' ? variant.salePrice : 0;
-        const subtotal = price * item.quantity;
-        total += subtotal;
+      cartItems = cart.items
+        .filter((item) => {
+          const product = item.product;
+          return product && !product.isBlocked;
+        })
+        .map((item) => {
+          const product = item.product;
+          const variant = product.variants.find((v) => v.sku === item.sku);
+          const price = variant && typeof variant.salePrice === 'number' ? variant.salePrice : 0;
+          const subtotal = price * item.quantity;
+          total += subtotal;
 
-        return {
-          ...item.toObject(),
-          product,
-          variant,
-          subtotal,
-        };
+          return {
+            ...item.toObject(),
+            product,
+            variant,
+            subtotal,
+          };
+        });
+
+      cart.items = cart.items.filter((item) => {
+        const product = item.product;
+        return product && !product.isBlocked;
       });
+      await cart.save();
     }
 
     res.render("user/cart", {
@@ -109,11 +127,11 @@ exports.loadCart = async (req, res) => {
   }
 };
 
-// Update cart item quantity
 exports.updateCartQuantity = async (req, res) => {
   try {
     const { itemId, quantity } = req.body;
     const userId = req.session.user;
+    const MAX_QUANTITY_PER_ITEM = 5;
 
     if (!userId) {
       return res.status(401).json({ success: false, message: "Please log in" });
@@ -123,6 +141,13 @@ exports.updateCartQuantity = async (req, res) => {
       return res
         .status(400)
         .json({ success: false, message: "Invalid item ID or quantity" });
+    }
+
+    if (quantity > MAX_QUANTITY_PER_ITEM) {
+      return res.status(400).json({
+        success: false,
+        message: `Cannot set more than ${MAX_QUANTITY_PER_ITEM} units of this item`,
+      });
     }
 
     const cart = await Cart.findOne({ user: userId }).populate("items.product");
@@ -139,11 +164,17 @@ exports.updateCartQuantity = async (req, res) => {
         .json({ success: false, message: "Item not found in cart" });
     }
 
-    const product = item.product; 
+    const product = item.product;
     if (!product) {
       return res
         .status(404)
         .json({ success: false, message: "Product not found" });
+    }
+
+    if (product.isBlocked) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Product is no longer available" });
     }
 
     const variant = product.variants.find((v) => v.sku === item.sku);
@@ -163,17 +194,18 @@ exports.updateCartQuantity = async (req, res) => {
     item.quantity = quantity;
     await cart.save();
 
-    
     const cartTotal = cart.items.reduce((sum, cartItem) => {
       const itemProduct = cartItem.product;
-      if (!itemProduct) return sum; 
+      if (!itemProduct || itemProduct.isBlocked) return sum;
       const itemVariant = itemProduct.variants.find((v) => v.sku === cartItem.sku);
-      if (!itemVariant) return sum; 
+      if (!itemVariant) return sum;
       const price = itemVariant && typeof itemVariant.salePrice === 'number' ? itemVariant.salePrice : 0;
       return sum + price * cartItem.quantity;
     }, 0);
 
-    const itemCount = cart.items.length; // Count unique items
+    const itemCount = cart.items.filter(
+      (cartItem) => cartItem.product && !cartItem.product.isBlocked
+    ).length;
     const itemSubtotal = (variant && typeof variant.salePrice === 'number' ? variant.salePrice : 0) * quantity;
 
     res.json({
@@ -188,7 +220,6 @@ exports.updateCartQuantity = async (req, res) => {
   }
 };
 
-// Remove item from cart
 exports.removeFromCart = async (req, res) => {
   try {
     const { itemId } = req.body;
@@ -223,19 +254,18 @@ exports.removeFromCart = async (req, res) => {
     cart.items.splice(itemIndex, 1);
     await cart.save();
 
-    
     const cartTotal = cart.items.reduce((sum, cartItem) => {
       const itemProduct = cartItem.product;
-      if (!itemProduct) return sum; // Skip if product is null
+      if (!itemProduct) return sum;
       const itemVariant = itemProduct.variants.find((v) => v.sku === cartItem.sku);
-      if (!itemVariant) return sum; // Skip if variant is not found
-      const price = itemVariant && typeof itemVariant.salePrice === 'number' ? itemVariant.salePrice : 0;
+      if (!itemVariant) return sum;
+      const price = itemVariant && typeof itemVariant.salePrice === 'number' ? variant.salePrice : 0;
       return sum + price * cartItem.quantity;
     }, 0);
 
     const itemCount = cart.items.length;
 
-    res.json({
+     res.json({
       success: true,
       message: "Item removed from cart",
       cartTotal,
@@ -247,7 +277,6 @@ exports.removeFromCart = async (req, res) => {
   }
 };
 
-// Get cart item count
 exports.getCartItemCount = async (req, res) => {
   try {
     const userId = req.session.user;

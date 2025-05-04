@@ -48,7 +48,7 @@ V<%- include('../partials/header') %>
 <%- include('../partials/footer') %>
 
 <script>
-    // Timer for resend button
+   
     let countdown = 30;
     const timerElement = document.getElementById('timer');
     const resendBtn = document.getElementById('resendBtn');
@@ -65,12 +65,11 @@ V<%- include('../partials/header') %>
         }
     }
     
-    // Initialize timer
+
     resendBtn.disabled = true;
     updateTimer();
     const timerInterval = setInterval(updateTimer, 1000);
-    
-    // Resend OTP
+
     resendBtn.addEventListener('click', function() {
         fetch('/user/resend-email-verification-otp', {
             method: 'POST',
@@ -81,14 +80,14 @@ V<%- include('../partials/header') %>
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                // Reset timer
+           
                 countdown = 30;
                 resendBtn.disabled = true;
                 timerElement.textContent = `(${countdown}s)`;
                 clearInterval(timerInterval);
                 timerInterval = setInterval(updateTimer, 1000);
                 
-                // Show success message
+            
                 alert('Verification code resent successfully!');
             } else {
                 alert('Failed to resend verification code. Please try again.');
@@ -100,6 +99,6 @@ V<%- include('../partials/header') %>
         });
     });
     
-    // Focus on OTP input
+
     document.getElementById('otp').focus();
 </script>

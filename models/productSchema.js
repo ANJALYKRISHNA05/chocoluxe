@@ -70,19 +70,19 @@ const productSchema = new Schema(
   { timestamps: true }
 );
 
-// Pre-save middleware to generate SKU using first 3 letters
+
 productSchema.pre("save", function (next) {
   this.variants.forEach((variant) => {
     if (!variant.sku) {
       const { productName } = this;
       const { flavor, sugarLevel, weight } = variant;
 
-      // Get first 3 letters of each field (or full string if shorter)
+      
       const namePrefix = productName.replace(/\s+/g, "").slice(0, 3);
       const flavorPrefix = flavor.replace(/\s+/g, "").slice(0, 3);
       const sugarPrefix = sugarLevel.replace(/\s+/g, "").slice(0, 3);
 
-      // Generate SKU using template literal
+    
       variant.sku = `${namePrefix}-${flavorPrefix}-${sugarPrefix}-${weight}`
         .toUpperCase()
         .replace(/\s+/g, "-");
@@ -91,7 +91,6 @@ productSchema.pre("save", function (next) {
   next();
 });
 
-// Index for efficient querying of SKUs
 productSchema.index({ "variants.sku": 1 });
 
 const Product = mongoose.model("Product", productSchema);

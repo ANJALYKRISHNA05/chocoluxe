@@ -148,11 +148,10 @@
             
             let countdownTimer;
             let seconds = 60;
-            
-            // Focus on OTP input field
+          
             otpInput.focus();
             
-            // Start countdown immediately
+            
             startCountdown();
             
             function startCountdown() {
@@ -172,7 +171,7 @@
                 }, 1000);
             }
             
-            // Handle OTP submission
+            
             otpForm.addEventListener('submit', function(e) {
                 e.preventDefault();
                 
@@ -183,7 +182,7 @@
                     return;
                 }
                 
-                // Submit OTP via AJAX
+              
                 fetch('/user/verify-email-update', {
                     method: 'POST',
                     headers: {
@@ -200,7 +199,7 @@
                         }, 1500);
                     } else {
                         showNotification(data.message || 'Invalid OTP. Please try again.', 'error');
-                        otpInput.value = ''; // Clear input on error
+                        otpInput.value = ''; 
                         otpInput.focus();
                     }
                 })
@@ -210,7 +209,7 @@
                 });
             });
             
-            // Handle resend OTP
+
             resendBtn.addEventListener('click', function() {
                 fetch('/user/resend-email-update-otp', {
                     method: 'POST',
@@ -223,7 +222,7 @@
                     if (data.success) {
                         showNotification('OTP sent successfully! Check your email.', 'success');
                         startCountdown();
-                        otpInput.value = ''; // Clear input
+                        otpInput.value = ''; 
                         otpInput.focus();
                     } else {
                         showNotification(data.message || 'Failed to resend OTP', 'error');
