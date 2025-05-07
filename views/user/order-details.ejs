@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %> - CHOCOLUXE</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <style>
+    body {
+      font-family: 'Nunito Sans', sans-serif;
+      background-color: #f5e8d4;
+      min-height: 100vh;
+    }
+    .order-container {
+      max-width: 1000px;
+      margin: 0 auto;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      padding: 2rem;
+    }
+    .order-header {
+      border-bottom: 1px solid #dee2e6;
+      padding-bottom: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    .btn-primary {
+      background-color: #4b2e2e;
+      border-color: #4b2e2e;
+    }
+    .btn-primary:hover {
+      background-color: #3c2525;
+      border-color: #3c2525;
+    }
+    .btn-danger {
+      background-color: #dc3545;
+      border-color: #dc3545;
+    }
+    .btn-danger:hover {
+      background-color: #c82333;
+      border-color: #c82333;
+    }
+    .btn-warning {
+      background-color: #f6ad55;
+      border-color: #f6ad55;
+    }
+    .btn-warning:hover {
+      background-color: #e69b44;
+      border-color: #e69b44;
+    }
+    .section-title {
+      font-weight: 700;
+      position: relative;
+      padding-bottom: 0.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .section-title::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      height: 3px;
+      width: 40px;
+      background-color: #f8c78d;
+      border-radius: 2px;
+    }
+    .info-card {
+      border: 1px solid #dee2e6;
+      border-radius: 8px;
+      padding: 1.5rem;
+      background-color: #fff;
+    }
+    .status-step {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      flex: 1;
+    }
+    .status-step::before {
+      content: '';
+      position: absolute;
+      top: 22px;
+      width: 100%;
+      height: 2px;
+      background-color: #dee2e6;
+      right: 50%;
+      z-index: 0;
+    }
+    .status-step:first-child::before {
+      display: none;
+    }
+    .status-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 0.75rem;
+      z-index: 1;
+      background-color: #dee2e6;
+      color: #6c757d;
+      border: 2px solid #fff;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+    }
+    .status-step.active .status-icon {
+      background-color: #4b2e2e;
+      color: #fff;
+      box-shadow: 0 4px 10px rgba(75, 46, 46, 0.2);
+    }
+    .status-icon.pending { background-color: #f6ad55; }
+    .status-icon.confirmed { background-color: #4299e1; }
+    .status-icon.shipped { background-color: #9f7aea; }
+    .status-icon.delivered { background-color: #28a745; }
+    .status-icon.return-requested { background-color: #f6ad55; }
+    .status-icon.returned { background-color: #17a2b8; }
+    .status-icon.cancelled { background-color: #dc3545; }
+    .status-step.active::before { background-color: #4b2e2e; }
+    .status-step.pending.active::before { background-color: #f6ad55; }
+    .status-step.confirmed.active::before { background-color: #4299e1; }
+    .status-step.shipped.active::before { background-color: #9f7aea; }
+    .status-step.delivered.active::before { background-color: #28a745; }
+    .status-step.return-requested.active::before { background-color: #f6ad55; }
+    .status-step.returned.active::before { background-color: #17a2b8; }
+    .status-step.cancelled.active::before { background-color: #dc3545; }
+    .order-item {
+      border: 1px solid #dee2e6;
+      border-radius: 8px;
+      padding: 1rem;
+      background-color: #fff;
+      transition: all 0.3s ease;
+    }
+    .order-item:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+    .item-image {
+      width: 80px;
+      height: 80px;
+      object-fit: cover;
+      border-radius: 4px;
+      border: 1px solid #dee2e6;
+    }
+    .modal-content {
+      border-radius: 8px;
+      padding: 1.5rem;
+    }
+    textarea.form-control {
+      border-radius: 4px;
+    }
+    .toast {
+      border-radius: 8px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+  </style>
+</head>
+<body>
+  <%- include('../partials/user/header') %>
+
+  <div class="container py-5">
+    <div class="order-container">
+      <div class="order-header d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center">
+        <div>
+          <a href="/user/orders" class="btn btn-outline-dark mb-3"><i class="fas fa-arrow-left me-2"></i>Back to Orders</a>
+          <h1 class="h4 mb-2">Order #<%= order.orderId %></h1>
+          <p class="text-muted small">Placed on <%= orderDate %></p>
+        </div>
+        <div class="mt-3 mt-md-0">
+          <% if (order.status === 'Pending' || order.status === 'confirmed') { %>
+            <button onclick="showCancelModal()" class="btn btn-danger"><i class="fas fa-times-circle me-2"></i>Cancel Order</button>
+          <% } %>
+          <% if (order.status === 'Delivered' && !order.return.requested) { %>
+            <button onclick="showReturnModal()" class="btn btn-warning ms-2"><i class="fas fa-exchange-alt me-2"></i>Request Return</button>
+            <a href="/orders/<%= order.orderId %>/invoice" class="btn btn-primary ms-2"><i class="fas fa-file-download me-2"></i>Download Invoice</a>
+          <% } %>
+        </div>
+      </div>
+
+      <% if (order.return.requested && order.return.status === 'pending') { %>
+        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+          <strong>Waiting for admin approval</strong>
+          <p>Return Reason: <%= order.return.reason %></p>
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      <% } else if (order.return.requested && order.return.status === 'approved') { %>
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+          <strong>Return Approved</strong>
+          <p>Your order has been returned.</p>
+          <p>Return Reason: <%= order.return.reason %></p>
+          <p>Processed At: <%= new Date(order.return.processedAt).toLocaleDateString() %></p>
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      <% } else if (order.return.requested && order.return.status === 'rejected') { %>
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+          <strong>Return Rejected</strong>
+          <p>Return Reason: <%= order.return.reason %></p>
+          <p>Rejection Reason: <%= order.return.rejectionReason %></p>
+          <p>Processed At: <%= new Date(order.return.processedAt).toLocaleDateString() %></p>
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      <% } %>
+
+      <div class="mb-5">
+        <h2 class="section-title">Order Status</h2>
+        <div class="d-flex justify-content-between py-4">
+          <% 
+            const statuses = ['Pending', 'confirmed', 'Shipped', 'Delivered', 'Return Requested', 'Returned'];
+            const currentStatusIndex = statuses.indexOf(order.status);
+            const cancelled = order.status === 'Cancelled';
+          %>
+          <% statuses.forEach((status, index) => { %>
+            <div class="status-step <%= index <= currentStatusIndex ? 'active' : '' %> <%= status.toLowerCase().replace(/ /g, '-') %>">
+              <div class="status-icon <%= index <= currentStatusIndex ? status.toLowerCase().replace(/ /g, '-') : '' %> <%= cancelled && status === 'Pending' ? 'cancelled' : '' %>">
+                <% if (index <= currentStatusIndex) { %>
+                  <i class="fas fa-check"></i>
+                <% } else if (cancelled && status === 'Pending') { %>
+                  <i class="fas fa-times"></i>
+                <% } else { %>
+                  <i class="fas fa-circle fa-xs"></i>
+                <% } %>
+              </div>
+              <span class="text-sm font-medium text-center <%= index <= currentStatusIndex ? 'text-dark' : 'text-muted' %>">
+                <%= status %>
+              </span>
+            </div>
+          <% }) %>
+        </div>
+      </div>
+
+      <div class="row mb-5">
+        <div class="col-md-6 mb-4 mb-md-0">
+          <h3 class="section-title">Shipping Information</h3>
+          <div class="info-card">
+            <p class="font-weight-bold"><%= order.shippingAddress.name %></p>
+            <p><%= order.shippingAddress.address %></p>
+            <p><%= order.shippingAddress.city %>, <%= order.shippingAddress.state %> <%= order.shippingAddress.pincode %></p>
+            <p class="text-muted"><i class="fas fa-phone-alt me-2"></i><%= order.shippingAddress.phone %></p>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <h3 class="section-title">Payment Details</h3>
+          <div class="info-card">
+            <div class="mb-3">
+              <p class="text-muted small mb-1">Payment Method</p>
+              <p class="font-weight-bold"><i class="fas fa-credit-card me-2"></i><%= order.paymentMethod %></p>
+            </div>
+            <div class="mb-3">
+              <p class="text-muted small mb-1">Total Amount</p>
+              <p class="font-weight-bold"><i class="fas fa-money-bill-wave me-2"></i>₹<%= order.total.toFixed(2) %></p>
+            </div>
+            <div>
+              <p class="text-muted small mb-1">Delivery Status</p>
+              <p class="font-weight-bold"><i class="fas fa-truck me-2"></i><%= order.status %></p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mb-5">
+        <h3 class="section-title">Order Items</h3>
+        <div class="row">
+          <% order.items.forEach(item => { %>
+            <% const variant = item.product.variants.find(v => v.sku === item.sku); %>
+            <div class="col-12 mb-3">
+              <div class="order-item d-flex align-items-center">
+                <img src="<%= variant.productImage[0] %>" alt="<%= item.product.productName %>" class="item-image me-3" onerror="this.src='/Images/placeholder.jpg'">
+                <div class="flex-grow-1">
+                  <h5 class="mb-1"><%= item.product.productName %></h5>
+                  <p class="text-muted small mb-1">
+                    Flavor: <%= variant.flavor %> | Sugar: <%= variant.sugarLevel %> | Weight: <%= variant.weight %>g
+                  </p>
+                  <p class="text-muted small mb-0">Quantity: <%= item.quantity %> × ₹<%= item.price.toFixed(2) %></p>
+                </div>
+                <div class="text-end">
+                  <p class="font-weight-bold">₹<%= item.subtotal.toFixed(2) %></p>
+                </div>
+              </div>
+            </div>
+          <% }) %>
+        </div>
+      </div>
+
+      <div class="border-top pt-4">
+        <div class="row">
+          <div class="col-md-6 offset-md-6">
+            <div class="mb-2 d-flex justify-content-between">
+              <span>Subtotal</span>
+              <span>₹<%= order.subtotal.toFixed(2) %></span>
+            </div>
+            <div class="mb-2 d-flex justify-content-between">
+              <span>Discount</span>
+              <span>-₹<%= order.discount.toFixed(2) %></span>
+            </div>
+            <div class="mb-2 d-flex justify-content-between">
+              <span>Shipping</span>
+              <span>Free</span>
+            </div>
+            <div class="d-flex justify-content-between font-weight-bold pt-2 border-top">
+              <span>Total</span>
+              <span>₹<%= order.total.toFixed(2) %></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="cancelModal" class="modal fade" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">Cancel Order</h5>
+              <button type="button" class="btn-close" onclick="hideModal('cancelModal')" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <p>Please tell us why you're cancelling this order:</p>
+              <textarea id="cancelReason" class="form-control" rows="4" placeholder="Your reason for cancellation..."></textarea>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-outline-secondary" onclick="hideModal('cancelModal')">Close</button>
+              <button type="button" class="btn btn-danger" onclick="submitCancel('<%= order.orderId %>')"><i class="fas fa-check me-2"></i>Submit</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="returnModal" class="modal fade" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">Request Return</h5>
+              <button type="button" class="btn-close" onclick="hideModal('returnModal')" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <p>Please tell us why you're returning this order:</p>
+              <textarea id="returnReason" class="form-control" rows="4" placeholder="Your reason for return..."></textarea>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-outline-secondary" onclick="hideModal('returnModal')">Close</button>
+              <button type="button" class="btn btn-warning" onclick="submitReturn('<%= order.orderId %>')"><i class="fas fa-check me-2"></i>Submit</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function showToast(message, type = 'success') {
+      const toast = document.createElement('div');
+      toast.className = `toast align-items-center text-white ${type === 'success' ? 'bg-success' : 'bg-danger'} border-0 position-fixed bottom-0 end-0 m-3`;
+      toast.setAttribute('role', 'alert');
+      toast.setAttribute('aria-live', 'assertive');
+      toast.setAttribute('aria-atomic', 'true');
+      toast.innerHTML = `
+        <div class="d-flex">
+          <div class="toast-body">
+            ${message}
+          </div>
+          <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+      `;
+      document.body.appendChild(toast);
+      const bsToast = new bootstrap.Toast(toast);
+      bsToast.show();
+      setTimeout(() => toast.remove(), 3000);
+    }
+
+    function showCancelModal() {
+      const modal = new bootstrap.Modal(document.getElementById('cancelModal'));
+      modal.show();
+    }
+
+    function showReturnModal() {
+      const modal = new bootstrap.Modal(document.getElementById('returnModal'));
+      modal.show();
+    }
+
+    function hideModal(id) {
+      const modal = bootstrap.Modal.getInstance(document.getElementById(id));
+      modal.hide();
+    }
+
+    function submitCancel(orderId) {
+      const reason = document.getElementById('cancelReason').value.trim();
+      if (!reason) {
+        showToast('Please provide a cancellation reason', 'error');
+        return;
+      }
+
+      Swal.fire({
+        title: 'Are you sure?',
+        text: 'Do you want to cancel this order?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#dc3545',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Yes, cancel it!'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          fetch(`/orders/${orderId}/cancel`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ reason })
+          })
+          .then(response => response.json())
+          .then(data => {
+            if (data.success) {
+              showToast('Your order has been cancelled');
+              setTimeout(() => location.reload(), 1500);
+            } else {
+              showToast(data.message || 'Failed to cancel order', 'error');
+            }
+          })
+          .catch(err => {
+            console.error('Error:', err);
+            showToast('Failed to cancel order', 'error');
+          });
+        }
+      });
+    }
+
+    function submitReturn(orderId) {
+      const reason = document.getElementById('returnReason').value.trim();
+      if (!reason) {
+        showToast('Please provide a return reason', 'error');
+        return;
+      }
+
+      Swal.fire({
+        title: 'Are you sure?',
+        text: 'Do you want to request a return for this order?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#f6ad55',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Yes, request return!'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          fetch(`/orders/${orderId}/request-return`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ reason })
+          })
+          .then(response => response.json())
+          .then(data => {
+            if (data.success) {
+              showToast('Return request submitted successfully');
+              setTimeout(() => location.reload(), 1500);
+            } else {
+              showToast(data.message || 'Failed to submit return request', 'error');
+            }
+          })
+          .catch(err => {
+            console.error('Error:', err);
+            showToast('Failed to submit return request', 'error');
+          });
+        }
+      });
+    }
+  </script>
+
+  <%- include('../partials/user/footer') %>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

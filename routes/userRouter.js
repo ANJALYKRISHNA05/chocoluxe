@@ -4,6 +4,7 @@ const passport = require("passport");
 const userController = require('../controllers/user/userController');
 const shopController = require('../controllers/user/shopController');
 const cartController = require('../controllers/user/cartController');
+const checkoutController = require('../controllers/user/checkoutController');
 const wishlistController = require('../controllers/user/wishlistController');
 
 const { userAuth } = require('../middlewares/auth');
@@ -61,13 +62,27 @@ router.post('/user/address/set-default', userAuth, userController.setDefaultAddr
 router.get('/user/change-password', userAuth, userController.loadChangePassword);
 router.post('/user/change-password', userAuth, userController.changePassword);
 
-
 router.post('/add-to-cart', userAuth, cartController.addToCart);
 router.get('/cart', userAuth, cartController.loadCart);
 router.post('/cart/update-quantity', userAuth, cartController.updateCartQuantity);
 router.post('/cart/remove', userAuth, cartController.removeFromCart);
 router.get('/cart/item-count', userAuth, cartController.getCartItemCount);
 
+router.get('/checkout', userAuth, checkoutController.loadCheckout);
+router.post('/checkout/place-order', userAuth, checkoutController.placeOrder);
+router.get('/order-confirmation/:orderId', userAuth, checkoutController.loadOrderConfirmation);
+router.get('/order-details/:orderId', userAuth, checkoutController.loadOrderDetails);
+router.post('/orders/:orderId/request-return', userAuth, checkoutController.requestReturn);
 
+
+
+router.post('/checkout/address/add', userAuth, checkoutController.addCheckoutAddress);
+router.post('/checkout/address/update', userAuth, checkoutController.updateCheckoutAddress);
+
+router.get('/user/orders', userAuth, checkoutController.loadOrderHistory);
+
+router.post('/orders/:orderId/cancel', userAuth, checkoutController.cancelOrder);
+
+router.get('/orders/:orderId/invoice', userAuth, checkoutController.generateInvoice);
 
 module.exports = router;

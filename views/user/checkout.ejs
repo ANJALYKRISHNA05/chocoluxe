@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %> - CHOCOLUXE</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <style>
+    /* Existing styles remain unchanged */
+  </style>
+</head>
+<body>
+  <%- include('../partials/user/header') %>
+
+  <section class="checkout-section py-5">
+    <div class="container">
+      <h2 class="mb-4">Checkout</h2>
+
+      <div class="row">
+        <div class="col-lg-8">
+          <div class="card border-0 shadow-sm mb-4">
+            <div class="card-body p-4">
+              <div class="d-flex justify-content-between align-items-center mb-4">
+                <h4 class="mb-0">Shipping Address</h4>
+                <button class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#addressModal">
+                  <i class="fas fa-plus me-2"></i> Add New Address
+                </button>
+              </div>
+
+              <% if (addresses.length > 0) { %>
+                <form id="checkoutForm" action="/checkout/place-order" method="POST">
+                  <div class="row">
+                    <% addresses.forEach(address => { %>
+                      <div class="col-md-6 mb-3">
+                        <div class="address-card">
+                          <div class="form-check">
+                            <input class="form-check-input" type="radio" name="addressId" 
+                                   id="address-<%= address._id %>" 
+                                   value="<%= address._id %>"
+                                   <%= address.isDefault ? 'checked' : '' %> required>
+                            <label class="form-check-label w-100" for="address-<%= address._id %>">
+                              <h5 class="mb-1">
+                                <%= address.name %>
+                                <span class="badge bg-secondary ms-2"><%= address.addressType %></span>
+                                <% if (address.isDefault) { %>
+                                  <span class="badge bg-primary ms-1">Default</span>
+                                <% } %>
+                              </h5>
+                              <p class="mb-1"><%= address.address %></p>
+                              <p class="mb-1"><%= address.city %>, <%= address.state %> - <%= address.pincode %></p>
+                              <p class="mb-2"><i class="fas fa-phone-alt me-2"></i><%= address.phone %></p>
+                              <button type="button" class="btn btn-sm btn-outline-dark" 
+                                      data-bs-toggle="modal" data-bs-target="#addressModal"
+                                      data-address-id="<%= address._id %>"
+                                      data-name="<%= address.name %>"
+                                      data-address-type="<%= address.addressType %>"
+                                      data-address="<%= address.address %>"
+                                      data-city="<%= address.city %>"
+                                      data-state="<%= address.state %>"
+                                      data-pincode="<%= address.pincode %>"
+                                      data-phone="<%= address.phone %>"
+                                      data-is-default="<%= address.isDefault %>">
+                                <i class="fas fa-edit"></i> Edit
+                              </button>
+                            </label>
+                          </div>
+                        </div>
+                      </div>
+                    <% }) %>
+                  </div>
+
+                  <h4 class="mt-4 mb-3">Payment Method</h4>
+                  <div class="form-check mb-3">
+                    <input class="form-check-input" type="radio" name="paymentMethod" 
+                           id="payment-cod" value="Cash on Delivery" checked required>
+                    <label class="form-check-label" for="payment-cod">
+                      Cash on Delivery
+                    </label>
+                  </div>
+
+                  <h4 class="mt-4 mb-3">Order Items</h4>
+                  <% cartItems.forEach(item => { %>
+                    <div class="cart-item d-flex align-items-center">
+                      <img src="<%= item.productImage %>" alt="<%= item.product.productName %>" class="me-3">
+                      <div class="flex-grow-1">
+                        <h5><%= item.product.productName %></h5>
+                        <p class="mb-1">
+                          Flavor: <%= item.variant.flavor %> | Sugar: <%= item.variant.sugarLevel %> | Weight: <%= item.variant.weight %>g
+                        </p>
+                        <p class="mb-1">Price: ₹<%= item.variant.salePrice.toFixed(2) %> x <%= item.quantity %></p>
+                        <p class="fw-bold">Subtotal: ₹<%= item.subtotal.toFixed(2) %></p>
+                      </div>
+                    </div>
+                  <% }) %>
+                </form>
+              <% } else { %>
+                <div class="text-center py-5">
+                  <i class="fas fa-map-marker-alt fa-3x text-muted mb-3"></i>
+                  <h5>No addresses found</h5>
+                  <p class="text-muted">Please add a shipping address to continue</p>
+                </div>
+              <% } %>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-4">
+          <div class="order-summary">
+            <h4>Order Summary</h4>
+            <hr>
+            <div class="d-flex justify-content-between mb-2">
+              <span>Subtotal</span>
+              <span>₹<%= subtotal.toFixed(2) %></span>
+            </div>
+            <div class="d-flex justify-content-between mb-2">
+              <span>Discount</span>
+              <span>-₹<%= discount.toFixed(2) %></span>
+            </div>
+            <div class="d-flex justify-content-between mb-2">
+              <span>Shipping</span>
+              <span>Free</span>
+            </div>
+            <hr>
+            <div class="d-flex justify-content-between mb-2">
+              <span class="fw-bold">Total</span>
+              <span class="fw-bold">₹<%= total.toFixed(2) %></span>
+            </div>
+            <button type="button" class="btn btn-primary btn-lg w-100 mt-3" onclick="placeOrder()">
+              Place Order
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="modal fade" id="addressModal" tabindex="-1" aria-labelledby="addressModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="addressModalLabel">Add/Edit Address</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="modalAddressForm" method="POST">
+            <input type="hidden" name="addressId" id="modalAddressId">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label for="modalName" class="form-label">Full Name</label>
+                <input type="text" class="form-control" id="modalName" name="name" required>
+              </div>
+              <div class="col-md-6">
+                <label for="modalAddressType" class="form-label">Address Type</label>
+                <select class="form-select" id="modalAddressType" name="addressType" required>
+                  <option value="HOME">HOME</option>
+                  <option value="WORK">WORK</option>
+                  <option value="OTHER">OTHER</option>
+                </select>
+              </div>
+              <div class="col-12">
+                <label for="modalAddress" class="form-label">Address</label>
+                <input type="text" class="form-control" id="modalAddress" name="address" 
+                       placeholder="Street address, apartment, suite, etc." required>
+              </div>
+              <div class="col-md-4">
+                <label for="modalCity" class="form-label">City</label>
+                <input type="text" class="form-control" id="modalCity" name="city" required>
+              </div>
+              <div class="col-md-4">
+                <label for="modalState" class="form-label">State</label>
+                <input type="text" class="form-control" id="modalState" name="state" required>
+              </div>
+              <div class="col-md-4">
+                <label for="modalPincode" class="form-label">Pincode</label>
+                <input type="text" class="form-control" id="modalPincode" name="pincode" 
+                       pattern="[0-9]{6}" maxlength="6" required>
+              </div>
+              <div class="col-md-6">
+                <label for="modalPhone" class="form-label">Phone Number</label>
+                <input type="text" class="form-control" id="modalPhone" name="phone" 
+                       pattern="[0-9]{10}" maxlength="10" required>
+              </div>
+              <div class="col-md-6 d-flex align-items-end">
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" value="true" id="modalSetDefault" name="isDefault">
+                  <label class="form-check-label" for="modalSetDefault">
+                    Set as default address
+                  </label>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-dark" onclick="submitAddressForm()">Save Address</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <%- include('../partials/user/footer') %>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    const addressModal = document.getElementById('addressModal');
+    addressModal.addEventListener('show.bs.modal', function (event) {
+      const button = event.relatedTarget;
+      const addressId = button?.getAttribute('data-address-id');
+      const isEdit = !!addressId;
+
+      const modalTitle = addressModal.querySelector('.modal-title');
+      const form = document.getElementById('modalAddressForm');
+      const saveButton = addressModal.querySelector('.modal-footer .btn-dark');
+
+      modalTitle.textContent = isEdit ? 'Edit Address' : 'Add New Address';
+      form.action = isEdit ? '/checkout/address/update' : '/checkout/address/add';
+      saveButton.textContent = isEdit ? 'Update Address' : 'Save Address';
+
+      if (isEdit) {
+        document.getElementById('modalAddressId').value = addressId;
+        document.getElementById('modalName').value = button.getAttribute('data-name');
+        document.getElementById('modalAddressType').value = button.getAttribute('data-address-type');
+        document.getElementById('modalAddress').value = button.getAttribute('data-address');
+        document.getElementById('modalCity').value = button.getAttribute('data-city');
+        document.getElementById('modalState').value = button.getAttribute('data-state');
+        document.getElementById('modalPincode').value = button.getAttribute('data-pincode');
+        document.getElementById('modalPhone').value = button.getAttribute('data-phone');
+        document.getElementById('modalSetDefault').checked = button.getAttribute('data-is-default') === 'true';
+      } else {
+        document.getElementById('modalAddressId').value = '';
+        document.getElementById('modalAddressForm').reset();
+      }
+    });
+
+    function submitAddressForm() {
+      const form = document.getElementById('modalAddressForm');
+      const name = document.getElementById('modalName').value;
+      const address = document.getElementById('modalAddress').value;
+      const city = document.getElementById('modalCity').value;
+      const state = document.getElementById('modalState').value;
+      const pincode = document.getElementById('modalPincode').value;
+      const phone = document.getElementById('modalPhone').value;
+      const addressId = document.getElementById('modalAddressId').value;
+
+      if (!name || !address || !city || !state || !pincode || !phone) {
+        Swal.fire('Error', 'All fields are required.', 'error');
+        return;
+      }
+
+      if (!/^\d{6}$/.test(pincode)) {
+        Swal.fire('Error', 'Pincode must be 6 digits.', 'error');
+        return;
+      }
+
+      if (!/^\d{10}$/.test(phone)) {
+        Swal.fire('Error', 'Phone number must be 10 digits.', 'error');
+        return;
+      }
+
+      console.log('Submitting form with addressId:', addressId);
+      form.submit();
+    }
+
+    function placeOrder() {
+      const form = document.getElementById('checkoutForm');
+      const selectedAddress = document.querySelector('input[name="addressId"]:checked');
+      const selectedPaymentMethod = document.querySelector('input[name="paymentMethod"]:checked');
+
+      if (!selectedAddress) {
+        Swal.fire('Error', 'Please select a shipping address.', 'error');
+        return;
+      }
+
+      if (!selectedPaymentMethod) {
+        Swal.fire('Error', 'Please select a payment method.', 'error');
+        return;
+      }
+
+      Swal.fire({
+        title: 'Confirm Order',
+        text: `Are you sure you want to place this order with ${selectedPaymentMethod.value}?`,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Yes, place order'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          form.submit();
+        }
+      });
+    }
+
+    <% if (typeof message !== 'undefined' && message) { %>
+      Swal.fire({
+        icon: 'info',
+        title: 'Message',
+        text: '<%= message %>',
+      });
+    <% } %>
+  </script>
+</body>
+</html>
