@@ -1,6 +1,7 @@
 const Order = require('../../models/orderSchema');
 const Product = require('../../models/productSchema');
 const User = require('../../models/userSchema');
+const Wallet = require('../../models/walletSchema');
 
 exports.loadOrders = async (req, res) => {
     try {
@@ -148,6 +149,7 @@ exports.acceptReturn = async (req, res) => {
       return res.status(400).json({ success: false, message: 'No pending return request for this order.' });
     }
 
+    // Restock products
     for (const item of order.items) {
       await Product.updateOne(
         { _id: item.product, 'variants.sku': item.sku },
@@ -155,12 +157,33 @@ exports.acceptReturn = async (req, res) => {
       );
     }
 
+    // Refund to wallet
+    let wallet = await Wallet.findOne({ userId: order.user });
+    if (!wallet) {
+      wallet = new Wallet({
+        userId: order.user,
+        balance: 0,
+        transactions: [],
+      });
+    }
+
+    wallet.balance += order.total;
+    wallet.transactions.push({
+      transactionType: 'credit',
+      transactionAmount: order.total,
+      description: `Refund for order ${order.orderId}`,
+      createdAt: new Date(),
+    });
+
+    await wallet.save();
+
+    // Update order status
     order.status = 'Returned';
     order.return.status = 'approved';
     order.return.processedAt = new Date();
     await order.save();
 
-    res.json({ success: true, message: 'Return request approved successfully.' });
+    res.json({ success: true, message: 'Return request approved and amount refunded to wallet.' });
   } catch (error) {
     console.error('Error accepting return:', error);
     res.status(500).json({ success: false, message: 'Error accepting return.' });

@@ -1,10 +1,8 @@
 const Product = require('../../models/productSchema');
 const Category = require('../../models/categorySchema');
 
-
 exports.loadShopHomepage = async (req, res) => {
   try {
-    
     const categories = await Category.find({ isListed: true }).sort({ name: 1 });
 
     const products = await Product.find({ isBlocked: false })
@@ -12,7 +10,6 @@ exports.loadShopHomepage = async (req, res) => {
       .sort({ createdAt: -1 }) 
       .limit(4); 
 
-    
     res.render('user/home', {
       categories,
       products,
@@ -23,7 +20,6 @@ exports.loadShopHomepage = async (req, res) => {
     res.redirect('/user/pageNotfound'); 
   }
 };
-
 
 exports.loadProductListing = async (req, res) => {
   try {
@@ -43,7 +39,19 @@ exports.loadProductListing = async (req, res) => {
       query.category = req.query.category;
     }
     
-    let products = await Product.find(query).populate('category');
+    // Pagination parameters
+    const page = parseInt(req.query.page) || 1;
+    const limit = 4; // Number of products per page
+    const skip = (page - 1) * limit;
+
+    // Get total count for pagination
+    const totalProducts = await Product.countDocuments(query);
+    const totalPages = Math.ceil(totalProducts / limit);
+
+    let products = await Product.find(query)
+      .populate('category')
+      .skip(skip)
+      .limit(limit);
    
     const variantFiltersApplied = !!(req.query.flavor || req.query.sugarLevel || req.query.weight || req.query.minPrice || req.query.maxPrice);
     
@@ -124,6 +132,26 @@ exports.loadProductListing = async (req, res) => {
     const sugarLevels = ["Low", "Medium", "Sugar-Free"];
     const weights = [50, 100, 200];
     
+    // Helper function for pagination URLs
+    const buildPaginationUrl = (page) => {
+      const queryParams = new URLSearchParams();
+      
+      // Add all existing query parameters
+      if (req.query.search) queryParams.append('search', req.query.search);
+      if (req.query.sort) queryParams.append('sort', req.query.sort);
+      if (req.query.category) queryParams.append('category', req.query.category);
+      if (req.query.flavor) queryParams.append('flavor', req.query.flavor);
+      if (req.query.sugarLevel) queryParams.append('sugarLevel', req.query.sugarLevel);
+      if (req.query.weight) queryParams.append('weight', req.query.weight);
+      if (req.query.minPrice) queryParams.append('minPrice', req.query.minPrice);
+      if (req.query.maxPrice) queryParams.append('maxPrice', req.query.maxPrice);
+      
+      // Add the page number
+      queryParams.append('page', page);
+      
+      return `/products?${queryParams.toString()}`;
+    };
+    
     res.render('user/product_listing', {
       products: processedProducts,
       categories,
@@ -132,7 +160,11 @@ exports.loadProductListing = async (req, res) => {
       weights,
       filters: req.query, 
       user: req.session.user || null,
-      title: 'Products'
+      title: 'Products',
+      currentPage: page,
+      totalPages,
+      totalProducts,
+      buildPaginationUrl // Pass the function to the template
     });
     
   } catch (error) {
@@ -141,16 +173,9 @@ exports.loadProductListing = async (req, res) => {
   }
 };
 
-
-
-
-
-
-
 exports.loadProductDetails = async (req, res) => {
   try {
     const productId = req.params.id;
-    
     
     const product = await Product.findById(productId).populate('category');
     
@@ -158,7 +183,6 @@ exports.loadProductDetails = async (req, res) => {
       return res.redirect('/user/pageNotfound');
     }
 
-   
     const relatedProducts = await Product.find({
       category: product.category._id,
       _id: { $ne: productId }, 
@@ -176,6 +200,3 @@ exports.loadProductDetails = async (req, res) => {
     res.redirect('/user/pageNotfound');
   }
 };
-
-
-

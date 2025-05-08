@@ -6,6 +6,7 @@ const shopController = require('../controllers/user/shopController');
 const cartController = require('../controllers/user/cartController');
 const checkoutController = require('../controllers/user/checkoutController');
 const wishlistController = require('../controllers/user/wishlistController');
+const walletController = require('../controllers/user/walletController');
 
 const { userAuth } = require('../middlewares/auth');
 const { profileStorage } = require('../config/cloudinary');
@@ -84,5 +85,7 @@ router.get('/user/orders', userAuth, checkoutController.loadOrderHistory);
 router.post('/orders/:orderId/cancel', userAuth, checkoutController.cancelOrder);
 
 router.get('/orders/:orderId/invoice', userAuth, checkoutController.generateInvoice);
+
+router.get('/user/wallet', userAuth, walletController.loadWallet);
 
 module.exports = router;

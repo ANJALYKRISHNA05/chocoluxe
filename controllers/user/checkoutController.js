@@ -1,7 +1,7 @@
 const Cart = require("../../models/cartSchema");
 const Address = require("../../models/addressSchema");
 const Order = require("../../models/orderSchema");
-const Product=require("../../models/productSchema");
+const Product = require("../../models/productSchema");
 const PDFDocument = require('pdfkit');
 const fs = require('fs');
 const path = require('path');
@@ -20,13 +20,11 @@ exports.addCheckoutAddress = async (req, res) => {
       isDefault,
     } = req.body;
 
- 
     if (!name || !addressType || !address || !city || !state || !pincode || !phone) {
       req.session.message = "All fields are required.";
       return res.redirect("/checkout");
     }
 
-   
     if (!/^\d{6}$/.test(pincode)) {
       req.session.message = "Pincode must be 6 digits.";
       return res.redirect("/checkout");
@@ -62,7 +60,6 @@ exports.addCheckoutAddress = async (req, res) => {
   }
 };
 
-// Update Address for Checkout
 exports.updateCheckoutAddress = async (req, res) => {
   try {
     const userId = req.session.user._id;
@@ -78,12 +75,10 @@ exports.updateCheckoutAddress = async (req, res) => {
       isDefault,
     } = req.body;
 
-    
     if (!name || !addressType || !address || !city || !state || !pincode || !phone) {
       req.session.message = "All fields are required.";
       return res.redirect("/checkout");
     }
-
 
     if (!/^\d{6}$/.test(pincode)) {
       req.session.message = "Pincode must be 6 digits.";
@@ -94,12 +89,10 @@ exports.updateCheckoutAddress = async (req, res) => {
       return res.redirect("/checkout");
     }
 
-   
     if (isDefault === "true") {
       await Address.updateMany({ userId, _id: { $ne: addressId } }, { $set: { isDefault: false } });
     }
 
-   
     await Address.findOneAndUpdate(
       { _id: addressId, userId },
       {
@@ -123,7 +116,6 @@ exports.updateCheckoutAddress = async (req, res) => {
     res.redirect("/checkout");
   }
 };
-
 
 exports.loadCheckout = async (req, res) => {
   try {
@@ -208,7 +200,6 @@ exports.placeOrder = async (req, res) => {
       const orderItems = [];
       const stockUpdates = [];
   
-    
       for (const item of cart.items.filter((item) => item.product && !item.product.isBlocked)) {
         const variant = item.product.variants.find((v) => v.sku === item.sku);
         if (!variant) {
@@ -216,7 +207,6 @@ exports.placeOrder = async (req, res) => {
           return res.redirect("/checkout");
         }
   
-       
         if (variant.stock_quantity < item.quantity) {
           req.session.message = `Insufficient stock for ${item.product.productName} (${variant.flavor}, ${variant.sugarLevel}, ${variant.weight}g).`;
           return res.redirect("/checkout");
@@ -238,7 +228,6 @@ exports.placeOrder = async (req, res) => {
           subtotal: itemSubtotal,
         });
   
-        
         stockUpdates.push({
           productId: item.product._id,
           sku: item.sku,
@@ -248,7 +237,6 @@ exports.placeOrder = async (req, res) => {
   
       const total = subtotal;
   
-      
       let unique = false;
       let attempt = 0;
       const maxAttempts = 10;
@@ -271,7 +259,6 @@ exports.placeOrder = async (req, res) => {
         throw new Error('Unable to generate a unique orderId after maximum attempts');
       }
   
-
       for (const update of stockUpdates) {
         await Product.updateOne(
           { _id: update.productId, "variants.sku": update.sku },
@@ -311,7 +298,7 @@ exports.placeOrder = async (req, res) => {
       req.session.message = "Error placing order: " + error.message;
       res.redirect("/checkout");
     }
-  };
+};
 
 exports.loadOrderConfirmation = async (req, res) => {
   try {
@@ -346,8 +333,6 @@ exports.loadOrderConfirmation = async (req, res) => {
   }
 };
 
-
-
 exports.loadOrderDetails = async (req, res) => {
     try {
       const userId = req.session.user._id;
@@ -379,7 +364,7 @@ exports.loadOrderDetails = async (req, res) => {
       req.session.message = "Error loading order details page.";
       res.redirect("/user/profile");
     }
-  };
+};
 
 exports.loadOrderHistory = async (req, res) => {
     try {
@@ -387,20 +372,39 @@ exports.loadOrderHistory = async (req, res) => {
       const page = parseInt(req.query.page) || 1;
       const limit = parseInt(req.query.limit) || 5;
       const skip = (page - 1) * limit;
-  
-      // Fetch orders for the user with pagination
-      const orders = await Order.find({ user: userId })
+      const search = req.query.search || '';
+
+      // Build search query
+      let query = { user: userId };
+      if (search) {
+        query = {
+          user: userId,
+          $or: [
+            { orderId: { $regex: search, $options: 'i' } },
+            { status: { $regex: search, $options: 'i' } },
+            { 'items.product': {
+                $in: await Product.find({
+                  productName: { $regex: search, $options: 'i' }
+                }).distinct('_id')
+              }
+            }
+          ]
+        };
+      }
+
+      // Fetch orders with pagination and search
+      const orders = await Order.find(query)
         .populate("items.product")
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limit);
-  
-      
-      const totalOrders = await Order.countDocuments({ user: userId });
-  
+
+      // Count total orders for pagination
+      const totalOrders = await Order.countDocuments(query);
+
       const message = req.session.message || '';
       req.session.message = null;
-  
+
       res.render("user/orders", {
         orders,
         page,
@@ -409,15 +413,16 @@ exports.loadOrderHistory = async (req, res) => {
         user: req.session.user,
         title: "Order History",
         message,
+        search
       });
     } catch (error) {
       console.error("Error loading order history:", error);
       req.session.message = "Error loading order history page.";
       res.redirect("/user/profile");
     }
-  };
+};
 
-  exports.cancelOrder = async (req, res) => {
+exports.cancelOrder = async (req, res) => {
     try {
       const userId = req.session.user._id;
       const orderId = req.params.orderId;
@@ -452,10 +457,9 @@ exports.loadOrderHistory = async (req, res) => {
       console.error('Error cancelling order:', error);
       res.status(500).json({ success: false, message: 'Error cancelling order.' });
     }
-  };
+};
 
-
-  exports.requestReturn = async (req, res) => {
+exports.requestReturn = async (req, res) => {
     try {
       const userId = req.session.user._id;
       const orderId = req.params.orderId;
@@ -487,9 +491,9 @@ exports.loadOrderHistory = async (req, res) => {
       console.error('Error requesting return:', error);
       res.status(500).json({ success: false, message: 'Error requesting return.' });
     }
-  };
+};
 
-  exports.generateInvoice = async (req, res) => {
+exports.generateInvoice = async (req, res) => {
     try {
       const userId = req.session.user._id;
       const orderId = req.params.orderId;
@@ -507,20 +511,16 @@ exports.loadOrderHistory = async (req, res) => {
         return res.redirect(`/order-details/${orderId}`);
       }
   
-      // Create a new PDF document
       const doc = new PDFDocument({
         size: 'A4',
         margin: 50
       });
   
-      // Set response headers for PDF download
       res.setHeader('Content-Type', 'application/pdf');
       res.setHeader('Content-Disposition', `attachment; filename=invoice_${order.orderId}.pdf`);
   
-      // Pipe the PDF to response
       doc.pipe(res);
   
-      // Header
       doc
         .fontSize(20)
         .font('Helvetica-Bold')
@@ -531,7 +531,6 @@ exports.loadOrderHistory = async (req, res) => {
         .text('Phone: +91 12345 67890', 50, 90)
         .text('Email: contact@chocoluxe.com', 50, 105);
   
-      // Invoice Title
       doc
         .fontSize(16)
         .font('Helvetica-Bold')
@@ -540,7 +539,6 @@ exports.loadOrderHistory = async (req, res) => {
         .font('Helvetica')
         .text(`Date: ${new Date(order.createdAt).toLocaleDateString()}`, 50, 170);
   
-      // Customer Information
       doc
         .fontSize(12)
         .font('Helvetica-Bold')
@@ -552,7 +550,6 @@ exports.loadOrderHistory = async (req, res) => {
         .text(`${order.shippingAddress.city}, ${order.shippingAddress.state} ${order.shippingAddress.pincode}`, 50, 245)
         .text(`Phone: ${order.shippingAddress.phone}`, 50, 260);
   
-      // Table Header
       const tableTop = 300;
       doc
         .font('Helvetica-Bold')
@@ -563,7 +560,6 @@ exports.loadOrderHistory = async (req, res) => {
         .text('Price', 400, tableTop, { width: 50, align: 'right' })
         .text('Subtotal', 450, tableTop, { width: 50, align: 'right' });
   
-      // Table Divider
       doc
         .strokeColor('#aaaaaa')
         .lineWidth(1)
@@ -571,7 +567,6 @@ exports.loadOrderHistory = async (req, res) => {
         .lineTo(550, tableTop + 15)
         .stroke();
   
-      // Table Rows
       let y = tableTop + 30;
       order.items.forEach((item, index) => {
         const variant = item.product.variants.find(v => v.sku === item.sku);
@@ -586,7 +581,6 @@ exports.loadOrderHistory = async (req, res) => {
         y += 20;
       });
   
-      // Summary
       const summaryTop = y + 20;
       doc
         .font('Helvetica')
@@ -597,22 +591,16 @@ exports.loadOrderHistory = async (req, res) => {
         .font('Helvetica-Bold')
         .text(`Total: ₹${order.total.toFixed(2)}`, 400, summaryTop + 45, { align: 'right' });
   
-      // Footer
       doc
         .fontSize(10)
         .font('Helvetica')
         .text('Thank you for shopping with CHOCOLUXE!', 50, summaryTop + 80, { align: 'center' })
         .text('For any queries, contact us at contact@chocoluxe.com', 50, summaryTop + 95, { align: 'center' });
   
-      // Finalize PDF
       doc.end();
-  
     } catch (error) {
       console.error('Error generating invoice:', error);
       req.session.message = 'Error generating invoice.';
       res.redirect(`/order-details/${req.params.orderId}`);
     }
-  };
-
-  
-
+};

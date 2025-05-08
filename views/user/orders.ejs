@@ -10,6 +10,17 @@
         <!-- Main Content -->
         <div class="col-md-9">
             <h2 class="mb-4">Order History</h2>
+            <!-- Search Bar -->
+            <form class="mb-4" method="GET" action="/user/orders">
+                <div class="input-group">
+                    <input type="text" class="form-control" name="search" placeholder="Search by Order ID, Product Name, or Status" value="<%= search || '' %>">
+                    <button class="btn btn-primary" type="submit">Search</button>
+                    <% if (search) { %>
+                        <a href="/user/orders?page=1&limit=<%= limit %>" class="btn btn-secondary ms-2">Clear Search</a>
+                    <% } %>
+                </div>
+            </form>
+
             <% if (message) { %>
                 <div class="alert alert-info" role="alert">
                     <%= message %>
@@ -65,10 +76,10 @@
                     <nav>
                         <ul class="pagination">
                             <li class="page-item <%= page === 1 ? 'disabled' : '' %>">
-                                <a class="page-link" href="/user/orders?page=<%= page - 1 %>&limit=<%= limit %>">Previous</a>
+                                <a class="page-link" href="/user/orders?page=<%= page - 1 %>&limit=<%= limit %><%= search ? '&search=' + search : '' %>">Previous</a>
                             </li>
                             <li class="page-item <%= page * limit >= totalOrders ? 'disabled' : '' %>">
-                                <a class="page-link" href="/user/orders?page=<%= page + 1 %>&limit=<%= limit %>">Next</a>
+                                <a class="page-link" href="/user/orders?page=<%= page + 1 %>&limit=<%= limit %><%= search ? '&search=' + search : '' %>">Next</a>
                             </li>
                         </ul>
                     </nav>

@@ -2,7 +2,6 @@
 
 <div class="container my-5">
   <div class="row">
-   
     <div class="col-lg-3 mb-4">
       <div class="card shadow-sm">
         <div class="card-header bg-primary text-white">
@@ -10,6 +9,7 @@
         </div>
         <div class="card-body">
           <form id="filterForm" action="/products" method="GET">
+            <input type="hidden" name="page" value="1">
             
             <div class="mb-3">
               <label for="search" class="form-label">Search Products</label>
@@ -23,11 +23,10 @@
               </div>
             </div>
 
-           
             <div class="mb-3">
               <label for="sort" class="form-label">Sort By</label>
               <select class="form-select" name="sort" id="sort" onchange="this.form.submit()">
-                <option value="createdAt" <%= !filters.sort || filters.sort === 'createdAt' ? 'selected' : '' %>>Newest First</option>
+                <option value="">Default</option>
                 <option value="price_low_high" <%= filters.sort === 'price_low_high' ? 'selected' : '' %>>Price: Low to High</option>
                 <option value="price_high_low" <%= filters.sort === 'price_high_low' ? 'selected' : '' %>>Price: High to Low</option>
                 <option value="name_asc" <%= filters.sort === 'name_asc' ? 'selected' : '' %>>Name: A to Z</option>
@@ -37,7 +36,6 @@
 
             <hr>
 
-           
             <div class="mb-3">
               <label class="form-label">Category</label>
               <div class="overflow-auto" style="max-height: 150px;">
@@ -56,7 +54,6 @@
 
             <hr>
 
-           
             <div class="mb-3">
               <label class="form-label">Flavor</label>
               <% flavors.forEach(flavor => { %>
@@ -73,7 +70,6 @@
 
             <hr>
 
-           
             <div class="mb-3">
               <label class="form-label">Sugar Level</label>
               <% sugarLevels.forEach(level => { %>
@@ -90,7 +86,6 @@
 
             <hr>
 
-           
             <div class="mb-3">
               <label class="form-label">Weight (grams)</label>
               <% weights.forEach(weight => { %>
@@ -107,7 +102,6 @@
 
             <hr>
 
-            
             <div class="mb-3">
               <label class="form-label">Price Range</label>
               <div class="d-flex gap-2">
@@ -124,18 +118,17 @@
 
             <div class="d-grid gap-2 mt-3">
               <button type="submit" class="btn btn-primary">Apply Filters</button>
-              <button type="button" class="btn btn-outline-secondary" onclick="clearAllFilters()">Clear All</button>
+              <a href="/products" class="btn btn-outline-secondary">Clear All</a>
             </div>
           </form>
         </div>
       </div>
     </div>
 
-    
     <div class="col-lg-9">
       <div class="d-flex justify-content-between align-items-center mb-4">
         <h2>Products</h2>
-        <p><%= products.length %> products found</p>
+        <p><%= totalProducts %> products found</p>
       </div>
 
       <% if (products.length === 0) { %>
@@ -159,22 +152,15 @@
                 </div>
                 <div class="card-body">
                   <a href="/product/<%= product._id %>" class="text-decoration-none text-dark">
-                    
                     <h5 class="card-title"><%= product.productName %></h5>
-                    
-              
                     <p class="card-text text-muted mb-1">
                       <small><%= product.category.name %></small>
                     </p>
-                    
-                 
                     <p class="card-text mb-1">
                       <span class="badge bg-light text-dark"><%= product.displayVariant.flavor %></span>
                       <span class="badge bg-light text-dark"><%= product.displayVariant.sugarLevel %></span>
                       <span class="badge bg-light text-dark"><%= product.displayVariant.weight %>g</span>
                     </p>
-                    
-                  
                     <div class="d-flex align-items-center mt-2">
                       <% if (product.displayVariant.salePrice < product.displayVariant.regularPrice) { %>
                         <h5 class="m-0 text-danger">₹<%= product.displayVariant.salePrice.toFixed(2) %></h5>
@@ -183,7 +169,6 @@
                         <h5 class="m-0">₹<%= product.displayVariant.regularPrice.toFixed(2) %></h5>
                       <% } %>
                     </div>
-                
                     <p class="card-text mt-2">
                       <% if (product.displayVariant.stock_quantity > 0) { %>
                         <span class="badge bg-success">In Stock</span>
@@ -197,13 +182,36 @@
             </div>
           <% }); %>
         </div>
+
+        <% if (totalPages > 1) { %>
+          <nav aria-label="Product pagination" class="mt-5">
+            <ul class="pagination justify-content-center">
+              <li class="page-item <%= currentPage === 1 ? 'disabled' : '' %>">
+                <a class="page-link" href="<%= currentPage > 1 ? buildPaginationUrl(currentPage - 1) : '#' %>" aria-label="Previous">
+                  <span aria-hidden="true">«</span>
+                </a>
+              </li>
+              
+              <% for (let i = 1; i <= totalPages; i++) { %>
+                <li class="page-item <%= currentPage === i ? 'active' : '' %>">
+                  <a class="page-link" href="<%= buildPaginationUrl(i) %>"><%= i %></a>
+                </li>
+              <% } %>
+              
+              <li class="page-item <%= currentPage === totalPages ? 'disabled' : '' %>">
+                <a class="page-link" href="<%= currentPage < totalPages ? buildPaginationUrl(currentPage + 1) : '#' %>" aria-label="Next">
+                  <span aria-hidden="true">»</span>
+                </a>
+              </li>
+            </ul>
+          </nav>
+        <% } %>
       <% } %>
     </div>
   </div>
 </div>
 
 <style>
-
   .product-card {
     transition: transform 0.3s ease, box-shadow 0.3s ease;
   }
@@ -267,38 +275,37 @@
   .wishlist-btn i {
     font-size: 16px;
   }
+
+  .pagination .page-link {
+    color: #4a2c2a;
+    border-radius: 5px;
+    margin: 0 3px;
+  }
+
+  .pagination .page-item.active .page-link {
+    background-color: #4a2c2a;
+    border-color: #4a2c2a;
+    color: white;
+  }
+
+  .pagination .page-item.disabled .page-link {
+    color: #6c757d;
+    cursor: not-allowed;
+  }
 </style>
 
 <script>
- 
   document.querySelectorAll('.filter-checkbox').forEach(checkbox => {
     checkbox.addEventListener('change', function() {
       document.getElementById('filterForm').submit();
     });
   });
-  
 
   function clearSearch() {
     const searchInput = document.getElementById('search');
     searchInput.value = '';
     document.getElementById('filterForm').submit();
   }
-  
-
-  function clearAllFilters() {
-    window.location.href = '/products';
-  }
-
- 
-  document.querySelectorAll('.wishlist-btn').forEach(button => {
-    button.addEventListener('click', function() {
-      const productId = this.dataset.productId;
-      if (productId) {
-        console.log(`Add product ${productId} to wishlist`);
-        
-      }
-    });
-  });
 </script>
 
 <%- include('../partials/user/footer') %>
