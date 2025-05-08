@@ -2,6 +2,7 @@ const Cart = require("../../models/cartSchema");
 const Address = require("../../models/addressSchema");
 const Order = require("../../models/orderSchema");
 const Product = require("../../models/productSchema");
+const Category = require("../../models/categorySchema");
 const PDFDocument = require('pdfkit');
 const fs = require('fs');
 const path = require('path');
@@ -121,37 +122,63 @@ exports.loadCheckout = async (req, res) => {
   try {
     const userId = req.session.user._id;
     
-    const cart = await Cart.findOne({ user: userId }).populate("items.product");
+    const cart = await Cart.findOne({ user: userId }).populate({
+      path: "items.product",
+      populate: {
+        path: "category",
+        model: "Category",
+      },
+    });
     if (!cart || cart.items.length === 0) {
       req.session.message = "Your cart is empty.";
       return res.redirect("/cart");
     }
 
-    const addresses = await Address.find({ userId }).sort({ isDefault: -1, createdAt: -1 });
-
+    let invalidItems = [];
     let subtotal = 0;
     let discount = 0;
-    const cartItems = cart.items
-      .filter((item) => item.product && !item.product.isBlocked)
-      .map((item) => {
-        const variant = item.product.variants.find((v) => v.sku === item.sku);
-        const salePrice = variant?.salePrice || 0;
-        const regularPrice = variant?.regularPrice || salePrice;
-        const itemSubtotal = salePrice * item.quantity;
-        const itemDiscount = (regularPrice - salePrice) * item.quantity;
-        
+    const cartItems = cart.items.map((item) => {
+      let errorMessage = null;
+      const product = item.product;
+
+      if (!product) {
+        errorMessage = "Product not found";
+        invalidItems.push({ sku: item.sku, errorMessage });
+      } else if (product.isBlocked) {
+        errorMessage = "Product is no longer available";
+        invalidItems.push({ sku: item.sku, errorMessage });
+      } else if (!product.category || !product.category.isListed) {
+        errorMessage = "Product category is unavailable";
+        invalidItems.push({ sku: item.sku, errorMessage });
+      }
+
+      const variant = product?.variants.find((v) => v.sku === item.sku);
+      const salePrice = variant?.salePrice || 0;
+      const regularPrice = variant?.regularPrice || salePrice;
+      const itemSubtotal = errorMessage ? 0 : salePrice * item.quantity;
+      const itemDiscount = errorMessage ? 0 : (regularPrice - salePrice) * item.quantity;
+
+      if (!errorMessage) {
         subtotal += itemSubtotal;
         discount += itemDiscount;
+      }
 
-        return {
-          ...item.toObject(),
-          product: item.product,
-          variant,
-          subtotal: itemSubtotal,
-        };
-      });
+      return {
+        ...item.toObject(),
+        product,
+        variant,
+        subtotal: itemSubtotal,
+        errorMessage,
+      };
+    });
+
+    if (invalidItems.length > 0) {
+      req.session.message = "Some items in your cart are invalid. Please remove them to proceed.";
+      return res.redirect("/cart");
+    }
 
     const total = subtotal;
+    const addresses = await Address.find({ userId }).sort({ isDefault: -1, createdAt: -1 });
 
     const message = req.session.message || '';
     req.session.message = null;
@@ -174,130 +201,161 @@ exports.loadCheckout = async (req, res) => {
 };
 
 exports.placeOrder = async (req, res) => {
-    try {
-      const userId = req.session.user._id;
-      const { addressId, paymentMethod } = req.body;
-  
-      const address = await Address.findOne({ _id: addressId, userId });
-      if (!address) {
-        req.session.message = "Please select a valid address.";
-        return res.redirect("/checkout");
-      }
-  
-      if (!paymentMethod || paymentMethod !== "Cash on Delivery") {
-        req.session.message = "Please select a valid payment method.";
-        return res.redirect("/checkout");
-      }
-  
-      const cart = await Cart.findOne({ user: userId }).populate("items.product");
-      if (!cart || cart.items.length === 0) {
-        req.session.message = "Your cart is empty.";
-        return res.redirect("/cart");
-      }
-  
-      let subtotal = 0;
-      let discount = 0;
-      const orderItems = [];
-      const stockUpdates = [];
-  
-      for (const item of cart.items.filter((item) => item.product && !item.product.isBlocked)) {
-        const variant = item.product.variants.find((v) => v.sku === item.sku);
-        if (!variant) {
-          req.session.message = `Variant with SKU ${item.sku} not found.`;
-          return res.redirect("/checkout");
-        }
-  
-        if (variant.stock_quantity < item.quantity) {
-          req.session.message = `Insufficient stock for ${item.product.productName} (${variant.flavor}, ${variant.sugarLevel}, ${variant.weight}g).`;
-          return res.redirect("/checkout");
-        }
-  
-        const salePrice = variant.salePrice || 0;
-        const regularPrice = variant.regularPrice || salePrice;
-        const itemSubtotal = salePrice * item.quantity;
-        const itemDiscount = (regularPrice - salePrice) * item.quantity;
-  
-        subtotal += itemSubtotal;
-        discount += itemDiscount;
-  
-        orderItems.push({
-          product: item.product._id,
-          sku: item.sku,
-          quantity: item.quantity,
-          price: salePrice,
-          subtotal: itemSubtotal,
-        });
-  
-        stockUpdates.push({
-          productId: item.product._id,
-          sku: item.sku,
-          quantity: item.quantity,
-        });
-      }
-  
-      const total = subtotal;
-  
-      let unique = false;
-      let attempt = 0;
-      const maxAttempts = 10;
-      let orderId;
-      const prefix = 'ORD';
-  
-      while (!unique && attempt < maxAttempts) {
-        const randomNum = Math.floor(100000 + Math.random() * 900000); 
-        const potentialOrderId = `${prefix}-${randomNum}`;
-        
-        const existingOrder = await Order.findOne({ orderId: potentialOrderId });
-        if (!existingOrder) {
-          orderId = potentialOrderId;
-          unique = true;
-        }
-        attempt++;
-      }
-  
-      if (!unique) {
-        throw new Error('Unable to generate a unique orderId after maximum attempts');
-      }
-  
-      for (const update of stockUpdates) {
-        await Product.updateOne(
-          { _id: update.productId, "variants.sku": update.sku },
-          { $inc: { "variants.$.stock_quantity": -update.quantity } }
-        );
-      }
-  
-      const order = new Order({
-        orderId,
-        user: userId,
-        items: orderItems,
-        shippingAddress: {
-          name: address.name,
-          addressType: address.addressType,
-          address: address.address,
-          city: address.city,
-          state: address.state,
-          pincode: address.pincode,
-          phone: address.phone,
-        },
-        subtotal,
-        discount,
-        total,
-        paymentMethod,
-        status: "Pending",
-      });
-  
-      console.log("Order before save:", order.toObject());
-      await order.save();
-      console.log("Order after save:", order.toObject());
-  
-      await Cart.findOneAndUpdate({ user: userId }, { $set: { items: [] } });
-  
-      res.redirect(`/order-confirmation/${order.orderId}`);
-    } catch (error) {
-      console.error("Error placing order:", error);
-      req.session.message = "Error placing order: " + error.message;
-      res.redirect("/checkout");
+  try {
+    const userId = req.session.user._id;
+    const { addressId, paymentMethod } = req.body;
+
+    const address = await Address.findOne({ _id: addressId, userId });
+    if (!address) {
+      req.session.message = "Please select a valid address.";
+      return res.redirect("/checkout");
     }
+
+    if (!paymentMethod || paymentMethod !== "Cash on Delivery") {
+      req.session.message = "Please select a valid payment method.";
+      return res.redirect("/checkout");
+    }
+
+    const cart = await Cart.findOne({ user: userId }).populate({
+      path: "items.product",
+      populate: {
+        path: "category",
+        model: "Category",
+      },
+    });
+    if (!cart || cart.items.length === 0) {
+      req.session.message = "Your cart is empty.";
+      return res.redirect("/cart");
+    }
+
+    let subtotal = 0;
+    let discount = 0;
+    const orderItems = [];
+    const stockUpdates = [];
+    let invalidItems = [];
+
+    for (const item of cart.items) {
+      const product = item.product;
+      let errorMessage = null;
+
+      if (!product) {
+        errorMessage = `Product not found for SKU ${item.sku}`;
+        invalidItems.push({ sku: item.sku, errorMessage });
+        continue;
+      }
+      if (product.isBlocked) {
+        errorMessage = `Product ${product.productName} is no longer available`;
+        invalidItems.push({ sku: item.sku, errorMessage });
+        continue;
+      }
+      if (!product.category || !product.category.isListed) {
+        errorMessage = `Category for product ${product.productName} is unavailable`;
+        invalidItems.push({ sku: item.sku, errorMessage });
+        continue;
+      }
+
+      const variant = product.variants.find((v) => v.sku === item.sku);
+      if (!variant) {
+        errorMessage = `Variant with SKU ${item.sku} not found`;
+        invalidItems.push({ sku: item.sku, errorMessage });
+        continue;
+      }
+
+      if (variant.stock_quantity < item.quantity) {
+        errorMessage = `Insufficient stock for ${product.productName} (${variant.flavor}, ${variant.sugarLevel}, ${variant.weight}g)`;
+        invalidItems.push({ sku: item.sku, errorMessage });
+        continue;
+      }
+
+      const salePrice = variant.salePrice || 0;
+      const regularPrice = variant.regularPrice || salePrice;
+      const itemSubtotal = salePrice * item.quantity;
+      const itemDiscount = (regularPrice - salePrice) * item.quantity;
+
+      subtotal += itemSubtotal;
+      discount += itemDiscount;
+
+      orderItems.push({
+        product: product._id,
+        sku: item.sku,
+        quantity: item.quantity,
+        price: salePrice,
+        subtotal: itemSubtotal,
+      });
+
+      stockUpdates.push({
+        productId: product._id,
+        sku: item.sku,
+        quantity: item.quantity,
+      });
+    }
+
+    if (invalidItems.length > 0) {
+      req.session.message = "Some items in your cart are invalid. Please remove them to proceed.";
+      return res.redirect("/checkout");
+    }
+
+    const total = subtotal;
+
+    let unique = false;
+    let attempt = 0;
+    const maxAttempts = 10;
+    let orderId;
+    const prefix = 'ORD';
+
+    while (!unique && attempt < maxAttempts) {
+      const randomNum = Math.floor(100000 + Math.random() * 900000);
+      const potentialOrderId = `${prefix}-${randomNum}`;
+      
+      const existingOrder = await Order.findOne({ orderId: potentialOrderId });
+      if (!existingOrder) {
+        orderId = potentialOrderId;
+        unique = true;
+      }
+      attempt++;
+    }
+
+    if (!unique) {
+      throw new Error('Unable to generate a unique orderId after maximum attempts');
+    }
+
+    for (const update of stockUpdates) {
+      await Product.updateOne(
+        { _id: update.productId, "variants.sku": update.sku },
+        { $inc: { "variants.$.stock_quantity": -update.quantity } }
+      );
+    }
+
+    const order = new Order({
+      orderId,
+      user: userId,
+      items: orderItems,
+      shippingAddress: {
+        name: address.name,
+        addressType: address.addressType,
+        address: address.address,
+        city: address.city,
+        state: address.state,
+        pincode: address.pincode,
+        phone: address.phone,
+      },
+      subtotal,
+      discount,
+      total,
+      paymentMethod,
+      status: "Pending",
+    });
+
+    await order.save();
+
+    await Cart.findOneAndUpdate({ user: userId }, { $set: { items: [] } });
+
+    res.redirect(`/order-confirmation/${order.orderId}`);
+  } catch (error) {
+    console.error("Error placing order:", error);
+    req.session.message = "Error placing order: " + error.message;
+    res.redirect("/checkout");
+  }
 };
 
 exports.loadOrderConfirmation = async (req, res) => {
@@ -334,273 +392,271 @@ exports.loadOrderConfirmation = async (req, res) => {
 };
 
 exports.loadOrderDetails = async (req, res) => {
-    try {
-      const userId = req.session.user._id;
-      const orderId = req.params.orderId;
-  
-      const order = await Order.findOne({ orderId, user: userId }).populate("items.product");
-      if (!order) {
-        req.session.message = "Order not found.";
-        return res.redirect("/user/profile");
-      }
-  
-      const orderDate = new Date(order.createdAt);
-      const estimatedDelivery = new Date(orderDate);
-      estimatedDelivery.setDate(orderDate.getDate() + 5);
-  
-      const message = req.session.message || '';
-      req.session.message = null;
-  
-      res.render("user/order-details", {
-        order,
-        orderDate: orderDate.toLocaleDateString(),
-        estimatedDelivery: estimatedDelivery.toLocaleDateString(),
-        user: req.session.user,
-        title: "Order Details",
-        message,
-      });
-    } catch (error) {
-      console.error("Error loading order details:", error);
-      req.session.message = "Error loading order details page.";
-      res.redirect("/user/profile");
+  try {
+    const userId = req.session.user._id;
+    const orderId = req.params.orderId;
+
+    const order = await Order.findOne({ orderId, user: userId }).populate("items.product");
+    if (!order) {
+      req.session.message = "Order not found.";
+      return res.redirect("/user/profile");
     }
+
+    const orderDate = new Date(order.createdAt);
+    const estimatedDelivery = new Date(orderDate);
+    estimatedDelivery.setDate(orderDate.getDate() + 5);
+
+    const message = req.session.message || '';
+    req.session.message = null;
+
+    res.render("user/order-details", {
+      order,
+      orderDate: orderDate.toLocaleDateString(),
+      estimatedDelivery: estimatedDelivery.toLocaleDateString(),
+      user: req.session.user,
+      title: "Order Details",
+      message,
+    });
+  } catch (error) {
+    console.error("Error loading order details:", error);
+    req.session.message = "Error loading order details page.";
+    res.redirect("/user/profile");
+  }
 };
 
 exports.loadOrderHistory = async (req, res) => {
-    try {
-      const userId = req.session.user._id;
-      const page = parseInt(req.query.page) || 1;
-      const limit = parseInt(req.query.limit) || 5;
-      const skip = (page - 1) * limit;
-      const search = req.query.search || '';
+  try {
+    const userId = req.session.user._id;
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 5;
+    const skip = (page - 1) * limit;
+    const search = req.query.search || '';
 
-      // Build search query
-      let query = { user: userId };
-      if (search) {
-        query = {
-          user: userId,
-          $or: [
-            { orderId: { $regex: search, $options: 'i' } },
-            { status: { $regex: search, $options: 'i' } },
-            { 'items.product': {
-                $in: await Product.find({
-                  productName: { $regex: search, $options: 'i' }
-                }).distinct('_id')
-              }
+    let query = { user: userId };
+    if (search) {
+      query = {
+        user: userId,
+        $or: [
+          { orderId: { $regex: search, $options: 'i' } },
+          { status: { $regex: search, $options: 'i' } },
+          {
+            'items.product': {
+              $in: await Product.find({
+                productName: { $regex: search, $options: 'i' }
+              }).distinct('_id')
             }
-          ]
-        };
-      }
-
-      // Fetch orders with pagination and search
-      const orders = await Order.find(query)
-        .populate("items.product")
-        .sort({ createdAt: -1 })
-        .skip(skip)
-        .limit(limit);
-
-      // Count total orders for pagination
-      const totalOrders = await Order.countDocuments(query);
-
-      const message = req.session.message || '';
-      req.session.message = null;
-
-      res.render("user/orders", {
-        orders,
-        page,
-        limit,
-        totalOrders,
-        user: req.session.user,
-        title: "Order History",
-        message,
-        search
-      });
-    } catch (error) {
-      console.error("Error loading order history:", error);
-      req.session.message = "Error loading order history page.";
-      res.redirect("/user/profile");
+          }
+        ]
+      };
     }
+
+    const orders = await Order.find(query)
+      .populate("items.product")
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
+
+    const totalOrders = await Order.countDocuments(query);
+
+    const message = req.session.message || '';
+    req.session.message = null;
+
+    res.render("user/orders", {
+      orders,
+      page,
+      limit,
+      totalOrders,
+      user: req.session.user,
+      title: "Order History",
+      message,
+      search
+    });
+  } catch (error) {
+    console.error("Error loading order history:", error);
+    req.session.message = "Error loading order history page.";
+    res.redirect("/user/profile");
+  }
 };
 
 exports.cancelOrder = async (req, res) => {
-    try {
-      const userId = req.session.user._id;
-      const orderId = req.params.orderId;
-      const { reason } = req.body;
-  
-      if (!reason) {
-        return res.status(400).json({ success: false, message: 'Cancellation reason is required.' });
-      }
-  
-      const order = await Order.findOne({ orderId, user: userId });
-      if (!order) {
-        return res.status(404).json({ success: false, message: 'Order not found.' });
-      }
-  
-      if (order.status !== 'Pending' && order.status !== 'confirmed') {
-        return res.status(400).json({ success: false, message: 'Order cannot be cancelled in this status.' });
-      }
-  
-      for (const item of order.items) {
-        await Product.updateOne(
-          { _id: item.product, "variants.sku": item.sku },
-          { $inc: { "variants.$.stock_quantity": item.quantity } }
-        );
-      }
-  
-      order.status = 'Cancelled';
-      order.cancelReason = reason;
-      await order.save();
-  
-      res.json({ success: true, message: 'Order cancelled successfully.' });
-    } catch (error) {
-      console.error('Error cancelling order:', error);
-      res.status(500).json({ success: false, message: 'Error cancelling order.' });
+  try {
+    const userId = req.session.user._id;
+    const orderId = req.params.orderId;
+    const { reason } = req.body;
+
+    if (!reason) {
+      return res.status(400).json({ success: false, message: 'Cancellation reason is required.' });
     }
+
+    const order = await Order.findOne({ orderId, user: userId });
+    if (!order) {
+      return res.status(404).json({ success: false, message: 'Order not found.' });
+    }
+
+    if (order.status !== 'Pending' && order.status !== 'confirmed') {
+      return res.status(400).json({ success: false, message: 'Order cannot be cancelled in this status.' });
+    }
+
+    for (const item of order.items) {
+      await Product.updateOne(
+        { _id: item.product, "variants.sku": item.sku },
+        { $inc: { "variants.$.stock_quantity": item.quantity } }
+      );
+    }
+
+    order.status = 'Cancelled';
+    order.cancelReason = reason;
+    await order.save();
+
+    res.json({ success: true, message: 'Order cancelled successfully.' });
+  } catch (error) {
+    console.error('Error cancelling order:', error);
+    res.status(500).json({ success: false, message: 'Error cancelling order.' });
+  }
 };
 
 exports.requestReturn = async (req, res) => {
-    try {
-      const userId = req.session.user._id;
-      const orderId = req.params.orderId;
-      const { reason } = req.body;
-  
-      if (!reason) {
-        return res.status(400).json({ success: false, message: 'Return reason is required.' });
-      }
-  
-      const order = await Order.findOne({ orderId, user: userId });
-      if (!order) {
-        return res.status(404).json({ success: false, message: 'Order not found.' });
-      }
-  
-      if (order.status !== 'Delivered' || order.return.requested) {
-        return res.status(400).json({ success: false, message: 'Return cannot be requested for this order.' });
-      }
-  
-      order.status = 'Return Requested';
-      order.return.requested = true;
-      order.return.reason = reason;
-      order.return.status = 'pending';
-      order.return.requestedAt = new Date();
-      order.returnReason = reason;
-      await order.save();
-  
-      res.json({ success: true, message: 'Return request submitted successfully.' });
-    } catch (error) {
-      console.error('Error requesting return:', error);
-      res.status(500).json({ success: false, message: 'Error requesting return.' });
+  try {
+    const userId = req.session.user._id;
+    const orderId = req.params.orderId;
+    const { reason } = req.body;
+
+    if (!reason) {
+      return res.status(400).json({ success: false, message: 'Return reason is required.' });
     }
+
+    const order = await Order.findOne({ orderId, user: userId });
+    if (!order) {
+      return res.status(404).json({ success: false, message: 'Order not found.' });
+    }
+
+    if (order.status !== 'Delivered' || order.return.requested) {
+      return res.status(400).json({ success: false, message: 'Return cannot be requested for this order.' });
+    }
+
+    order.status = 'Return Requested';
+    order.return.requested = true;
+    order.return.reason = reason;
+    order.return.status = 'pending';
+    order.return.requestedAt = new Date();
+    order.returnReason = reason;
+    await order.save();
+
+    res.json({ success: true, message: 'Return request submitted successfully.' });
+  } catch (error) {
+    console.error('Error requesting return:', error);
+    res.status(500).json({ success: false, message: 'Error requesting return.' });
+  }
 };
 
 exports.generateInvoice = async (req, res) => {
-    try {
-      const userId = req.session.user._id;
-      const orderId = req.params.orderId;
-  
-      const order = await Order.findOne({ orderId, user: userId })
-        .populate('items.product');
-      
-      if (!order) {
-        req.session.message = 'Order not found.';
-        return res.redirect('/user/orders');
-      }
-  
-      if (order.status !== 'Delivered') {
-        req.session.message = 'Invoice can only be generated for delivered orders.';
-        return res.redirect(`/order-details/${orderId}`);
-      }
-  
-      const doc = new PDFDocument({
-        size: 'A4',
-        margin: 50
-      });
-  
-      res.setHeader('Content-Type', 'application/pdf');
-      res.setHeader('Content-Disposition', `attachment; filename=invoice_${order.orderId}.pdf`);
-  
-      doc.pipe(res);
-  
-      doc
-        .fontSize(20)
-        .font('Helvetica-Bold')
-        .text('CHOCOLUXE', 50, 50)
-        .fontSize(10)
-        .font('Helvetica')
-        .text('123 Sweet Street, Chocolate City, India', 50, 75)
-        .text('Phone: +91 12345 67890', 50, 90)
-        .text('Email: contact@chocoluxe.com', 50, 105);
-  
-      doc
-        .fontSize(16)
-        .font('Helvetica-Bold')
-        .text(`Invoice #${order.orderId}`, 50, 150)
-        .fontSize(12)
-        .font('Helvetica')
-        .text(`Date: ${new Date(order.createdAt).toLocaleDateString()}`, 50, 170);
-  
-      doc
-        .fontSize(12)
-        .font('Helvetica-Bold')
-        .text('Bill To:', 50, 200)
-        .font('Helvetica')
-        .fontSize(10)
-        .text(order.shippingAddress.name, 50, 215)
-        .text(order.shippingAddress.address, 50, 230)
-        .text(`${order.shippingAddress.city}, ${order.shippingAddress.state} ${order.shippingAddress.pincode}`, 50, 245)
-        .text(`Phone: ${order.shippingAddress.phone}`, 50, 260);
-  
-      const tableTop = 300;
-      doc
-        .font('Helvetica-Bold')
-        .fontSize(10)
-        .text('Item', 50, tableTop)
-        .text('Description', 150, tableTop)
-        .text('Quantity', 350, tableTop, { width: 50, align: 'right' })
-        .text('Price', 400, tableTop, { width: 50, align: 'right' })
-        .text('Subtotal', 450, tableTop, { width: 50, align: 'right' });
-  
-      doc
-        .strokeColor('#aaaaaa')
-        .lineWidth(1)
-        .moveTo(50, tableTop + 15)
-        .lineTo(550, tableTop + 15)
-        .stroke();
-  
-      let y = tableTop + 30;
-      order.items.forEach((item, index) => {
-        const variant = item.product.variants.find(v => v.sku === item.sku);
-        doc
-          .font('Helvetica')
-          .fontSize(10)
-          .text(item.product.productName, 50, y)
-          .text(`Flavor: ${variant.flavor}, Sugar: ${variant.sugarLevel}, Weight: ${variant.weight}g`, 150, y)
-          .text(item.quantity.toString(), 350, y, { width: 50, align: 'right' })
-          .text(`₹${item.price.toFixed(2)}`, 400, y, { width: 50, align: 'right' })
-          .text(`₹${item.subtotal.toFixed(2)}`, 450, y, { width: 50, align: 'right' });
-        y += 20;
-      });
-  
-      const summaryTop = y + 20;
-      doc
-        .font('Helvetica')
-        .fontSize(10)
-        .text(`Subtotal: ₹${order.subtotal.toFixed(2)}`, 400, summaryTop, { align: 'right' })
-        .text(`Discount: -₹${order.discount.toFixed(2)}`, 400, summaryTop + 15, { align: 'right' })
-        .text('Shipping: Free', 400, summaryTop + 30, { align: 'right' })
-        .font('Helvetica-Bold')
-        .text(`Total: ₹${order.total.toFixed(2)}`, 400, summaryTop + 45, { align: 'right' });
-  
-      doc
-        .fontSize(10)
-        .font('Helvetica')
-        .text('Thank you for shopping with CHOCOLUXE!', 50, summaryTop + 80, { align: 'center' })
-        .text('For any queries, contact us at contact@chocoluxe.com', 50, summaryTop + 95, { align: 'center' });
-  
-      doc.end();
-    } catch (error) {
-      console.error('Error generating invoice:', error);
-      req.session.message = 'Error generating invoice.';
-      res.redirect(`/order-details/${req.params.orderId}`);
+  try {
+    const userId = req.session.user._id;
+    const orderId = req.params.orderId;
+
+    const order = await Order.findOne({ orderId, user: userId })
+      .populate('items.product');
+    
+    if (!order) {
+      req.session.message = 'Order not found.';
+      return res.redirect('/user/orders');
     }
+
+    if (order.status !== 'Delivered') {
+      req.session.message = 'Invoice can only be generated for delivered orders.';
+      return res.redirect(`/order-details/${orderId}`);
+    }
+
+    const doc = new PDFDocument({
+      size: 'A4',
+      margin: 50
+    });
+
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename=invoice_${order.orderId}.pdf`);
+
+    doc.pipe(res);
+
+    doc
+      .fontSize(20)
+      .font('Helvetica-Bold')
+      .text('CHOCOLUXE', 50, 50)
+      .fontSize(10)
+      .font('Helvetica')
+      .text('123 Sweet Street, Chocolate City, India', 50, 75)
+      .text('Phone: +91 12345 67890', 50, 90)
+      .text('Email: contact@chocoluxe.com', 50, 105);
+
+    doc
+      .fontSize(16)
+      .font('Helvetica-Bold')
+      .text(`Invoice #${order.orderId}`, 50, 150)
+      .fontSize(12)
+      .font('Helvetica')
+      .text(`Date: ${new Date(order.createdAt).toLocaleDateString()}`, 50, 170);
+
+    doc
+      .fontSize(12)
+      .font('Helvetica-Bold')
+      .text('Bill To:', 50, 200)
+      .font('Helvetica')
+      .fontSize(10)
+      .text(order.shippingAddress.name, 50, 215)
+      .text(order.shippingAddress.address, 50, 230)
+      .text(`${order.shippingAddress.city}, ${order.shippingAddress.state} ${order.shippingAddress.pincode}`, 50, 245)
+      .text(`Phone: ${order.shippingAddress.phone}`, 50, 260);
+
+    const tableTop = 300;
+    doc
+      .font('Helvetica-Bold')
+      .fontSize(10)
+      .text('Item', 50, tableTop)
+      .text('Description', 150, tableTop)
+      .text('Quantity', 350, tableTop, { width: 50, align: 'right' })
+      .text('Price', 400, tableTop, { width: 50, align: 'right' })
+      .text('Subtotal', 450, tableTop, { width: 50, align: 'right' });
+
+    doc
+      .strokeColor('#aaaaaa')
+      .lineWidth(1)
+      .moveTo(50, tableTop + 15)
+      .lineTo(550, tableTop + 15)
+      .stroke();
+
+    let y = tableTop + 30;
+    order.items.forEach((item, index) => {
+      const variant = item.product.variants.find(v => v.sku === item.sku);
+      doc
+        .font('Helvetica')
+        .fontSize(10)
+        .text(item.product.productName, 50, y)
+        .text(`Flavor: ${variant.flavor}, Sugar: ${variant.sugarLevel}, Weight: ${variant.weight}g`, 150, y)
+        .text(item.quantity.toString(), 350, y, { width: 50, align: 'right' })
+        .text(`₹${item.price.toFixed(2)}`, 400, y, { width: 50, align: 'right' })
+        .text(`₹${item.subtotal.toFixed(2)}`, 450, y, { width: 50, align: 'right' });
+      y += 20;
+    });
+
+    const summaryTop = y + 20;
+    doc
+      .font('Helvetica')
+      .fontSize(10)
+      .text(`Subtotal: ₹${order.subtotal.toFixed(2)}`, 400, summaryTop, { align: 'right' })
+      .text(`Discount: -₹${order.discount.toFixed(2)}`, 400, summaryTop + 15, { align: 'right' })
+      .text('Shipping: Free', 400, summaryTop + 30, { align的风: 'right' })
+      .font('Helvetica-Bold')
+      .text(`Total: ₹${order.total.toFixed(2)}`, 400, summaryTop + 45, { align: 'right' });
+
+    doc
+      .fontSize(10)
+      .font('Helvetica')
+      .text('Thank you for shopping with CHOCOLUXE!', 50, summaryTop + 80, { align: 'center' })
+      .text('For any queries, contact us at contact@chocoluxe.com', 50, summaryTop + 95, { align: 'center' });
+
+    doc.end();
+  } catch (error) {
+    console.error('Error generating invoice:', error);
+    req.session.message = 'Error generating invoice.';
+    res.redirect(`/order-details/${req.params.orderId}`);
+  }
 };

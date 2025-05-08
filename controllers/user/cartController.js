@@ -1,5 +1,6 @@
 const Cart = require("../../models/cartSchema");
 const Product = require("../../models/productSchema");
+const Category = require("../../models/categorySchema");
 
 exports.addToCart = async (req, res) => {
   try {
@@ -14,11 +15,18 @@ exports.addToCart = async (req, res) => {
       });
     }
 
-    const product = await Product.findById(productId);
+    const product = await Product.findById(productId).populate("category");
     if (!product || product.isBlocked) {
       return res
         .status(404)
         .json({ success: false, message: "Product not found" });
+    }
+
+    if (!product.category || !product.category.isListed) {
+      return res.status(400).json({
+        success: false,
+        message: "Product category is unavailable",
+      });
     }
 
     const variant = product.variants.find(
@@ -37,7 +45,7 @@ exports.addToCart = async (req, res) => {
     }
 
     const existingItemIndex = cart.items.findIndex(
-      (item) => item.product.toString() === productId && item.sku == variant.sku
+      (item) => item.product.toString() === productId && item.sku === variant.sku
     );
 
     if (existingItemIndex > -1) {
@@ -83,35 +91,50 @@ exports.loadCart = async (req, res) => {
       return res.redirect("/user/login");
     }
 
-    const cart = await Cart.findOne({ user: userId }).populate("items.product");
+    const cart = await Cart.findOne({ user: userId }).populate({
+      path: "items.product",
+      populate: {
+        path: "category",
+        model: "Category",
+      },
+    });
     let cartItems = [];
     let total = 0;
+    let hasInvalidItems = false;
 
     if (cart && cart.items.length > 0) {
-      cartItems = cart.items
-        .filter((item) => {
-          const product = item.product;
-          return product && !product.isBlocked;
-        })
-        .map((item) => {
-          const product = item.product;
-          const variant = product.variants.find((v) => v.sku === item.sku);
-          const price = variant && typeof variant.salePrice === 'number' ? variant.salePrice : 0;
-          const subtotal = price * item.quantity;
-          total += subtotal;
-
-          return {
-            ...item.toObject(),
-            product,
-            variant,
-            subtotal,
-          };
-        });
-
-      cart.items = cart.items.filter((item) => {
+      cartItems = cart.items.map((item) => {
         const product = item.product;
-        return product && !product.isBlocked;
+        let errorMessage = null;
+
+        if (!product) {
+          errorMessage = "Product not found";
+          hasInvalidItems = true;
+        } else if (product.isBlocked) {
+          errorMessage = "Product is no longer available";
+          hasInvalidItems = true;
+        } else if (!product.category || !product.category.isListed) {
+          errorMessage = "Product category is unavailable";
+          hasInvalidItems = true;
+        }
+
+        const variant = product?.variants.find((v) => v.sku === item.sku);
+        const price = variant && typeof variant.salePrice === 'number' ? variant.salePrice : 0;
+        const subtotal = errorMessage ? 0 : price * item.quantity;
+        if (!errorMessage) {
+          total += subtotal;
+        }
+
+        return {
+          ...item.toObject(),
+          product,
+          variant,
+          subtotal,
+          errorMessage,
+        };
       });
+
+      // Do not remove items from cart; let them display with error messages
       await cart.save();
     }
 
@@ -120,6 +143,7 @@ exports.loadCart = async (req, res) => {
       total,
       user: req.session.user || null,
       title: "Your Cart",
+      hasInvalidItems,
     });
   } catch (error) {
     console.error("Error loading cart:", error);
@@ -256,16 +280,16 @@ exports.removeFromCart = async (req, res) => {
 
     const cartTotal = cart.items.reduce((sum, cartItem) => {
       const itemProduct = cartItem.product;
-      if (!itemProduct) return sum;
+      if (!itemProduct || itemProduct.isBlocked) return sum;
       const itemVariant = itemProduct.variants.find((v) => v.sku === cartItem.sku);
       if (!itemVariant) return sum;
-      const price = itemVariant && typeof itemVariant.salePrice === 'number' ? variant.salePrice : 0;
+      const price = itemVariant && typeof itemVariant.salePrice === 'number' ? itemVariant.salePrice : 0;
       return sum + price * cartItem.quantity;
     }, 0);
 
     const itemCount = cart.items.length;
 
-     res.json({
+    res.json({
       success: true,
       message: "Item removed from cart",
       cartTotal,

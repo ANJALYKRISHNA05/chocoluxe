@@ -5,7 +5,11 @@ exports.loadShopHomepage = async (req, res) => {
   try {
     const categories = await Category.find({ isListed: true }).sort({ name: 1 });
 
-    const products = await Product.find({ isBlocked: false })
+    // Fetch products with unblocked status and listed category
+    const products = await Product.find({ 
+      isBlocked: false,
+      category: { $in: await Category.find({ isListed: true }).distinct('_id') }
+    })
       .populate('category') 
       .sort({ createdAt: -1 }) 
       .limit(4); 
@@ -25,7 +29,10 @@ exports.loadProductListing = async (req, res) => {
   try {
     const categories = await Category.find({ isListed: true }).sort({ name: 1 });
     
-    let query = { isBlocked: false };
+    let query = { 
+      isBlocked: false,
+      category: { $in: await Category.find({ isListed: true }).distinct('_id') }
+    };
     
     if (req.query.search) {
       const searchRegex = new RegExp(req.query.search, 'i');
@@ -177,16 +184,23 @@ exports.loadProductDetails = async (req, res) => {
   try {
     const productId = req.params.id;
     
-    const product = await Product.findById(productId).populate('category');
+    // Fetch product with listed category
+    const product = await Product.findOne({ 
+      _id: productId, 
+      isBlocked: false,
+      category: { $in: await Category.find({ isListed: true }).distinct('_id') }
+    }).populate('category');
     
-    if (!product || product.isBlocked) {
+    if (!product) {
       return res.redirect('/user/pageNotfound');
     }
 
+    // Fetch related products with listed category
     const relatedProducts = await Product.find({
       category: product.category._id,
       _id: { $ne: productId }, 
-      isBlocked: false
+      isBlocked: false,
+      category: { $in: await Category.find({ isListed: true }).distinct('_id') }
     }).limit(4);
 
     res.render('user/product_details', {

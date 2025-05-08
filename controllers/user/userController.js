@@ -379,18 +379,34 @@ const loadProfile = async (req, res) => {
         }
         
        
-        req.session.user.profileImage = user.profileImage || '/Images/default-profile.jpg';
-
+        req.session.user = {
+            _id: user._id.toString(),
+            username: user.username,
+            email: user.email,
+            phone: user.phone, 
+            isBlocked: user.isBlocked,
+            profileImage: user.profileImage || '/Images/default-profile.jpg'
+        };
+        
         res.render('user/profile', {
-            user: req.session.user, 
-            userData: req.session.userData, 
+            user: {
+                _id: user._id.toString(),
+                username: user.username,
+                email: user.email,
+                phone: user.phone, 
+                profileImage: user.profileImage || '/Images/default-profile.jpg'
+            },
+            userData: req.session.userData,
             activeTab: 'details'
         });
+       
     } catch (error) {
         console.error('Error loading profile:', error);
         res.status(500).redirect('/user/pageNotfound');
     }
 };
+
+
 
 const loadEditProfile = async (req, res) => {
     try {

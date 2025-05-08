@@ -53,6 +53,11 @@
       width: 200px;
       margin-bottom: 20px;
     }
+    .error-message {
+      color: #dc3545;
+      font-weight: bold;
+      margin-top: 10px;
+    }
     @media (max-width: 768px) {
       .cart-item img {
         width: 80px;
@@ -73,25 +78,31 @@
 
       <% if (cartItems.length > 0) { %>
         <div class="row">
-        
           <div class="col-lg-8">
             <% cartItems.forEach(item => { %>
               <div class="cart-item d-flex align-items-center" data-item-id="<%= item._id %>">
-                <img src="<%= item.productImage %>" alt="<%= item.product.productName %>" class="me-3">
+                <img src="<%= item.productImage %>" alt="<%= item.product ? item.product.productName : 'Product Image' %>" class="me-3">
                 <div class="flex-grow-1">
-                  <h5><%= item.product.productName %></h5>
-                  <p class="mb-1">
-                    Flavor: <%= item.variant.flavor %> | Sugar: <%= item.variant.sugarLevel %> | Weight: <%= item.variant.weight %>g
-                  </p>
-                  <p class="mb-1">Price: ₹<%= (item.variant.salePrice ? item.variant.salePrice : 0).toFixed(2) %> x <%= item.quantity %></p>
-                  <p class="fw-bold subtotal">Subtotal: ₹<%= item.subtotal.toFixed(2) %></p>
+                  <h5><%= item.product ? item.product.productName : 'Product Unavailable' %></h5>
+                  <% if (item.variant && !item.errorMessage) { %>
+                    <p class="mb-1">
+                      Flavor: <%= item.variant.flavor %> | Sugar: <%= item.variant.sugarLevel %> | Weight: <%= item.variant.weight %>g
+                    </p>
+                    <p class="mb-1">Price: ₹<%= (item.variant.salePrice ? item.variant.salePrice : 0).toFixed(2) %> x <%= item.quantity %></p>
+                    <p class="fw-bold subtotal">Subtotal: ₹<%= item.subtotal.toFixed(2) %></p>
+                  <% } %>
+                  <% if (item.errorMessage) { %>
+                    <p class="error-message"><%= item.errorMessage %></p>
+                  <% } %>
                 </div>
                 <div class="d-flex align-items-center">
-                  <div class="input-group quantity-selector me-3">
-                    <button type="button" class="btn btn-outline-secondary quantity-minus" data-item-id="<%= item._id %>">-</button>
-                    <input type="number" class="form-control text-center quantity-input" value="<%= item.quantity %>" min="1" max="5" data-item-id="<%= item._id %>" readonly>
-                    <button type="button" class="btn btn-outline-secondary quantity-plus" data-item-id="<%= item._id %>">+</button>
-                  </div>
+                  <% if (!item.errorMessage) { %>
+                    <div class="input-group quantity-selector me-3">
+                      <button type="button" class="btn btn-outline-secondary quantity-minus" data-item-id="<%= item._id %>">-</button>
+                      <input type="number" class="form-control text-center quantity-input" value="<%= item.quantity %>" min="1" max="5" data-item-id="<%= item._id %>" readonly>
+                      <button type="button" class="btn btn-outline-secondary quantity-plus" data-item-id="<%= item._id %>">+</button>
+                    </div>
+                  <% } %>
                   <button type="button" class="btn btn-danger remove-item" data-item-id="<%= item._id %>">
                     <i class="fas fa-trash"></i>
                   </button>
@@ -99,8 +110,6 @@
               </div>
             <% }); %>
           </div>
-
-         
           <div class="col-lg-4">
             <div class="cart-summary">
               <h4>Cart Summary</h4>
@@ -109,9 +118,12 @@
                 <span>Total</span>
                 <span class="fw-bold">₹<%= total.toFixed(2) %></span>
               </div>
-              <button type="button" class="btn btn-primary btn-lg w-100 mt-3" onclick="location.href='/checkout'">
+              <button type="button" class="btn btn-primary btn-lg w-100 mt-3 proceed-checkout" onclick="location.href='/checkout'" <%= hasInvalidItems ? 'disabled' : '' %>>
                 Proceed to Checkout
               </button>
+              <% if (hasInvalidItems) { %>
+                <p class="error-message mt-2">Please remove invalid items to proceed</p>
+              <% } %>
             </div>
           </div>
         </div>
@@ -129,7 +141,6 @@
   <%- include('../partials/user/footer') %>
 
   <script>
-  
     function updateCartBadge(count) {
       const badge = document.querySelector('.cart-badge');
       if (badge) {
@@ -141,7 +152,6 @@
         }
       }
     }
-
 
     function fetchCartItemCount() {
       fetch('/cart/item-count', {
@@ -155,7 +165,6 @@
       .catch(error => console.error('Error fetching cart count:', error));
     }
 
-    
     document.querySelectorAll('.quantity-minus, .quantity-plus').forEach(button => {
       button.addEventListener('click', function() {
         const itemId = this.dataset.itemId;
@@ -175,10 +184,9 @@
           }
           quantity++;
         } else {
-          return; 
+          return;
         }
 
-       
         this.disabled = true;
 
         fetch('/cart/update-quantity', {
@@ -200,7 +208,7 @@
           return response.json();
         })
         .then(data => {
-          if (!data) return; 
+          if (!data) return;
           if (data.success) {
             input.value = quantity;
             const cartItem = document.querySelector(`.cart-item[data-item-id="${itemId}"]`);
@@ -226,7 +234,6 @@
       });
     });
 
-  
     document.querySelectorAll('.remove-item').forEach(button => {
       button.addEventListener('click', function() {
         const itemId = this.dataset.itemId;
@@ -239,7 +246,6 @@
           confirmButtonText: 'Yes, remove it!'
         }).then(result => {
           if (result.isConfirmed) {
-  
             this.disabled = true;
 
             fetch('/cart/remove', {
@@ -261,7 +267,7 @@
               return response.json();
             })
             .then(data => {
-              if (!data) return; 
+              if (!data) return;
               if (data.success) {
                 const cartItem = document.querySelector(`.cart-item[data-item-id="${itemId}"]`);
                 if (cartItem) {
@@ -270,6 +276,14 @@
                   updateCartBadge(data.itemCount);
                   if (data.itemCount === 0) {
                     location.reload();
+                  } else {
+                    // Check if there are still invalid items after removal
+                    const remainingItems = document.querySelectorAll('.cart-item .error-message');
+                    if (remainingItems.length === 0) {
+                      document.querySelector('.proceed-checkout').disabled = false;
+                      const errorMsg = document.querySelector('.cart-summary .error-message');
+                      if (errorMsg) errorMsg.remove();
+                    }
                   }
                   Swal.fire('Removed', 'Item removed from cart', 'success');
                 } else {
@@ -291,7 +305,6 @@
       });
     });
 
- 
     document.addEventListener('DOMContentLoaded', fetchCartItemCount);
   </script>
 </body>
