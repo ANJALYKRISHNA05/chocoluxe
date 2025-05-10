@@ -55,7 +55,7 @@ const logout=async(req,res)=>{
     try {
         req.session.destroy(err=>{
             if(err){
-                consoel.log("Error destroying session",err)
+                console.log("Error destroying session",err)
                 return res.redirect("/admin/pageerror")
             }
             res.redirect("/admin/login")

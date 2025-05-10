@@ -9,10 +9,9 @@ exports.loadOrders = async (req, res) => {
       const limit = parseInt(req.query.limit) || 10;
       const skip = (page - 1) * limit;
       
-      // Get search parameters
       const { orderId, status, username } = req.query;
       
-      // Build query object
+      
       const query = {};
       if (orderId) {
         query.orderId = { $regex: orderId, $options: 'i' };
@@ -21,7 +20,6 @@ exports.loadOrders = async (req, res) => {
         query.status = status;
       }
       
-      // Find matching users if username search is provided
       let userIds = [];
       if (username) {
         const users = await User.find({ 
@@ -31,18 +29,17 @@ exports.loadOrders = async (req, res) => {
         query.user = { $in: userIds };
       }
   
-      // Execute query
+    
       const ordersQuery = Order.find(query)
         .populate('user', 'username')
         .sort({ createdAt: -1 });
       
-      // Apply pagination
+      
       const orders = await ordersQuery
         .skip(skip)
         .limit(limit)
         .exec();
-  
-      // Get total count for pagination
+ 
       const totalOrders = await Order.countDocuments(query);
   
       res.render('admin/orders', {
@@ -149,7 +146,7 @@ exports.acceptReturn = async (req, res) => {
       return res.status(400).json({ success: false, message: 'No pending return request for this order.' });
     }
 
-    // Restock products
+
     for (const item of order.items) {
       await Product.updateOne(
         { _id: item.product, 'variants.sku': item.sku },
@@ -157,7 +154,7 @@ exports.acceptReturn = async (req, res) => {
       );
     }
 
-    // Refund to wallet
+    
     let wallet = await Wallet.findOne({ userId: order.user });
     if (!wallet) {
       wallet = new Wallet({

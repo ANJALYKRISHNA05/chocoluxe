@@ -10,16 +10,7 @@ const path = require('path');
 exports.addCheckoutAddress = async (req, res) => {
   try {
     const userId = req.session.user._id;
-    const {
-      name,
-      addressType,
-      address,
-      city,
-      state,
-      pincode,
-      phone,
-      isDefault,
-    } = req.body;
+    const {name,addressType,address,city,state,pincode,phone,isDefault} = req.body;
 
     if (!name || !addressType || !address || !city || !state || !pincode || !phone) {
       req.session.message = "All fields are required.";
@@ -39,17 +30,7 @@ exports.addCheckoutAddress = async (req, res) => {
       await Address.updateMany({ userId }, { $set: { isDefault: false } });
     }
 
-    const newAddress = new Address({
-      userId,
-      name,
-      addressType,
-      address,
-      city,
-      state,
-      pincode,
-      phone,
-      isDefault: isDefault === "true",
-    });
+    const newAddress = new Address({ userId,name,addressType,address,city,state,pincode,phone,isDefault: isDefault === "true",});
 
     await newAddress.save();
     req.session.message = "Address added successfully.";
@@ -64,17 +45,7 @@ exports.addCheckoutAddress = async (req, res) => {
 exports.updateCheckoutAddress = async (req, res) => {
   try {
     const userId = req.session.user._id;
-    const {
-      addressId,
-      name,
-      addressType,
-      address,
-      city,
-      state,
-      pincode,
-      phone,
-      isDefault,
-    } = req.body;
+    const {addressId,name,addressType,address,city,state,pincode,phone,isDefault,} = req.body;
 
     if (!name || !addressType || !address || !city || !state || !pincode || !phone) {
       req.session.message = "All fields are required.";

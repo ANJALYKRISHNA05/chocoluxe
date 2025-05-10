@@ -4,10 +4,9 @@ exports.loadWallet = async (req, res) => {
   try {
     const userId = req.session.user._id;
 
-    // Fetch the user's wallet
     const wallet = await Wallet.findOne({ userId }).populate("userId", "name");
     if (!wallet) {
-      // If no wallet exists, create one with zero balance
+    
       const newWallet = new Wallet({
         userId,
         balance: 0,

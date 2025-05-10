@@ -94,8 +94,8 @@ exports.loadCart = async (req, res) => {
     const cart = await Cart.findOne({ user: userId }).populate({
       path: "items.product",
       populate: {
-        path: "category",
-        model: "Category",
+      path: "category",
+      model: "Category",
       },
     });
     let cartItems = [];
@@ -134,7 +134,7 @@ exports.loadCart = async (req, res) => {
         };
       });
 
-      // Do not remove items from cart; let them display with error messages
+      
       await cart.save();
     }
 

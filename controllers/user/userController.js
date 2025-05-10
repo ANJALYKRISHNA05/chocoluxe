@@ -513,7 +513,7 @@ const updateProfile = async (req, res) => {
             username: updatedUser.username,
             email: updatedUser.email,
             isBlocked: updatedUser.isBlocked,
-            profileImage: updatedUser.profileImage || '/Images/default-profile.jpg' // Add profileImage
+            profileImage: updatedUser.profileImage || '/Images/default-profile.jpg' 
         };
         
         req.session.message = 'Profile updated successfully';
@@ -556,7 +556,7 @@ const verifyEmailUpdate = async (req, res) => {
             username: updatedUser.username,
             email: updatedUser.email,
             isBlocked: updatedUser.isBlocked,
-            profileImage: updatedUser.profileImage || '/Images/default-profile.jpg' // Add profileImage
+            profileImage: updatedUser.profileImage || '/Images/default-profile.jpg' 
         };
         
         delete req.session.emailUpdateData;
@@ -700,12 +700,12 @@ const addAddress = async (req, res) => {
         
         const locationPattern = /^[A-Za-z\s\-']{2,30}$/;
         if (!locationPattern.test(city)) {
-            req.session.message = 'City must contain only letters and spaces (2-30 characters).';
+            req.session.message = 'City must contain only letters(2-30 characters).';
             return res.redirect('/user/address/add');
         }
         
         if (!locationPattern.test(state)) {
-            req.session.message = 'State must contain only letters and spaces (2-30 characters).';
+            req.session.message = 'State must contain only letters (2-30 characters).';
             return res.redirect('/user/address/add');
         }
         

@@ -34,12 +34,11 @@
         background-color: #f8f9fa;
     }
     
-    /* Fixed header height variable */
+ 
     :root {
         --header-height: 60px;
     }
     
-    /* Ensure content area accounts for sidebar */
     .content-wrapper {
         margin-left: 250px;
         padding: 20px;
@@ -47,20 +46,20 @@
         transition: margin-left 0.3s;
     }
     
-    /* Sidebar styles */
+   
     .sidebar {
         width: 250px;
         background-color: #4a2c2a;
         color: #fff9e6;
         height: calc(100vh - var(--header-height));
         position: fixed;
-        top: var(--header-height); /* Align exactly below the header */
+        top: var(--header-height);
         left: 0;
         padding: 20px 0;
         transition: width 0.3s;
         border-right: 2px solid #d1a876;
-        z-index: 999; /* Lower than header */
-        overflow-y: auto; /* Scrollable if needed */
+        z-index: 999; 
+        overflow-y: auto; 
     }
     
     .sidebar .nav-item {
@@ -96,8 +95,7 @@
     .sidebar .nav-link.active i {
         transform: rotate(10deg);
     }
-    
-    /* Update header style to use the same variable */
+   
     .header {
         height: var(--header-height);
         background-color: #4a2c2a;
@@ -111,10 +109,9 @@
         top: 0;
         left: 0;
         right: 0;
-        z-index: 1000; /* Higher than sidebar */
+        z-index: 1000; 
     }
-    
-    /* Responsive adjustments */
+ 
     @media (max-width: 768px) {
         .sidebar {
             width: 60px;
@@ -133,7 +130,6 @@
         }
     }
     
-    /* Toggle class for mobile sidebar */
     .sidebar-collapsed {
         width: 0;
         padding: 0;

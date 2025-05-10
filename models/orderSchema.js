@@ -127,7 +127,7 @@ const orderSchema = new Schema(
   { timestamps: true }
 );
 
-// Pre-save hook as a fallback to generate a unique orderId
+
 orderSchema.pre('save', async function(next) {
   try {
     if (this.isNew && !this.orderId) {
@@ -137,7 +137,7 @@ orderSchema.pre('save', async function(next) {
       const maxAttempts = 10;
 
       while (!unique && attempt < maxAttempts) {
-        const randomNum = Math.floor(100000 + Math.random() * 900000); // 6-digit random number
+        const randomNum = Math.floor(100000 + Math.random() * 900000); 
         const potentialOrderId = `${prefix}-${randomNum}`;
         
         const existingOrder = await mongoose.model("Order").findOne({ orderId: potentialOrderId });
