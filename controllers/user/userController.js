@@ -168,12 +168,11 @@ const loadLogin = async (req, res) => {
 const login = async (req, res) => {
     try {
         const { email, password } = req.body;
-        
         const user = await User.findOne({ isAdmin: 0, email });
         
         if (!user || !(await bcrypt.compare(password, user.password))) {
             req.session.message = 'Invalid email or password';
-            console.log('Login failed - Invalid credentials'); 
+            console.log('Login failed - Invalid credentials');
             return res.redirect('/user/login');
         }
 
@@ -183,15 +182,15 @@ const login = async (req, res) => {
             return res.redirect('/user/login');
         }
 
-   
         req.session.user = {
-            _id: user._id,
+            _id: user._id.toString(),
             username: user.username,
             email: user.email,
+            phone: user.phone, 
             isBlocked: user.isBlocked,
-            profileImage: user.profileImage || '/Images/default-profile.jpg' 
+            profileImage: user.profileImage || '/Images/default-profile.jpg'
         };
-        console.log('Login successful - Session user:', req.session.user); 
+        console.log('Login successful - Session:', req.session);
         res.redirect('/');
     } catch (error) {
         console.error('Login error:', error);
@@ -373,17 +372,18 @@ const resetPassword = async (req, res) => {
 
 const loadProfile = async (req, res) => {
     try {
+        console.log('loadProfile - Session:', req.session);
         const user = await User.findById(req.session.user._id);
         if (!user) {
+            console.log('User not found for session ID:', req.session.user._id);
             return res.redirect('/user/login');
         }
         
-       
         req.session.user = {
             _id: user._id.toString(),
             username: user.username,
             email: user.email,
-            phone: user.phone, 
+            phone: user.phone,
             isBlocked: user.isBlocked,
             profileImage: user.profileImage || '/Images/default-profile.jpg'
         };
@@ -393,19 +393,17 @@ const loadProfile = async (req, res) => {
                 _id: user._id.toString(),
                 username: user.username,
                 email: user.email,
-                phone: user.phone, 
+                phone: user.phone,
                 profileImage: user.profileImage || '/Images/default-profile.jpg'
             },
             userData: req.session.userData,
             activeTab: 'details'
         });
-       
     } catch (error) {
         console.error('Error loading profile:', error);
         res.status(500).redirect('/user/pageNotfound');
     }
 };
-
 
 
 const loadEditProfile = async (req, res) => {

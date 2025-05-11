@@ -16,6 +16,7 @@ exports.loadOrders = async (req, res) => {
       if (orderId) {
         query.orderId = { $regex: orderId, $options: 'i' };
       }
+      
       if (status) {
         query.status = status;
       }
@@ -174,7 +175,7 @@ exports.acceptReturn = async (req, res) => {
 
     await wallet.save();
 
-    // Update order status
+  
     order.status = 'Returned';
     order.return.status = 'approved';
     order.return.processedAt = new Date();

@@ -5,116 +5,408 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CHOCOLUXE</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
-    <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800&family=Nunito+Sans:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
-        body, html { height: 100%; margin: 0; background-color: #f5e8d4; font-family: 'Nunito Sans', sans-serif; display: flex; flex-direction: column; }
-        .navbar { background-color: #4a2c2a; padding: 15px 30px; color: white; display: flex; justify-content: space-between; align-items: center; position: relative; }
-        .navbar .brand { font-size: 1.5rem; font-weight: 700; text-align: center; }
-        .navbar .brand small { display: block; font-size: 0.8rem; font-weight: 400; color: #d1a876; }
-        .navbar .nav-links { display: flex; align-items: center; gap: 25px; }
-        .navbar .nav-icons { display: flex; align-items: center; gap: 20px; }
-        .navbar a { color: white; text-decoration: none; font-size: 1rem; }
-        .navbar a:hover { color: #d1a876; }
-        .navbar .search-bar { width: 200px; font-size: 0.9rem; padding: 5px 10px; }
-        .navbar .menu-toggle { display: none; font-size: 1.5rem; cursor: pointer; }
-        .user-menu { position: relative; display: flex; align-items: center; }
+        :root {
+            --primary: #3a1c1a;
+            --primary-light: #4a2c2a;
+            --primary-dark: #2a0c0a;
+            --accent: #d4a26a;
+            --accent-light: #e4b27a;
+            --accent-dark: #c49260;
+            --background: #f9f1e7;
+            --text-light: #ffffff;
+            --text-dark: #333333;
+            --danger: #dc3545;
+            --transition: all 0.3s ease;
+        }
+        
+        body, html { 
+            height: 100%; 
+            margin: 0; 
+            background-color: var(--background); 
+            font-family: 'Nunito Sans', sans-serif; 
+            display: flex; 
+            flex-direction: column; 
+        }
+        
+        /* Header Styles */
+        .navbar { 
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            padding: 0;
+            color: var(--text-light);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .navbar-container {
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0.8rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .navbar .brand { 
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem; 
+            font-weight: 700; 
+            text-align: center; 
+            letter-spacing: 1px;
+            position: relative;
+            padding: 0.3rem 0;
+        }
+        
+        .navbar .brand::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40px;
+            height: 2px;
+            background-color: var(--accent);
+        }
+        
+        .navbar .brand small { 
+            display: block; 
+            font-family: 'Nunito Sans', sans-serif;
+            font-size: 0.8rem; 
+            font-weight: 400; 
+            color: var(--accent); 
+            letter-spacing: 2px;
+            margin-top: 0.2rem;
+        }
+        
+        .navbar .nav-links { 
+            display: flex; 
+            align-items: center; 
+            gap: 2.5rem; 
+        }
+        
+        .navbar .nav-icons { 
+            display: flex; 
+            align-items: center; 
+            gap: 1.5rem; 
+        }
+        
+        .navbar a { 
+            color: var(--text-light); 
+            text-decoration: none; 
+            font-size: 1rem; 
+            font-weight: 600;
+            transition: var(--transition);
+            position: relative;
+        }
+        
+        .navbar .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background-color: var(--accent);
+            transition: var(--transition);
+        }
+        
+        .navbar .nav-links a:hover::after {
+            width: 100%;
+        }
+        
+        .navbar a:hover { 
+            color: var(--accent-light); 
+        }
+        
+        .navbar .nav-icons a {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            transition: var(--transition);
+        }
+        
+        .navbar .nav-icons a:hover {
+            background-color: rgba(255,255,255,0.1);
+        }
+        
+        .navbar .nav-icons a i {
+            font-size: 1.2rem;
+        }
+        
+        .navbar .search-bar { 
+            width: 200px; 
+            font-size: 0.9rem; 
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 20px;
+            background-color: rgba(255,255,255,0.1);
+            color: var(--text-light);
+            transition: var(--transition);
+        }
+        
+        .navbar .search-bar:focus {
+            background-color: rgba(255,255,255,0.2);
+            outline: none;
+        }
+        
+        .navbar .search-bar::placeholder {
+            color: rgba(255,255,255,0.7);
+        }
+        
+        .navbar .menu-toggle { 
+            display: none; 
+            font-size: 1.5rem; 
+            cursor: pointer; 
+            color: var(--text-light);
+            background: none;
+            border: none;
+            transition: var(--transition);
+        }
+        
+        .navbar .menu-toggle:hover {
+            color: var(--accent);
+        }
+        
+        /* User Menu Styles */
+        .user-menu { 
+            position: relative; 
+            display: flex; 
+            align-items: center; 
+        }
+        
         .user-dropdown { 
             display: none; 
             position: absolute; 
-            top: 30px; 
+            top: 45px; 
             right: 0; 
-            background-color: #4a2c2a; 
-            border: 1px solid #d1a876; 
-            border-radius: 5px; 
-            padding: 10px; 
+            background-color: var(--text-light); 
+            border: none; 
+            border-radius: 8px; 
+            padding: 0.8rem 0; 
             z-index: 1000; 
-            min-width: 180px; 
+            min-width: 200px; 
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            animation: fadeIn 0.3s ease;
         }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .user-dropdown::before {
+            content: '';
+            position: absolute;
+            top: -8px;
+            right: 15px;
+            width: 16px;
+            height: 16px;
+            background-color: var(--text-light);
+            transform: rotate(45deg);
+        }
+        
         .user-dropdown a { 
             display: flex; 
             align-items: center; 
-            padding: 10px 15px; 
-            color: white; 
-            font-size: 0.9rem; 
-            gap: 10px; 
+            padding: 0.8rem 1.5rem; 
+            color: var(--text-dark); 
+            font-size: 0.95rem; 
+            gap: 12px; 
+            transition: var(--transition);
         }
-        .user-dropdown a i { font-size: 1rem; }
+        
+        .user-dropdown a i { 
+            font-size: 1.1rem; 
+            color: var(--primary);
+            width: 20px;
+            text-align: center;
+        }
+        
         .user-dropdown a:hover { 
-            background-color: #5a3c3a; 
-            color: #d1a876; 
+            background-color: rgba(0,0,0,0.05); 
+            color: var(--primary); 
         }
+        
         .user-menu.active .user-dropdown { 
             display: block; 
         }
+        
+        /* Badge Styles */
         .cart-badge, .wishlist-badge {
             position: absolute;
-            top: -10px;
-            right: -10px;
-            background-color: #dc3545;
+            top: -5px;
+            right: -5px;
+            background-color: var(--danger);
             color: white;
             border-radius: 50%;
             width: 20px;
             height: 20px;
             display: none;
             text-align: center;
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             line-height: 20px;
+            font-weight: 700;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
         }
+        
+        /* Responsive Styles */
+        @media (max-width: 992px) {
+            .navbar-container {
+                padding: 0.8rem 1.5rem;
+            }
+            
+            .navbar .nav-links {
+                gap: 1.5rem;
+            }
+        }
+        
         @media (max-width: 768px) {
-            .navbar { padding: 15px; flex-direction: column; align-items: flex-start; }
-            .navbar .brand { margin-bottom: 15px; }
-            .navbar .nav-links, .navbar .nav-icons { display: none; }
-            .navbar .menu-toggle { display: block; position: absolute; top: 15px; right: 15px; }
-            .navbar.active .nav-links, .navbar.active .nav-icons { display: flex; flex-direction: column; width: 100%; background-color: #4a2c2a; padding: 15px 0; }
-            .navbar.active .nav-links a, .navbar.active .nav-icons a { margin: 10px 20px; }
-            .navbar.active .search-bar { width: 100%; margin: 10px 20px; }
-            .navbar.active .user-menu { width: 100%; justify-content: flex-start; margin: 10px 20px; }
+            .navbar { 
+                padding: 0; 
+            }
+            
+            .navbar-container {
+                flex-wrap: wrap;
+                padding: 0.8rem 1rem;
+            }
+            
+            .navbar .brand { 
+                font-size: 1.5rem; 
+                margin-right: auto;
+            }
+            
+            .navbar .nav-links, .navbar .nav-icons { 
+                display: none; 
+                width: 100%;
+                order: 3;
+                margin-top: 1rem;
+            }
+            
+            .navbar .menu-toggle { 
+                display: block; 
+                order: 2;
+            }
+            
+            .navbar.active .nav-links, .navbar.active .nav-icons { 
+                display: flex; 
+                flex-direction: column; 
+                width: 100%; 
+                background-color: var(--primary-light); 
+                padding: 1rem 0; 
+                border-radius: 8px;
+                margin-top: 1rem;
+            }
+            
+            .navbar.active .nav-links a, .navbar.active .nav-icons a { 
+                margin: 0.5rem 1.5rem; 
+                font-size: 1rem;
+            }
+            
+            .navbar.active .nav-links a::after {
+                display: none;
+            }
+            
+            .navbar.active .search-bar { 
+                width: calc(100% - 3rem); 
+                margin: 0.8rem 1.5rem; 
+                border-radius: 4px;
+            }
+            
+            .navbar.active .user-menu { 
+                width: 100%; 
+                justify-content: flex-start; 
+                margin: 0.5rem 1.5rem; 
+            }
+            
             .user-dropdown { 
                 position: static; 
                 border: none; 
-                background-color: transparent; 
-                padding: 0; 
+                background-color: rgba(0,0,0,0.1); 
+                box-shadow: none;
+                border-radius: 4px;
+                padding: 0.5rem 0; 
+                margin-top: 0.5rem;
+                animation: none;
             }
+            
+            .user-dropdown::before {
+                display: none;
+            }
+            
             .user-dropdown a { 
-                margin: 10px 20px; 
+                padding: 0.6rem 1rem; 
+                color: var(--text-light);
+            }
+            
+            .user-dropdown a i {
+                color: var(--accent);
+            }
+            
+            .user-dropdown a:hover { 
+                background-color: rgba(255,255,255,0.1); 
+                color: var(--accent); 
             }
         }
-        @media (max-width: 480px) {
-            .navbar .brand { font-size: 1.2rem; }
-            .navbar .brand small { font-size: 0.7rem; }
-            .navbar.active .nav-links a, .navbar.active .nav-icons a { font-size: 0.8rem; }
-            .navbar .search-bar { width: 120px; font-size: 0.7rem; }
+        
+        @media (max-width: 576px) {
+            .navbar .brand { 
+                font-size: 1.3rem; 
+            }
+            
+            .navbar .brand small { 
+                font-size: 0.7rem; 
+            }
+            
+            .navbar .nav-icons a {
+                width: 35px;
+                height: 35px;
+            }
+            
+            .navbar .nav-icons a i {
+                font-size: 1rem;
+            }
         }
     </style>
 </head>
 <body>
     <nav class="navbar">
-        <div class="menu-toggle" onclick="toggleMenu()">☰</div>
-        <div class="brand">CHOCOLUXE <small>TASTE THE LUXURY</small></div>
-        <div class="nav-links">
-            <a href="/">Home</a>
-       
-            <a href="/products">Products</a>
-        </div>
-        <div class="nav-icons">
-           
-            <a href="/wishlist" class="ms-3 position-relative">
-                <i class="fas fa-heart"></i>
-                <span class="wishlist-badge"></span>
-            </a>
-            <a href="/cart" class="ms-3 position-relative">
-                <i class="fas fa-shopping-cart"></i>
-                <span class="cart-badge"></span>
-            </a>
-            <div class="user-menu ms-3">
-                <a href="#" onclick="toggleUserMenu()"><i class="fas fa-user"></i></a>
-                <div class="user-dropdown">
-                    <a href="/user/profile"><i class="fas fa-user-circle"></i> Profile</a>
-                    <a href="/user/orders"><i class="fas fa-box"></i> My Orders</a>
-                    <a href="/wishlist"><i class="fas fa-heart"></i> Wishlist</a>
-                    <a href="/user/logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        <div class="navbar-container">
+            <div class="brand">CHOCOLUXE <small>TASTE THE LUXURY</small></div>
+            <button class="menu-toggle" onclick="toggleMenu()"><i class="fas fa-bars"></i></button>
+            <div class="nav-links">
+                <a href="/">Home</a>
+                <a href="/products">Products</a>
+            </div>
+            <div class="nav-icons">
+                <a href="/wishlist" class="position-relative">
+                    <i class="fas fa-heart"></i>
+                    <span class="wishlist-badge"></span>
+                </a>
+                <a href="/cart" class="position-relative">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span class="cart-badge"></span>
+                </a>
+                <div class="user-menu">
+                    <a href="#" onclick="toggleUserMenu()"><i class="fas fa-user"></i></a>
+                    <div class="user-dropdown">
+                        <a href="/user/profile"><i class="fas fa-user-circle"></i> Profile</a>
+                        <a href="/user/orders"><i class="fas fa-box"></i> My Orders</a>
+                        <a href="/wishlist"><i class="fas fa-heart"></i> Wishlist</a>
+                        <a href="/user/logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                    </div>
                 </div>
             </div>
         </div>

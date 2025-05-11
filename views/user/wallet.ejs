@@ -163,11 +163,11 @@
 
     <div class="container-fluid py-5">
         <div class="row g-4">
-            <!-- Sidebar -->
+         
             <div class="col-lg-3 col-md-4">
                 <%- include('../partials/user/sidebar', { activeTab: 'wallet' }) %>
             </div>
-            <!-- Wallet Content -->
+         
             <div class="col-lg-9 col-md-8">
                 <div class="wallet-container">
                     <h1 class="section-title fs-2">Your Chocoluxe Wallet</h1>
@@ -208,7 +208,7 @@
                                     <div class="balance-amount">₹<%= wallet.balance.toFixed(2) %></div>
                                 </div>
                                 <div class="d-flex justify-content-between align-items-end">
-                                    <div class="fw-medium"><%= user.name %></div>
+                                    <div class="fw-medium"><%= user.username %></div>
                                     <small class="text-muted">Secured by Chocoluxe</small>
                                 </div>
                             </div>

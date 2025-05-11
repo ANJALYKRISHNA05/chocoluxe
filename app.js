@@ -9,6 +9,7 @@ const passport = require('./config/passport');
 const userRouter = require('./routes/userRouter');
 const adminRouter = require('./routes/adminRouter');
 const uploadRouter = require('./routes/uploadRouter');
+const MongoStore = require('connect-mongo'); 
 
 db();
 
@@ -19,14 +20,20 @@ app.use(nocache());
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 app.use(express.static(path.join(__dirname, 'public')));
+
 app.use(session({
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: true,
+    store: MongoStore.create({
+        mongoUrl: process.env.MONGODB_URI, 
+        collectionName: 'sessions',
+        ttl: 72 * 60 * 60 
+    }),
     cookie: {
-        secure: false,
+        secure: false, 
         httpOnly: true,
-        maxAge: 72 * 60 * 60 * 1000
+        maxAge: 72 * 60 * 60 * 1000 
     }
 }));
 

@@ -1,54 +1,257 @@
 <footer class="footer">
-    <div class="container text-center">
-        <div class="row">
-            <div class="col">
-                <strong>CHOCOLUXE</strong><br>
-                TASTE THE LUXURY<br>
-                Your ultimate destination for exquisite, handcrafted chocolates that redefine indulgence<br>
-                <a href="#"><i class="fab fa-instagram"></i></a>
-                <a href="#"><i class="fab fa-facebook"></i></a>
-            </div>
-            <div class="col">
-                <strong>SUPPORT</strong><br>
-                FAQ<br>
-                Terms of use<br>
-                Privacy Policy
-            </div>
-            <div class="col">
-                <strong>COMPANY</strong><br>
-                About us<br>
-                Contact<br>
-                Careers
-            </div>
-            <div class="col">
-                <strong>SHOP</strong><br>
-                My Account<br>
-                Checkout<br>
-                Cart
-            </div>
-            <div class="col">
-                <strong>ACCEPTED PAYMENTS</strong><br>
-                <div class="payment-icons">
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/4/41/Visa_Logo.png" alt="Visa">
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg" alt="MasterCard">
-                  
+    <div class="footer-top">
+        <div class="container-fluid">
+            <div class="row justify-content-center">
+                <div class="col-lg-3 col-md-6 mb-4 mb-md-0 footer-brand">
+                    <h3>CHOCOLUXE</h3>
+                    <p class="tagline">TASTE THE LUXURY</p>
+                    <p class="description">Your ultimate destination for exquisite, handcrafted chocolates that redefine indulgence</p>
+                    <div class="social-links">
+                        <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                        <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                        <a href="#" aria-label="Pinterest"><i class="fab fa-pinterest-p"></i></a>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-4 col-6 mb-4 mb-md-0 footer-links">
+                    <h4>SUPPORT</h4>
+                    <ul class="list-unstyled">
+                        <li><a href="#">FAQ</a></li>
+                        <li><a href="#">Terms of use</a></li>
+                        <li><a href="#">Privacy Policy</a></li>
+                        <li><a href="#">Shipping Info</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-2 col-md-4 col-6 mb-4 mb-md-0 footer-links">
+                    <h4>COMPANY</h4>
+                    <ul class="list-unstyled">
+                        <li><a href="#">About us</a></li>
+                        <li><a href="#">Contact</a></li>
+                        <li><a href="#">Careers</a></li>
+                        <li><a href="#">Blog</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-2 col-md-4 col-6 mb-4 mb-md-0 footer-links">
+                    <h4>SHOP</h4>
+                    <ul class="list-unstyled">
+                        <li><a href="/user/profile">My Account</a></li>
+                        <li><a href="/cart">Cart</a></li>
+                        <li><a href="/wishlist">Wishlist</a></li>
+                        <li><a href="/products">Products</a></li>
+                    </ul>
                 </div>
             </div>
         </div>
-        <p class="mt-3">© 2025 Chocoluxe. All rights reserved.</p>
+    </div>
+    <div class="footer-bottom">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-6 text-center text-md-start">
+                    <p class="mb-0"> 2025 Chocoluxe. All rights reserved.</p>
+                </div>
+                <div class="col-md-6 text-center text-md-end mt-3 mt-md-0">
+                    <a href="#" class="me-3">Terms</a>
+                    <a href="#" class="me-3">Privacy</a>
+                    <a href="#">Cookies</a>
+                </div>
+            </div>
+        </div>
     </div>
 </footer>
+
 <style>
-    .footer { background-color: #4a2c2a; color: white; padding: 20px 0; margin-top: auto; }
-    .footer a { color: #d1a876; margin: 0 10px; text-decoration: none; font-size: 0.9rem; }
-    .footer a:hover { color: #fff; }
-    .footer .payment-icons img { width: 30px; margin: 5px; }
-    @media (max-width: 768px) {
-        .footer .col { margin-bottom: 10px; }
-        .footer a { font-size: 0.8rem; }
+    :root {
+        --primary: #3a1c1a;
+        --primary-light: #4a2c2a;
+        --primary-dark: #2a0c0a;
+        --accent: #d4a26a;
+        --accent-light: #e4b27a;
+        --accent-dark: #c49260;
+        --background: #f9f1e7;
+        --text-light: #ffffff;
+        --text-dark: #333333;
+        --danger: #dc3545;
+        --transition: all 0.3s ease;
     }
-    @media (max-width: 480px) {
-        .footer .row { flex-direction: column; text-align: center; }
-        .footer a { font-size: 0.7rem; }
+    
+    /* Footer Styles */
+    .footer {
+        background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
+        color: var(--text-light);
+        margin-top: auto;
+        font-family: 'Nunito Sans', sans-serif;
+        width: 100%;
+    }
+    
+    .footer-top {
+        padding: 3rem 0 2rem;
+        max-width: 1100px;
+        margin: 0 auto;
+    }
+    
+    .footer-bottom {
+        background-color: rgba(0,0,0,0.15);
+        padding: 1.5rem 0;
+        font-size: 0.9rem;
+        max-width: 1100px;
+        margin: 0 auto;
+    }
+    
+    /* Brand Section */
+    .footer-brand h3 {
+        font-family: 'Playfair Display', serif;
+        font-weight: 700;
+        font-size: 1.8rem;
+        margin-bottom: 0.5rem;
+        letter-spacing: 1px;
+    }
+    
+    .footer-brand .tagline {
+        color: var(--accent);
+        font-size: 0.9rem;
+        letter-spacing: 2px;
+        margin-bottom: 1rem;
+    }
+    
+    .footer-brand .description {
+        color: rgba(255,255,255,0.7);
+        font-size: 0.95rem;
+        line-height: 1.6;
+        margin-bottom: 1.5rem;
+        max-width: 90%;
+    }
+    
+    .social-links {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .social-links a {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        background-color: rgba(255,255,255,0.1);
+        color: var(--text-light);
+        text-decoration: none;
+        transition: var(--transition);
+    }
+    
+    .social-links a:hover {
+        background-color: var(--accent);
+        color: var(--primary-dark);
+        transform: translateY(-3px);
+    }
+    
+    /* Links Sections */
+    .footer-links h4 {
+        font-size: 1rem;
+        font-weight: 700;
+        margin-bottom: 1.2rem;
+        position: relative;
+        display: inline-block;
+    }
+    
+    .footer-links h4::after {
+        content: '';
+        position: absolute;
+        bottom: -8px;
+        left: 0;
+        width: 30px;
+        height: 2px;
+        background-color: var(--accent);
+    }
+    
+    .footer-links ul li {
+        margin-bottom: 0.7rem;
+    }
+    
+    .footer-links ul li a {
+        color: rgba(255,255,255,0.7);
+        text-decoration: none;
+        font-size: 0.95rem;
+        transition: var(--transition);
+        position: relative;
+        padding-left: 0;
+    }
+    
+    .footer-links ul li a:hover {
+        color: var(--accent-light);
+        padding-left: 5px;
+    }
+    
+    /* Footer Bottom */
+    .footer-bottom a {
+        color: rgba(255,255,255,0.7);
+        text-decoration: none;
+        transition: var(--transition);
+    }
+    
+    .footer-bottom a:hover {
+        color: var(--accent);
+    }
+    
+    /* Responsive Styles */
+    @media (max-width: 992px) {
+        .footer-top {
+            padding: 2.5rem 0 1.5rem;
+        }
+        
+        .footer-brand .description {
+            max-width: 100%;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .footer-top {
+            padding: 2rem 0 1rem;
+        }
+        
+        .footer-brand h3 {
+            font-size: 1.5rem;
+        }
+        
+        .footer-links h4 {
+            margin-bottom: 1rem;
+            font-size: 0.95rem;
+        }
+        
+        .footer-links ul li a {
+            font-size: 0.9rem;
+        }
+    }
+    
+    @media (max-width: 576px) {
+        .footer-bottom {
+            text-align: center;
+        }
+        
+        .footer-bottom .text-md-end {
+            margin-top: 1rem;
+        }
+        
+        .footer-brand {
+            text-align: center;
+        }
+        
+        .footer-brand .description {
+            margin: 0 auto 1.5rem;
+        }
+        
+        .social-links {
+            justify-content: center;
+        }
+        
+        .footer-links h4::after {
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        
+        .footer-links {
+            text-align: center;
+        }
     }
 </style>
