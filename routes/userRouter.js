@@ -8,6 +8,8 @@ const checkoutController = require('../controllers/user/checkoutController');
 
 const walletController = require('../controllers/user/walletController');
 
+const wishlistController = require('../controllers/user/wishlistController');
+
 const { userAuth } = require('../middlewares/auth');
 const { profileStorage } = require('../config/cloudinary');
 const multer = require('multer');
@@ -68,6 +70,15 @@ router.get('/cart', userAuth, cartController.loadCart);
 router.post('/cart/update-quantity', userAuth, cartController.updateCartQuantity);
 router.post('/cart/remove', userAuth, cartController.removeFromCart);
 router.get('/cart/item-count', userAuth, cartController.getCartItemCount);
+
+
+
+router.post('/add-to-wishlist', userAuth, wishlistController.addToWishlist);
+router.get('/wishlist', userAuth, wishlistController.loadWishlist);
+router.post('/wishlist/remove', userAuth, wishlistController.removeFromWishlist);
+router.get('/wishlist/item-count', userAuth, wishlistController.getWishlistItemCount);
+
+
 
 router.get('/checkout', userAuth, checkoutController.loadCheckout);
 router.post('/checkout/place-order', userAuth, checkoutController.placeOrder);

@@ -57,7 +57,7 @@
                   <option value="name_asc" <%= filters.sort === 'name_asc' ? 'selected' : '' %>>Name: A to Z</option>
                   <option value="name_desc" <%= filters.sort === 'name_desc' ? 'selected' : '' %>>Name: Z to A</option>
                 </select>
-            </div>
+              </div>
 
               <div class="filter-divider"></div>
 
@@ -160,105 +160,109 @@
                   <i class="fas fa-undo me-2"></i>Clear All
                 </a>
               </div>
-          </form>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-9">
+        <div class="products-content">
+          <% if (products.length === 0) { %>
+            <div class="no-products-message">
+              <div class="no-products-icon">
+                <i class="fas fa-search"></i>
+              </div>
+              <h3>No Products Found</h3>
+              <p>We couldn't find any products matching your criteria. Try adjusting your filters.</p>
+            </div>
+          <% } else { %>
+            <div class="product-grid">
+              <% products.forEach(product => { %>
+                <div class="product-item">
+                  <div class="product-card">
+                    <div class="product-image">
+                      <a href="/product/<%= product._id %>">
+                        <img src="<%= product.displayVariant.productImage[0] %>" alt="<%= product.productName %>">
+                      </a>
+                      <div class="product-actions">
+                        <button class="action-btn wishlist-btn <%= product.isInWishlist ? 'active' : '' %>" 
+                                title="<%= product.isInWishlist ? 'Remove from Wishlist' : 'Add to Wishlist' %>" 
+                                data-product-id="<%= product._id %>" 
+                                data-variant-id="<%= product.displayVariant._id %>">
+                          <i class="fas fa-heart"></i>
+                        </button>
+                      </div>
+                    </div>
+                    <div class="product-info">
+                      <a href="/product/<%= product._id %>" class="product-link">
+                        <h3 class="product-name"><%= product.productName %></h3>
+                        <div class="product-category">
+                          <span><%= product.category.name %></span>
+                        </div>
+                        <div class="product-specs">
+                          <span class="product-spec"><%= product.displayVariant.flavor %></span>
+                          <span class="product-spec"><%= product.displayVariant.sugarLevel %></span>
+                          <span class="product-spec"><%= product.displayVariant.weight %>g</span>
+                        </div>
+                        <div class="product-footer">
+                          <div class="product-pricing">
+                            <% if (product.displayVariant.salePrice < product.displayVariant.regularPrice) { %>
+                              <span class="sale-price">₹<%= product.displayVariant.salePrice.toFixed(2) %></span>
+                              <span class="regular-price"><del>₹<%= product.displayVariant.regularPrice.toFixed(2) %></del></span>
+                            <% } else { %>
+                              <span class="regular-price">₹<%= product.displayVariant.regularPrice.toFixed(2) %></span>
+                            <% } %>
+                          </div>
+                          <div class="product-availability">
+                            <% if (product.displayVariant.stock_quantity > 0) { %>
+                              <span class="in-stock">In Stock</span>
+                            <% } else { %>
+                              <span class="out-of-stock">Out of Stock</span>
+                            <% } %>
+                          </div>
+                        </div>
+                      </a>
+                      <a href="/product/<%= product._id %>" class="btn-view-product">View Details</a>
+                    </div>
+                  </div>
+                </div>
+              <% }); %>
+            </div>
+
+            <% if (totalPages > 1) { %>
+              <div class="pagination-container">
+                <nav aria-label="Product pagination">
+                  <ul class="pagination">
+                    <li class="page-item <%= currentPage === 1 ? 'disabled' : '' %>">
+                      <a class="page-link" href="<%= currentPage > 1 ? buildPaginationUrl(currentPage - 1) : '#' %>" aria-label="Previous">
+                        <i class="fas fa-chevron-left"></i>
+                      </a>
+                    </li>
+                    
+                    <% for (let i = 1; i <= totalPages; i++) { %>
+                      <li class="page-item <%= currentPage === i ? 'active' : '' %>">
+                        <a class="page-link" href="<%= buildPaginationUrl(i) %>"><%= i %></a>
+                      </li>
+                    <% } %>
+                    
+                    <li class="page-item <%= currentPage === totalPages ? 'disabled' : '' %>">
+                      <a class="page-link" href="<%= currentPage < totalPages ? buildPaginationUrl(currentPage + 1) : '#' %>" aria-label="Next">
+                        <i class="fas fa-chevron-right"></i>
+                      </a>
+                    </li>
+                  </ul>
+                </nav>
+              </div>
+            <% } %>
+          <% } %>
         </div>
       </div>
     </div>
-
-    <div class="col-lg-9">
-      <div class="products-content">
-        <% if (products.length === 0) { %>
-          <div class="no-products-message">
-            <div class="no-products-icon">
-              <i class="fas fa-search"></i>
-            </div>
-            <h3>No Products Found</h3>
-            <p>We couldn't find any products matching your criteria. Try adjusting your filters.</p>
-          </div>
-        <% } else { %>
-          <div class="product-grid">
-            <% products.forEach(product => { %>
-              <div class="product-item">
-                <div class="product-card">
-                  <div class="product-image">
-                    <a href="/product/<%= product._id %>">
-                      <img src="<%= product.displayVariant.productImage[0] %>" alt="<%= product.productName %>">
-                    </a>
-                   
-                    <div class="product-actions">
-                      <button class="action-btn wishlist-btn" title="Add to Wishlist" data-product-id="<%= product._id %>">
-                        <i class="fas fa-heart"></i>
-                      </button>
-                    </div>
-                  </div>
-                  <div class="product-info">
-                    <a href="/product/<%= product._id %>" class="product-link">
-                      <h3 class="product-name"><%= product.productName %></h3>
-                      <div class="product-category">
-                        <span><%= product.category.name %></span>
-                      </div>
-                      <div class="product-specs">
-                        <span class="product-spec"><%= product.displayVariant.flavor %></span>
-                        <span class="product-spec"><%= product.displayVariant.sugarLevel %></span>
-                        <span class="product-spec"><%= product.displayVariant.weight %>g</span>
-                      </div>
-                      <div class="product-footer">
-                        <div class="product-pricing">
-                          <% if (product.displayVariant.salePrice < product.displayVariant.regularPrice) { %>
-                            <span class="sale-price">₹<%= product.displayVariant.salePrice.toFixed(2) %></span>
-                            <span class="regular-price"><del>₹<%= product.displayVariant.regularPrice.toFixed(2) %></del></span>
-                          <% } else { %>
-                            <span class="regular-price">₹<%= product.displayVariant.regularPrice.toFixed(2) %></span>
-                          <% } %>
-                        </div>
-                        <div class="product-availability">
-                          <% if (product.displayVariant.stock_quantity > 0) { %>
-                            <span class="in-stock">In Stock</span>
-                          <% } else { %>
-                            <span class="out-of-stock">Out of Stock</span>
-                          <% } %>
-                        </div>
-                      </div>
-                    </a>
-                    <a href="/product/<%= product._id %>" class="btn-view-product">View Details</a>
-                  </div>
-              </div>
-            </div>
-          <% }); %>
-        </div>
-
-        <% if (totalPages > 1) { %>
-          <div class="pagination-container">
-            <nav aria-label="Product pagination">
-              <ul class="pagination">
-                <li class="page-item <%= currentPage === 1 ? 'disabled' : '' %>">
-                  <a class="page-link" href="<%= currentPage > 1 ? buildPaginationUrl(currentPage - 1) : '#' %>" aria-label="Previous">
-                    <i class="fas fa-chevron-left"></i>
-                  </a>
-                </li>
-                
-                <% for (let i = 1; i <= totalPages; i++) { %>
-                  <li class="page-item <%= currentPage === i ? 'active' : '' %>">
-                    <a class="page-link" href="<%= buildPaginationUrl(i) %>"><%= i %></a>
-                  </li>
-                <% } %>
-                
-                <li class="page-item <%= currentPage === totalPages ? 'disabled' : '' %>">
-                  <a class="page-link" href="<%= currentPage < totalPages ? buildPaginationUrl(currentPage + 1) : '#' %>" aria-label="Next">
-                    <i class="fas fa-chevron-right"></i>
-                  </a>
-                </li>
-              </ul>
-            </nav>
-          </div>
-        <% } %>
-      <% } %>
-    </div>
   </div>
-</div>
+</section>
 
 <style>
-  /* Product Listing Page Styles */
+  
   .product-listing-section {
     background-color: #f9f5f1;
   }
@@ -302,7 +306,7 @@
     margin: 0 auto;
   }
   
-  /* Filter Styles */
+  
   .filter-sidebar {
     background-color: #ffffff;
     border-radius: 12px;
@@ -521,22 +525,6 @@
     transform: scale(1.05);
   }
   
-  .product-badge {
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    z-index: 2;
-  }
-  
-  .discount-badge {
-    background-color: #d4a26a;
-    color: #fff;
-    padding: 5px 12px;
-    border-radius: 20px;
-    font-size: 0.8rem;
-    font-weight: 600;
-  }
-  
   .product-actions {
     position: absolute;
     top: 10px;
@@ -567,6 +555,15 @@
   .action-btn:hover {
     background-color: #d4a26a;
     color: white;
+  }
+  
+  .wishlist-btn.active {
+    background-color: #d4a26a;
+    color: white;
+  }
+  
+  .wishlist-btn.active:hover {
+    background-color: #c49260;
   }
   
   .product-info {
@@ -759,7 +756,7 @@
     cursor: not-allowed;
   }
   
-  /* Responsive Styles */
+  
   @media (max-width: 992px) {
     .filter-sidebar {
       margin-bottom: 30px;
@@ -823,6 +820,7 @@
 </style>
 
 <script>
+
   document.querySelectorAll('.filter-checkbox').forEach(checkbox => {
     checkbox.addEventListener('change', function() {
       document.getElementById('filterForm').submit();
@@ -834,6 +832,101 @@
     searchInput.value = '';
     document.getElementById('filterForm').submit();
   }
+
+  
+  function updateWishlistBadge(count) {
+    const badge = document.querySelector('.wishlist-badge');
+    if (badge) {
+      if (count > 0) {
+        badge.textContent = count;
+        badge.style.display = 'inline-block';
+      } else {
+        badge.style.display = 'none';
+      }
+    }
+  }
+
+
+  document.querySelectorAll('.wishlist-btn').forEach(button => {
+    button.addEventListener('click', async function() {
+      const productId = this.getAttribute('data-product-id');
+      const variantId = this.getAttribute('data-variant-id');
+      const isActive = this.classList.contains('active');
+
+      try {
+        const response = await fetch('/add-to-wishlist', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            productId,
+            variantId,
+          }),
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          if (isActive) {
+          
+            this.classList.remove('active');
+            this.setAttribute('title', 'Add to Wishlist');
+            updateWishlistBadge(data.itemCount);
+            Swal.fire({
+              icon: 'success',
+              title: 'Removed from Wishlist',
+              text: 'Product has been removed from your wishlist.',
+              showConfirmButton: false,
+              timer: 1500,
+            });
+          } else {
+          
+            this.classList.add('active');
+            this.setAttribute('title', 'Remove from Wishlist');
+            updateWishlistBadge(data.itemCount);
+            Swal.fire({
+              icon: 'success',
+              title: 'Added to Wishlist',
+              text: data.message,
+              showConfirmButton: false,
+              timer: 1500,
+            });
+          }
+        } else {
+          if (data.message === 'Please log in to add items to wishlist') {
+            Swal.fire({
+              icon: 'warning',
+              title: 'Login Required',
+              text: 'Please log in to add items to your wishlist.',
+              confirmButtonText: 'Login',
+            }).then((result) => {
+              if (result.isConfirmed) {
+                window.location.href = '/user/login';
+              }
+            });
+          } else {
+            Swal.fire({
+              icon: 'error',
+              title: 'Error',
+              text: data.message,
+              showConfirmButton: false,
+              timer: 1500,
+            });
+          }
+        }
+      } catch (error) {
+        console.error('Error handling wishlist action:', error);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Something went wrong. Please try again later.',
+          showConfirmButton: false,
+          timer: 1500,
+        });
+      }
+    });
+  });
 </script>
 
 <%- include('../partials/user/footer') %>

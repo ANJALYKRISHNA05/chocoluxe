@@ -1,6 +1,7 @@
 const Cart = require("../../models/cartSchema");
 const Product = require("../../models/productSchema");
 const Category = require("../../models/categorySchema");
+const Wishlist = require("../../models/wishlistSchema");
 
 exports.addToCart = async (req, res) => {
   try {
@@ -72,6 +73,18 @@ exports.addToCart = async (req, res) => {
         quantity,
         productImage: variant.productImage[0],
       });
+    }
+
+    // Remove from wishlist if exists
+    let wishlist = await Wishlist.findOne({ user: userId });
+    if (wishlist) {
+      const wishlistItemIndex = wishlist.items.findIndex(
+        (item) => item.product.toString() === productId && item.sku === variant.sku
+      );
+      if (wishlistItemIndex > -1) {
+        wishlist.items.splice(wishlistItemIndex, 1);
+        await wishlist.save();
+      }
     }
 
     await cart.save();
