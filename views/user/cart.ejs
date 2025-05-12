@@ -6,65 +6,378 @@
   <title><%= title %> - CHOCOLUXE</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <style>
+    /* Global Styles */
     body {
       font-family: 'Nunito Sans', sans-serif;
-      background-color: #f5e8d4;
+      background-color: #fcf9f7;
       display: flex;
       flex-direction: column;
       min-height: 100vh;
     }
+
     .cart-section {
       flex: 1;
+      padding: 3rem 0;
     }
+
+    /* Page Title Styling */
+    .page-title {
+      font-family: 'Playfair Display', serif;
+      color: #33261d;
+      font-weight: 700;
+      margin-bottom: 2rem;
+      font-size: 2.5rem;
+      position: relative;
+      padding-bottom: 0.75rem;
+    }
+
+    .page-title:after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 80px;
+      height: 3px;
+      background: linear-gradient(90deg, #8b5a2b, transparent);
+    }
+
+    /* Cart Item Styling */
     .cart-item {
-      border: 1px solid #dee2e6;
-      border-radius: 8px;
-      padding: 15px;
-      margin-bottom: 20px;
-      background-color: #fff;
-      transition: box-shadow 0.3s;
+      border: none;
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      background: linear-gradient(145deg, #fff, #f8f3ef);
+      transition: all 0.4s ease;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+      display: flex;
+      align-items: center;
     }
+
     .cart-item:hover {
-      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+      transform: translateY(-5px);
+      box-shadow: 0 12px 25px rgba(139, 90, 43, 0.15);
     }
+
     .cart-item img {
-      width: 100px;
-      height: 100px;
+      width: 120px;
+      height: 120px;
       object-fit: cover;
-      border-radius: 4px;
+      border-radius: 8px;
+      transition: transform 0.5s ease;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
     }
+
+    .cart-item:hover img {
+      transform: scale(1.05);
+    }
+
+    .cart-item h5 {
+      font-family: 'Playfair Display', serif;
+      font-weight: 600;
+      font-size: 1.25rem;
+      color: #33261d;
+      margin-bottom: 0.75rem;
+    }
+
+    .cart-item p {
+      color: #5d534c;
+      margin-bottom: 0.5rem;
+      font-size: 0.95rem;
+    }
+
+    .cart-item .subtotal {
+      font-weight: 700;
+      color: #8b5a2b;
+      font-size: 1.1rem;
+      margin-top: 0.5rem;
+    }
+
+    /* Quantity Selector Styling */
     .quantity-selector {
       width: 120px;
-    }
-    .cart-summary {
-      border: 1px solid #dee2e6;
       border-radius: 8px;
-      padding: 20px;
+      overflow: hidden;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+    }
+
+    .quantity-selector .form-control {
+      border: none;
+      text-align: center;
+      font-weight: 600;
+      height: 38px;
       background-color: #fff;
     }
+
+    .quantity-selector .btn {
+      background-color: #f0e6dd;
+      border: none;
+      color: #8b5a2b;
+      transition: all 0.3s ease;
+    }
+
+    .quantity-selector .btn:hover {
+      background-color: #8b5a2b;
+      color: #fff;
+    }
+
+    /* Remove Button Styling */
+    .remove-item {
+      background-color: #fff;
+      border: 1px solid #dc3545;
+      color: #dc3545;
+      border-radius: 8px;
+      width: 38px;
+      height: 38px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+    }
+
+    .remove-item:hover {
+      background-color: #dc3545;
+      color: #fff;
+      transform: translateY(-3px);
+      box-shadow: 0 5px 10px rgba(220, 53, 69, 0.25);
+    }
+
+    /* Cart Summary Styling */
+    .cart-summary {
+      border: none;
+      border-radius: 12px;
+      padding: 2rem;
+      background: linear-gradient(145deg, #fff, #f8f3ef);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+      position: sticky;
+      top: 20px;
+    }
+
+    .cart-summary h4 {
+      font-family: 'Playfair Display', serif;
+      color: #33261d;
+      font-weight: 600;
+      margin-bottom: 1.25rem;
+      font-size: 1.5rem;
+    }
+
+    .cart-summary hr {
+      background-color: #e9e2dc;
+      opacity: 0.5;
+      margin: 1rem 0;
+    }
+
+    .cart-summary .d-flex {
+      font-size: 1.1rem;
+      color: #5d534c;
+    }
+
+    .cart-summary .fw-bold {
+      color: #8b5a2b;
+      font-size: 1.5rem;
+      font-family: 'Playfair Display', serif;
+    }
+
+    .proceed-checkout {
+      background-color: #8b5a2b;
+      border-color: #8b5a2b;
+      font-weight: 600;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+      margin-top: 1.5rem;
+    }
+
+    .proceed-checkout:hover:not(:disabled) {
+      background-color: #6d4621;
+      border-color: #6d4621;
+      transform: translateY(-3px);
+      box-shadow: 0 8px 15px rgba(139, 90, 43, 0.25);
+    }
+
+    .proceed-checkout:disabled {
+      background-color: #b9a89c;
+      border-color: #b9a89c;
+      cursor: not-allowed;
+    }
+
+    /* Empty Cart Styling */
     .empty-cart {
       text-align: center;
-      padding: 50px 0;
+      padding: 4rem 0;
+      background: linear-gradient(145deg, #fff, #f8f3ef);
+      border-radius: 12px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
     }
+
+    .empty-cart-icon {
+      position: relative;
+      display: inline-block;
+    }
+
     .empty-cart img {
-      width: 200px;
-      margin-bottom: 20px;
+      width: 180px;
+      margin-bottom: 1rem;
+      opacity: 0.85;
+      filter: drop-shadow(0 5px 15px rgba(139, 90, 43, 0.2));
+      transition: all 0.5s ease;
     }
+
+    .empty-cart:hover img {
+      transform: translateY(-5px);
+    }
+
+    .empty-cart-title {
+      font-family: 'Playfair Display', serif;
+      color: #33261d;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      font-size: 2rem;
+      letter-spacing: -0.5px;
+    }
+
+    .empty-cart-message {
+      color: #5d534c;
+      margin-bottom: 2rem;
+      font-size: 1.1rem;
+      max-width: 500px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .empty-cart-actions .btn {
+      background-color: #8b5a2b;
+      border-color: #8b5a2b;
+      font-weight: 600;
+      padding: 0.75rem 2rem;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+      font-size: 1.1rem;
+    }
+
+    .empty-cart-actions .btn:hover {
+      background-color: #6d4621;
+      border-color: #6d4621;
+      transform: translateY(-3px);
+      box-shadow: 0 8px 15px rgba(139, 90, 43, 0.25);
+    }
+
+    .empty-cart-suggestions {
+      margin-top: 3rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid rgba(139, 90, 43, 0.15);
+    }
+
+    .suggestion-title {
+      color: #33261d;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      font-size: 1rem;
+    }
+
+    .suggestion-links {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .suggestion-link {
+      color: #8b5a2b;
+      text-decoration: none;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      position: relative;
+    }
+
+    .suggestion-link:hover {
+      color: #6d4621;
+    }
+
+    .suggestion-link:after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background-color: #8b5a2b;
+      transition: width 0.3s ease;
+    }
+
+    .suggestion-link:hover:after {
+      width: 100%;
+    }
+
+    /* Error Message Styling */
     .error-message {
       color: #dc3545;
-      font-weight: bold;
-      margin-top: 10px;
+      font-weight: 600;
+      margin-top: 0.75rem;
+      background-color: rgba(220, 53, 69, 0.1);
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      font-size: 0.9rem;
     }
-    @media (max-width: 768px) {
-      .cart-item img {
-        width: 80px;
-        height: 80px;
+
+    /* Responsive Adjustments */
+    @media (max-width: 991px) {
+      .cart-summary {
+        margin-top: 2rem;
+        position: static;
       }
-      .quantity-selector {
+    }
+
+    @media (max-width: 768px) {
+      .page-title {
+        font-size: 2rem;
+      }
+
+      .cart-item {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 1.25rem;
+      }
+
+      .cart-item img {
         width: 100px;
+        height: 100px;
+        margin-bottom: 1rem;
+      }
+
+      .cart-item .d-flex {
+        margin-top: 1rem;
+        align-self: flex-end;
+      }
+
+      .quantity-selector {
+        width: 110px;
+      }
+    }
+
+    @media (max-width: 576px) {
+      .cart-section {
+        padding: 2rem 0;
+      }
+
+      .page-title {
+        font-size: 1.75rem;
+      }
+
+      .cart-item h5 {
+        font-size: 1.1rem;
+      }
+
+      .cart-summary {
+        padding: 1.5rem;
+      }
+
+      .empty-cart img {
+        width: 150px;
       }
     }
   </style>
@@ -74,36 +387,46 @@
 
   <section class="cart-section py-5">
     <div class="container">
-      <h2 class="mb-4">Your Cart</h2>
+      <h2 class="page-title">Your Shopping Cart</h2>
 
       <% if (cartItems.length > 0) { %>
         <div class="row">
           <div class="col-lg-8">
             <% cartItems.forEach(item => { %>
-              <div class="cart-item d-flex align-items-center" data-item-id="<%= item._id %>">
+              <div class="cart-item" data-item-id="<%= item._id %>">
                 <img src="<%= item.productImage %>" alt="<%= item.product ? item.product.productName : 'Product Image' %>" class="me-3">
                 <div class="flex-grow-1">
                   <h5><%= item.product ? item.product.productName : 'Product Unavailable' %></h5>
                   <% if (item.variant && !item.errorMessage) { %>
-                    <p class="mb-1">
-                      Flavor: <%= item.variant.flavor %> | Sugar: <%= item.variant.sugarLevel %> | Weight: <%= item.variant.weight %>g
+                    <div class="variant-details">
+                      <span class="badge bg-light text-dark me-2"><%= item.variant.flavor %></span>
+                      <span class="badge bg-light text-dark me-2"><%= item.variant.sugarLevel %> sugar</span>
+                      <span class="badge bg-light text-dark"><%= item.variant.weight %>g</span>
+                    </div>
+                    <p class="price-info">
+                      <span class="price-label">Price:</span> 
+                      <span class="price-value">₹<%= (item.variant.salePrice ? item.variant.salePrice : 0).toFixed(2) %></span> 
+                      <span class="quantity-label">× <%= item.quantity %></span>
                     </p>
-                    <p class="mb-1">Price: ₹<%= (item.variant.salePrice ? item.variant.salePrice : 0).toFixed(2) %> x <%= item.quantity %></p>
-                    <p class="fw-bold subtotal">Subtotal: ₹<%= item.subtotal.toFixed(2) %></p>
+                    <p class="subtotal">Subtotal: ₹<%= item.subtotal.toFixed(2) %></p>
                   <% } %>
                   <% if (item.errorMessage) { %>
-                    <p class="error-message"><%= item.errorMessage %></p>
+                    <p class="error-message"><i class="fas fa-exclamation-circle me-2"></i><%= item.errorMessage %></p>
                   <% } %>
                 </div>
                 <div class="d-flex align-items-center">
                   <% if (!item.errorMessage) { %>
                     <div class="input-group quantity-selector me-3">
-                      <button type="button" class="btn btn-outline-secondary quantity-minus" data-item-id="<%= item._id %>">-</button>
+                      <button type="button" class="btn quantity-minus" data-item-id="<%= item._id %>">
+                        <i class="fas fa-minus"></i>
+                      </button>
                       <input type="number" class="form-control text-center quantity-input" value="<%= item.quantity %>" min="1" max="5" data-item-id="<%= item._id %>" readonly>
-                      <button type="button" class="btn btn-outline-secondary quantity-plus" data-item-id="<%= item._id %>">+</button>
+                      <button type="button" class="btn quantity-plus" data-item-id="<%= item._id %>">
+                        <i class="fas fa-plus"></i>
+                      </button>
                     </div>
                   <% } %>
-                  <button type="button" class="btn btn-danger remove-item" data-item-id="<%= item._id %>">
+                  <button type="button" class="remove-item" data-item-id="<%= item._id %>">
                     <i class="fas fa-trash"></i>
                   </button>
                 </div>
@@ -112,27 +435,50 @@
           </div>
           <div class="col-lg-4">
             <div class="cart-summary">
-              <h4>Cart Summary</h4>
+              <h4><i class="fas fa-shopping-basket me-2"></i>Cart Summary</h4>
               <hr>
-              <div class="d-flex justify-content-between mb-2">
-                <span>Total</span>
+              <div class="summary-item d-flex justify-content-between mb-3">
+                <span>Total Items:</span>
+                <span><%= cartItems.length %></span>
+              </div>
+              <div class="summary-item d-flex justify-content-between mb-3">
+                <span>Total Amount:</span>
                 <span class="fw-bold">₹<%= total.toFixed(2) %></span>
               </div>
-              <button type="button" class="btn btn-primary btn-lg w-100 mt-3 proceed-checkout" onclick="location.href='/checkout'" <%= hasInvalidItems ? 'disabled' : '' %>>
-                Proceed to Checkout
-              </button>
-              <% if (hasInvalidItems) { %>
-                <p class="error-message mt-2">Please remove invalid items to proceed</p>
-              <% } %>
+              <div class="checkout-container mt-4">
+                <button type="button" class="btn btn-primary btn-lg w-100 proceed-checkout" onclick="location.href='/checkout'" <%= hasInvalidItems ? 'disabled' : '' %>>
+                  <i class="fas fa-credit-card me-2"></i>Proceed to Checkout
+                </button>
+                <% if (hasInvalidItems) { %>
+                  <p class="error-message mt-3"><i class="fas fa-exclamation-circle me-2"></i>Please remove invalid items to proceed</p>
+                <% } %>
+                
+              </div>
             </div>
           </div>
         </div>
       <% } else { %>
         <div class="empty-cart">
-          <img src="/images/empty-cart.png" alt="Empty Cart">
-          <h3>Your cart is empty</h3>
-          <p>Explore our products and add some delicious items to your cart!</p>
-          <a href="/products" class="btn btn-primary">Shop Now</a>
+          <div class="empty-cart-icon mb-4">
+            <img src="/images/empty-cart.png" alt="Empty Cart" class="img-fluid">
+          </div>
+          <h3 class="empty-cart-title">Your Shopping Cart is Empty</h3>
+          <p class="empty-cart-message">Explore our premium chocolate collection and treat yourself to something delicious!</p>
+          <div class="empty-cart-actions">
+            <a href="/products" class="btn btn-primary btn-lg">
+              <i class="fas fa-shopping-bag me-2"></i>Browse Products
+            </a>
+          </div>
+          <div class="empty-cart-suggestions mt-4">
+            <p class="suggestion-title">You might be interested in:</p>
+            <div class="suggestion-links">
+              <a href="/products?category=truffles" class="suggestion-link">Chocolate Truffles</a>
+              <span class="mx-2">•</span>
+              <a href="/products?category=bars" class="suggestion-link">Chocolate Bars</a>
+              <span class="mx-2">•</span>
+              <a href="/products?category=gift-boxes" class="suggestion-link">Gift Boxes</a>
+            </div>
+          </div>
         </div>
       <% } %>
     </div>

@@ -6,10 +6,390 @@
   <title><%= title %> - CHOCOLUXE</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <style>
-    /* Existing styles remain unchanged */
+    /* Global Styles */
+    body {
+      font-family: 'Nunito Sans', sans-serif;
+      background-color: #fcf9f7;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+    
+    .checkout-section {
+      flex: 1;
+      padding: 3rem 0;
+    }
+    
+    /* Page Title Styling */
+    .page-title {
+      font-family: 'Playfair Display', serif;
+      color: #33261d;
+      font-weight: 700;
+      margin-bottom: 2rem;
+      font-size: 2.5rem;
+      position: relative;
+      padding-bottom: 0.75rem;
+    }
+    
+    .page-title:after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 80px;
+      height: 3px;
+      background: linear-gradient(90deg, #8b5a2b, transparent);
+    }
+    
+    /* Card Styling */
+    .card {
+      border: none;
+      border-radius: 12px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+      overflow: hidden;
+      transition: all 0.3s ease;
+    }
+    
+    .card:hover {
+      box-shadow: 0 12px 25px rgba(139, 90, 43, 0.15);
+    }
+    
+    .card-body {
+      padding: 2rem;
+    }
+    
+    /* Section Headings */
+    h4 {
+      font-family: 'Playfair Display', serif;
+      color: #33261d;
+      font-weight: 600;
+      font-size: 1.5rem;
+      margin-bottom: 1.25rem;
+    }
+    
+    /* Address Card Styling */
+    .address-card {
+      border: 1px solid #e9e2dc;
+      border-radius: 12px;
+      padding: 1.25rem;
+      height: 100%;
+      background: linear-gradient(145deg, #fff, #f8f3ef);
+      transition: all 0.4s ease;
+    }
+    
+    .address-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 20px rgba(139, 90, 43, 0.15);
+    }
+    
+    .address-card .form-check-input {
+      width: 1.2rem;
+      height: 1.2rem;
+      margin-top: 0.3rem;
+      border-color: #8b5a2b;
+    }
+    
+    .address-card .form-check-input:checked {
+      background-color: #8b5a2b;
+      border-color: #8b5a2b;
+    }
+    
+    .address-card h5 {
+      font-family: 'Playfair Display', serif;
+      font-weight: 600;
+      color: #33261d;
+      font-size: 1.1rem;
+      margin-bottom: 0.75rem;
+    }
+    
+    .address-card p {
+      color: #5d534c;
+      margin-bottom: 0.5rem;
+      font-size: 0.95rem;
+    }
+    
+    .address-card .badge {
+      font-weight: 500;
+      padding: 0.4rem 0.75rem;
+      border-radius: 50px;
+    }
+    
+    .badge.bg-secondary {
+      background-color: #8b5a2b !important;
+    }
+    
+    .badge.bg-primary {
+      background-color: #33261d !important;
+    }
+    
+    .address-card .btn-outline-dark {
+      border-color: #8b5a2b;
+      color: #8b5a2b;
+      border-radius: 6px;
+      padding: 0.3rem 0.75rem;
+      font-size: 0.85rem;
+      transition: all 0.3s ease;
+    }
+    
+    .address-card .btn-outline-dark:hover {
+      background-color: #8b5a2b;
+      color: #fff;
+      transform: translateY(-2px);
+    }
+    
+    /* Payment Method Styling */
+    .form-check {
+      margin-bottom: 1rem;
+    }
+    
+    .form-check-input {
+      border-color: #8b5a2b;
+    }
+    
+    .form-check-input:checked {
+      background-color: #8b5a2b;
+      border-color: #8b5a2b;
+    }
+    
+    .form-check-label {
+      color: #33261d;
+      font-weight: 500;
+    }
+    
+    /* Order Items Styling */
+    .cart-item {
+      border: none;
+      border-radius: 12px;
+      padding: 1.25rem;
+      margin-bottom: 1.25rem;
+      background: linear-gradient(145deg, #fff, #f8f3ef);
+      transition: all 0.4s ease;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.03);
+    }
+    
+    .cart-item:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(139, 90, 43, 0.1);
+    }
+    
+    .cart-item img {
+      width: 100px;
+      height: 100px;
+      object-fit: cover;
+      border-radius: 8px;
+      transition: transform 0.5s ease;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    }
+    
+    .cart-item:hover img {
+      transform: scale(1.05);
+    }
+    
+    .cart-item h5 {
+      font-family: 'Playfair Display', serif;
+      font-weight: 600;
+      font-size: 1.1rem;
+      color: #33261d;
+      margin-bottom: 0.5rem;
+    }
+    
+    .cart-item p {
+      color: #5d534c;
+      margin-bottom: 0.4rem;
+      font-size: 0.9rem;
+    }
+    
+    .cart-item .fw-bold {
+      color: #8b5a2b;
+      font-size: 1rem;
+    }
+    
+    /* Order Summary Styling */
+    .order-summary {
+      border: none;
+      border-radius: 12px;
+      padding: 2rem;
+      background: linear-gradient(145deg, #fff, #f8f3ef);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+      position: sticky;
+      top: 20px;
+    }
+    
+    .order-summary h4 {
+      font-family: 'Playfair Display', serif;
+      color: #33261d;
+      font-weight: 600;
+      margin-bottom: 1.25rem;
+      font-size: 1.5rem;
+    }
+    
+    .order-summary hr {
+      background-color: #e9e2dc;
+      opacity: 0.5;
+      margin: 1rem 0;
+    }
+    
+    .order-summary .d-flex {
+      font-size: 1rem;
+      color: #5d534c;
+      margin-bottom: 0.75rem;
+    }
+    
+    .order-summary .fw-bold {
+      color: #8b5a2b;
+      font-size: 1.25rem;
+      font-family: 'Playfair Display', serif;
+    }
+    
+    /* Button Styling */
+    .btn-primary, .btn-dark {
+      background-color: #8b5a2b;
+      border-color: #8b5a2b;
+      font-weight: 600;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+    }
+    
+    .btn-primary:hover, .btn-dark:hover {
+      background-color: #6d4621;
+      border-color: #6d4621;
+      transform: translateY(-3px);
+      box-shadow: 0 8px 15px rgba(139, 90, 43, 0.25);
+    }
+    
+    .btn-outline-secondary {
+      border-color: #8b5a2b;
+      color: #8b5a2b;
+    }
+    
+    .btn-outline-secondary:hover {
+      background-color: #8b5a2b;
+      border-color: #8b5a2b;
+      color: #fff;
+    }
+    
+    /* Modal Styling */
+    .modal-content {
+      border: none;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    
+    .modal-header {
+      background-color: #8b5a2b;
+      color: #fff;
+      border-bottom: none;
+      padding: 1.25rem 1.5rem;
+    }
+    
+    .modal-title {
+      font-family: 'Playfair Display', serif;
+      font-weight: 600;
+    }
+    
+    .modal-body {
+      padding: 1.5rem;
+    }
+    
+    .modal-footer {
+      border-top: none;
+      padding: 1.25rem 1.5rem;
+    }
+    
+    .btn-close {
+      color: #fff;
+      opacity: 0.8;
+    }
+    
+    .form-label {
+      color: #33261d;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+    
+    .form-control, .form-select {
+      border-color: #e9e2dc;
+      border-radius: 8px;
+      padding: 0.6rem 1rem;
+    }
+    
+    .form-control:focus, .form-select:focus {
+      border-color: #8b5a2b;
+      box-shadow: 0 0 0 0.25rem rgba(139, 90, 43, 0.25);
+    }
+    
+    /* Empty State Styling */
+    .text-center.py-5 {
+      padding: 3rem 0;
+    }
+    
+    .text-center.py-5 i {
+      color: #8b5a2b;
+      margin-bottom: 1.5rem;
+    }
+    
+    .text-center.py-5 h5 {
+      font-family: 'Playfair Display', serif;
+      color: #33261d;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      font-size: 1.5rem;
+    }
+    
+    .text-center.py-5 p {
+      color: #5d534c;
+      margin-bottom: 1.5rem;
+    }
+    
+    /* Responsive Adjustments */
+    @media (max-width: 991px) {
+      .order-summary {
+        margin-top: 2rem;
+        position: static;
+      }
+    }
+    
+    @media (max-width: 768px) {
+      .page-title {
+        font-size: 2rem;
+      }
+      
+      .card-body {
+        padding: 1.5rem;
+      }
+      
+      .cart-item {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      
+      .cart-item img {
+        margin-bottom: 1rem;
+      }
+    }
+    
+    @media (max-width: 576px) {
+      .checkout-section {
+        padding: 2rem 0;
+      }
+      
+      .page-title {
+        font-size: 1.75rem;
+      }
+      
+      .card-body {
+        padding: 1.25rem;
+      }
+      
+      .order-summary {
+        padding: 1.5rem;
+      }
+    }
   </style>
 </head>
 <body>
