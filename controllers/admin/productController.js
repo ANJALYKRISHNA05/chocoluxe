@@ -53,10 +53,8 @@ exports.addProduct = async (req, res) => {
     const { productName, description, category, variants } = req.body;
     const files = req.files;
 
-   
     let parsedVariants = Array.isArray(variants) ? variants : JSON.parse(variants);
 
-   
     const variantImages = {};
     files.forEach(file => {
       const match = file.fieldname.match(/variants\[(\d+)\]\[images\]/);
@@ -66,7 +64,6 @@ exports.addProduct = async (req, res) => {
         variantImages[variantIndex].push(file.path);
       }
     });
-
 
     const errors = [];
     parsedVariants = parsedVariants.map((variant, index) => {
@@ -80,6 +77,7 @@ exports.addProduct = async (req, res) => {
         stock_quantity: Number(variant.stock_quantity),
         regularPrice: Number(variant.regularPrice),
         salePrice: Number(variant.salePrice),
+        productOffer: Number(variant.productOffer || 0),
         productImage: images
       };
     });
@@ -147,6 +145,7 @@ exports.editProduct = async (req, res) => {
         stock_quantity: Number(variant.stock_quantity),
         regularPrice: Number(variant.regularPrice),
         salePrice: Number(variant.salePrice),
+        productOffer: Number(variant.productOffer || 0),
         productImage: newImages.length > 0 ? newImages : product.variants[index]?.productImage || []
       };
     });

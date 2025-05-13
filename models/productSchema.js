@@ -54,6 +54,12 @@ const productSchema = new Schema(
           required: true,
           min: 0,
         },
+        productOffer: {
+          type: Number,
+          default: 0,
+          min: 0,
+          max: 100,
+        },
         productImage: [
           {
             type: String,
@@ -70,19 +76,16 @@ const productSchema = new Schema(
   { timestamps: true }
 );
 
-
 productSchema.pre("save", function (next) {
   this.variants.forEach((variant) => {
     if (!variant.sku) {
       const { productName } = this;
       const { flavor, sugarLevel, weight } = variant;
 
-      
       const namePrefix = productName.replace(/\s+/g, "").slice(0, 3);
       const flavorPrefix = flavor.replace(/\s+/g, "").slice(0, 3);
       const sugarPrefix = sugarLevel.replace(/\s+/g, "").slice(0, 3);
 
-    
       variant.sku = `${namePrefix}-${flavorPrefix}-${sugarPrefix}-${weight}`
         .toUpperCase()
         .replace(/\s+/g, "-");

@@ -84,6 +84,10 @@
                       <input type="number" class="form-control" name="variants[<%= index %>][salePrice]" value="<%= variant.salePrice %>" min="0" step="0.01" required>
                     </div>
                     <div class="mb-3">
+                      <label class="form-label">Offer (%)</label>
+                      <input type="number" class="form-control" name="variants[<%= index %>][productOffer]" value="<%= variant.productOffer || 0 %>" min="0" max="100" step="1" required>
+                    </div>
+                    <div class="mb-3">
                       <label class="form-label">Product Images (Minimum 3)</label>
                       <input type="file" class="form-control image-upload" name="variants[<%= index %>][images]" accept="image/*" multiple>
                       <div class="preview-container mt-2" data-variant-index="<%= index %>">
@@ -140,6 +144,10 @@
                     <input type="number" class="form-control" name="variants[0][salePrice]" min="0" step="0.01" required>
                   </div>
                   <div class="mb-3">
+                    <label class="form-label">Offer (%)</label>
+                    <input type="number" class="form-control" name="variants[0][productOffer]" value="0" min="0" max="100" step="1" required>
+                  </div>
+                  <div class="mb-3">
                     <label class="form-label">Product Images (Minimum 3)</label>
                     <input type="file" class="form-control image-upload" name="variants[0][images]" accept="image/*" multiple required>
                     <div class="preview-container mt-2" data-variant-index="0"></div>
@@ -152,7 +160,6 @@
           </form>
           <a href="/admin/products" class="btn btn-secondary mt-3">Back to Product Listing</a>
 
-         
           <div class="modal fade" id="cropperModal" tabindex="-1" aria-labelledby="cropperModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-lg">
               <div class="modal-content">
@@ -177,7 +184,6 @@
     </div>
   </div>
 
-
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -192,7 +198,6 @@
       let currentImageIndex = null;
       let croppedBlobs = {};
 
-    
       document.getElementById('variantsContainer').addEventListener('change', (e) => {
         if (e.target.classList.contains('image-upload')) {
           const files = e.target.files;
@@ -220,7 +225,6 @@
         }
       });
 
-    
       document.getElementById('variantsContainer').addEventListener('click', (e) => {
         if (e.target.classList.contains('preview-image')) {
           currentVariantIndex = e.target.dataset.variantIndex;
@@ -253,7 +257,6 @@
         }
       });
 
-   
       document.getElementById('cropImage').addEventListener('click', () => {
         if (cropper) {
           const canvas = cropper.getCroppedCanvas({
@@ -283,7 +286,6 @@
         const variantSections = document.querySelectorAll('.variant-section');
         let errors = [];
 
-   
         variantSections.forEach((section, index) => {
           const fileInput = section.querySelector(`input[name="variants[${index}][images]"]`);
           if (fileInput.files.length > 0 && fileInput.files.length < 3) {
@@ -336,7 +338,6 @@
         }
       });
 
-   
       document.getElementById('addVariant').addEventListener('click', () => {
         const container = document.getElementById('variantsContainer');
         const variantSection = document.createElement('div');
@@ -382,6 +383,10 @@
           <div class="mb-3">
             <label class="form-label">Sale Price</label>
             <input type="number" class="form-control" name="variants[${variantIndex}][salePrice]" min="0" step="0.01" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Offer (%)</label>
+            <input type="number" class="form-control" name="variants[${variantIndex}][productOffer]" value="0" min="0" max="100" step="1" required>
           </div>
           <div class="mb-3">
             <label class="form-label">Product Images (Minimum 3)</label>
