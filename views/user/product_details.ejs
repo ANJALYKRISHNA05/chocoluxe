@@ -56,7 +56,11 @@
           <div class="product-pricing mb-4">
             <% if (product.variants && product.variants.length > 0) { %>
               <% const variant = product.variants[0]; %>
-              <% if (variant.salePrice < variant.regularPrice) { %>
+              <% if (variant.effectiveOffer > 0) { %>
+                <span class="sale-price fs-2">₹<%= variant.offerPrice.toFixed(2) %></span>
+                <span class="regular-price text-decoration-line-through ms-2">₹<%= variant.originalPrice.toFixed(2) %></span>
+                <span class="offer-badge badge bg-success ms-2"><%= variant.effectiveOffer %>% OFF</span>
+              <% } else if (variant.salePrice < variant.regularPrice) { %>
                 <span class="sale-price fs-2">₹<%= variant.salePrice.toFixed(2) %></span>
                 <span class="regular-price text-decoration-line-through ms-2">₹<%= variant.regularPrice.toFixed(2) %></span>
                 <% const discount = Math.round((variant.regularPrice - variant.salePrice) / variant.regularPrice * 100); %>
@@ -91,6 +95,9 @@
                            data-stock="<%= variant.stock_quantity %>"
                            data-regular-price="<%= variant.regularPrice.toFixed(2) %>"
                            data-sale-price="<%= variant.salePrice.toFixed(2) %>"
+                           data-offer-price="<%= variant.offerPrice.toFixed(2) %>"
+                           data-effective-offer="<%= variant.effectiveOffer %>"
+                           data-original-price="<%= variant.originalPrice.toFixed(2) %>"
                            data-images="<%= JSON.stringify(variant.productImage) %>">
                         <div class="card-body">
                           <h6 class="variant-flavor"><%= variant.flavor %></h6>
@@ -99,7 +106,11 @@
                             <span class="badge bg-light text-dark"><%= variant.weight %>g</span>
                           </div>
                           <div class="variant-price mt-2">
-                            <% if (variant.salePrice < variant.regularPrice) { %>
+                            <% if (variant.effectiveOffer > 0) { %>
+                              <span class="sale-price">₹<%= variant.offerPrice.toFixed(2) %></span>
+                              <span class="regular-price text-decoration-line-through">₹<%= variant.originalPrice.toFixed(2) %></span>
+                              <span class="offer-badge badge bg-success ms-2"><%= variant.effectiveOffer %>% OFF</span>
+                            <% } else if (variant.salePrice < variant.regularPrice) { %>
                               <span class="sale-price">₹<%= variant.salePrice.toFixed(2) %></span>
                               <span class="regular-price text-decoration-line-through">₹<%= variant.regularPrice.toFixed(2) %></span>
                             <% } else { %>
@@ -166,7 +177,11 @@
                       <p class="card-text text-truncate"><%= relProduct.description %></p>
                       <div class="product-price">
                         <% const variant = relProduct.variants[0]; %>
-                        <% if (variant.salePrice < variant.regularPrice) { %>
+                        <% if (variant.effectiveOffer > 0) { %>
+                          <span class="sale-price">₹<%= variant.offerPrice.toFixed(2) %></span>
+                          <span class="regular-price text-decoration-line-through ms-2">₹<%= variant.originalPrice.toFixed(2) %></span>
+                          <span class="offer-badge badge bg-success ms-2"><%= variant.effectiveOffer %>% OFF</span>
+                        <% } else if (variant.salePrice < variant.regularPrice) { %>
                           <span class="sale-price">₹<%= variant.salePrice.toFixed(2) %></span>
                           <span class="regular-price text-decoration-line-through ms-2">₹<%= variant.regularPrice.toFixed(2) %></span>
                         <% } else { %>
@@ -256,7 +271,6 @@
         return { x, y };
       }
       
-      
       document.getElementById('quantity-minus').addEventListener('click', function() {
         const currentValue = parseInt(quantityInput.value);
         if (currentValue > 1) {
@@ -271,12 +285,14 @@
         }
       });
       
-     
       function updateProductInfo(variantCard) {
         const variantId = variantCard.dataset.variantId;
         const stockQuantity = parseInt(variantCard.dataset.stock);
         const regularPrice = parseFloat(variantCard.dataset.regularPrice);
         const salePrice = parseFloat(variantCard.dataset.salePrice);
+        const offerPrice = parseFloat(variantCard.dataset.offerPrice);
+        const effectiveOffer = parseFloat(variantCard.dataset.effectiveOffer);
+        const originalPrice = parseFloat(variantCard.dataset.originalPrice);
         const images = JSON.parse(variantCard.dataset.images);
         
         currentVariant = productVariants.find(v => v._id === variantId);
@@ -285,15 +301,21 @@
           selectedVariantIdInput.value = variantId;
           
           const priceContainer = document.querySelector('.product-pricing');
-          if (salePrice < regularPrice) {
+          if (effectiveOffer > 0) {
+            priceContainer.innerHTML = `
+              <span class="sale-price fs-2">₹${offerPrice.toFixed(2)}</span>
+              <span class="regular-price text-decoration-line-through ms-2">₹${originalPrice.toFixed(2)}</span>
+              <span class="offer-badge badge bg-success ms-2">${effectiveOffer}% OFF</span>
+            `;
+          } else if (salePrice < regularPrice) {
             const discount = Math.round((regularPrice - salePrice) / regularPrice * 100);
             priceContainer.innerHTML = `
-              <span class="sale-price fs-2">₹${salePrice}</span>
-              <span class="regular-price text-decoration-line-through ms-2">₹${regularPrice}</span>
+              <span class="sale-price fs-2">₹${salePrice.toFixed(2)}</span>
+              <span class="regular-price text-decoration-line-through ms-2">₹${regularPrice.toFixed(2)}</span>
               <span class="discount-badge badge bg-success ms-2">${discount}% OFF</span>
             `;
           } else {
-            priceContainer.innerHTML = `<span class="regular-price fs-2">₹${regularPrice}</span>`;
+            priceContainer.innerHTML = `<span class="regular-price fs-2">₹${regularPrice.toFixed(2)}</span>`;
           }
           
           stockStatus.textContent = stockQuantity;
@@ -330,7 +352,6 @@
         }
       }
       
-    
       variantCards.forEach(card => {
         card.addEventListener('click', function() {
           variantCards.forEach(c => c.classList.remove('selected'));
@@ -404,7 +425,6 @@
         });
       });
       
- 
       if (variantCards.length > 0) {
         updateProductInfo(variantCards[0]);
       }
@@ -595,12 +615,13 @@
       font-size: 1.2rem;
     }
     
-    .discount-badge {
-      font-size: 0.9rem;
-      padding: 0.5rem 1rem;
-      background-color: #28a745;
-      border-radius: 50px;
+    .discount-badge, .offer-badge {
+      font-size: 0.75rem; /* Reduced from 0.9rem */
+      padding: 0.3rem 0.6rem; /* Reduced from 0.5rem 1rem */
+      background-color: #c1ceae;
+      border-radius: 20px; /* Adjusted proportionally from 50px */
       letter-spacing: 0.5px;
+      line-height: 1; /* Ensure text aligns properly */
     }
     
     .product-description {
@@ -660,19 +681,19 @@
     }
     
     .variant-card .card-body {
-      padding: 1.5rem; /* Increased padding for more internal space */
+      padding: 1.5rem;
     }
     
     .variant-flavor {
       font-family: 'Playfair Display', serif;
       font-weight: 600;
-      margin-bottom: 1.2rem; /* Increased spacing below flavor */
+      margin-bottom: 1.2rem;
       color: #33261d;
       font-size: 1.1rem;
     }
     
     .variant-details {
-      margin-bottom: 1.5rem; /* Increased spacing below details */
+      margin-bottom: 1.5rem;
       color: #5d534c;
       font-size: 0.95rem;
       line-height: 1.6;
@@ -680,30 +701,39 @@
     
     .variant-price {
       display: flex;
-      flex-direction: column; /* Stack prices vertically */
-      gap: 0.5rem; /* Increased gap between sale and regular price for more space */
-      margin-bottom: 1.5rem; /* Increased spacing below price */
+      flex-direction: column;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
     }
     
     .sale-price {
       font-weight: bold;
       color: #8b5a2b;
-      font-size: 1.5rem; /* Reduced size for better fit in variant card */
+      font-size: 1.5rem;
       font-family: 'Playfair Display', serif;
-      line-height: 1; /* Ensure consistent baseline */
+      line-height: 1;
     }
     
     .regular-price {
       color: #6c757d;
-      font-size: 0.9rem; /* Slightly smaller for variant card */
-      line-height: 1; /* Ensure consistent baseline */
+      font-size: 0.9rem;
+      line-height: 1;
+    }
+    
+    .variant-card .offer-badge {
+      font-size: 0.65rem; /* Reduced from 0.75rem for variant cards */
+      padding: 0.25rem 0.5rem; /* Reduced from 0.4rem 0.8rem */
+      background-color: #c1ceae;
+      border-radius: 15px; /* Adjusted proportionally from 50px */
+      letter-spacing: 0.5px;
+      line-height: 1;
     }
     
     .stock-info {
       font-size: 0.85rem;
       font-weight: 500;
       color: #28a745;
-      margin-top: 0.8rem; /* Increased spacing above stock info */
+      margin-top: 0.8rem;
     }
     
     /* Quantity and Button Styling */
@@ -944,6 +974,18 @@
       
       .sale-price {
         font-size: 1.8rem;
+      }
+      
+      .discount-badge, .offer-badge {
+        font-size: 0.65rem; /* Further reduced for mobile */
+        padding: 0.25rem 0.5rem; /* Further reduced padding */
+        border-radius: 15px;
+      }
+      
+      .variant-card .offer-badge {
+        font-size: 0.6rem; /* Further reduced for variant cards on mobile */
+        padding: 0.2rem 0.4rem;
+        border-radius: 12px;
       }
     }
   </style>

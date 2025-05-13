@@ -5,23 +5,48 @@ exports.loadShopHomepage = async (req, res) => {
   try {
     const categories = await Category.find({ isListed: true }).sort({ name: 1 });
 
-   
     const products = await Product.find({ 
       isBlocked: false,
       category: { $in: await Category.find({ isListed: true }).distinct('_id') }
     })
-      .populate('category') 
-      .sort({ createdAt: -1 }) 
-      .limit(4); 
+      .populate('category')
+      .sort({ createdAt: -1 })
+      .limit(4);
+
+    // Process products to include offer details
+    const processedProducts = products.map(product => {
+      const processedProduct = JSON.parse(JSON.stringify(product));
+      
+      // Get productOffer and categoryOffer
+      const productOffer = processedProduct.variants[0].productOffer || 0;
+      const categoryOffer = processedProduct.category.categoryOffer || 0;
+      
+      // Determine the effective (best) offer
+      const effectiveOffer = Math.max(productOffer, categoryOffer);
+      
+      // Determine original price (salePrice if > 0, else regularPrice)
+      const originalPrice = processedProduct.variants[0].salePrice > 0 
+        ? processedProduct.variants[0].salePrice 
+        : processedProduct.variants[0].regularPrice;
+      
+      // Calculate offer price
+      const offerPrice = originalPrice * (1 - effectiveOffer / 100);
+      
+      processedProduct.originalPrice = originalPrice;
+      processedProduct.offerPrice = offerPrice;
+      processedProduct.effectiveOffer = effectiveOffer;
+      
+      return processedProduct;
+    });
 
     res.render('user/home', {
       categories,
-      products,
+      products: processedProducts,
       user: req.session.user || null 
     });
   } catch (error) {
     console.error('Error loading shop homepage:', error);
-    res.redirect('/user/pageNotfound'); 
+    res.redirect('/user/pageNotfound');
   }
 };
 
@@ -46,11 +71,9 @@ exports.loadProductListing = async (req, res) => {
       query.category = req.query.category;
     }
     
-   
     const page = parseInt(req.query.page) || 1;
-    const limit = 4; 
+    const limit = 4;
     const skip = (page - 1) * limit;
-
 
     const totalProducts = await Product.countDocuments(query);
     const totalPages = Math.ceil(totalProducts / limit);
@@ -101,18 +124,32 @@ exports.loadProductListing = async (req, res) => {
             matchingVariants.sort((a, b) => a.salePrice - b.salePrice);
             break;
           case 'price_high_low':
-            matchingVariants.sort((a, b) => b.salePrice - a.salePrice);
+            matchingVariants.sort((a, b) => b.salePrice - b.salePrice);
             break;
           default:
             break;
         }
       }
     
-      processedProduct.displayVariant = matchingVariants[0];
+      // Calculate offer details for the display variant
+      const displayVariant = matchingVariants[0];
+      const productOffer = displayVariant.productOffer || 0;
+      const categoryOffer = processedProduct.category.categoryOffer || 0;
+      const effectiveOffer = Math.max(productOffer, categoryOffer);
+      const originalPrice = displayVariant.salePrice > 0 
+        ? displayVariant.salePrice 
+        : displayVariant.regularPrice;
+      const offerPrice = originalPrice * (1 - effectiveOffer / 100);
+      
+      displayVariant.originalPrice = originalPrice;
+      displayVariant.offerPrice = offerPrice;
+      displayVariant.effectiveOffer = effectiveOffer;
+      
+      processedProduct.displayVariant = displayVariant;
       processedProduct.matchingVariants = matchingVariants;
       
       return processedProduct;
-    }).filter(product => product !== null); 
+    }).filter(product => product !== null);
     
     if (req.query.sort) {
       switch (req.query.sort) {
@@ -120,7 +157,7 @@ exports.loadProductListing = async (req, res) => {
           processedProducts.sort((a, b) => a.displayVariant.salePrice - b.displayVariant.salePrice);
           break;
         case 'price_high_low':
-          processedProducts.sort((a, b) => b.displayVariant.salePrice - a.displayVariant.salePrice);
+          processedProducts.sort((a, b) => b.displayVariant.salePrice - b.displayVariant.salePrice);
           break;
         case 'name_asc':
           processedProducts.sort((a, b) => a.productName.localeCompare(b.productName));
@@ -142,7 +179,6 @@ exports.loadProductListing = async (req, res) => {
     const buildPaginationUrl = (page) => {
       const queryParams = new URLSearchParams();
       
-     
       if (req.query.search) queryParams.append('search', req.query.search);
       if (req.query.sort) queryParams.append('sort', req.query.sort);
       if (req.query.category) queryParams.append('category', req.query.category);
@@ -152,7 +188,6 @@ exports.loadProductListing = async (req, res) => {
       if (req.query.minPrice) queryParams.append('minPrice', req.query.minPrice);
       if (req.query.maxPrice) queryParams.append('maxPrice', req.query.maxPrice);
       
- 
       queryParams.append('page', page);
       
       return `/products?${queryParams.toString()}`;
@@ -164,15 +199,14 @@ exports.loadProductListing = async (req, res) => {
       flavors,
       sugarLevels,
       weights,
-      filters: req.query, 
+      filters: req.query,
       user: req.session.user || null,
       title: 'Products',
       currentPage: page,
       totalPages,
       totalProducts,
-      buildPaginationUrl 
+      buildPaginationUrl
     });
-    
   } catch (error) {
     console.error('Error loading product listing:', error);
     res.redirect('/user/pageNotfound');
@@ -183,7 +217,6 @@ exports.loadProductDetails = async (req, res) => {
   try {
     const productId = req.params.id;
     
-  
     const product = await Product.findOne({ 
       _id: productId, 
       isBlocked: false,
@@ -194,17 +227,53 @@ exports.loadProductDetails = async (req, res) => {
       return res.redirect('/user/pageNotfound');
     }
 
-    
     const relatedProducts = await Product.find({
       category: product.category._id,
-      _id: { $ne: productId }, 
+      _id: { $ne: productId },
       isBlocked: false,
       category: { $in: await Category.find({ isListed: true }).distinct('_id') }
-    }).limit(4);
+    }).populate('category').limit(4);
+
+    // Process product variants to include offer details
+    const processedProduct = JSON.parse(JSON.stringify(product));
+    processedProduct.variants = processedProduct.variants.map(variant => {
+      const productOffer = variant.productOffer || 0;
+      const categoryOffer = processedProduct.category.categoryOffer || 0;
+      const effectiveOffer = Math.max(productOffer, categoryOffer);
+      const originalPrice = variant.salePrice > 0 ? variant.salePrice : variant.regularPrice;
+      const offerPrice = originalPrice * (1 - effectiveOffer / 100);
+      
+      return {
+        ...variant,
+        originalPrice,
+        offerPrice,
+        effectiveOffer
+      };
+    });
+
+    // Process related products to include offer details
+    const processedRelatedProducts = relatedProducts.map(relProduct => {
+      const processedRelProduct = JSON.parse(JSON.stringify(relProduct));
+      processedRelProduct.variants = processedRelProduct.variants.map(variant => {
+        const productOffer = variant.productOffer || 0;
+        const categoryOffer = processedRelProduct.category.categoryOffer || 0;
+        const effectiveOffer = Math.max(productOffer, categoryOffer);
+        const originalPrice = variant.salePrice > 0 ? variant.salePrice : variant.regularPrice;
+        const offerPrice = originalPrice * (1 - effectiveOffer / 100);
+        
+        return {
+          ...variant,
+          originalPrice,
+          offerPrice,
+          effectiveOffer
+        };
+      });
+      return processedRelProduct;
+    });
 
     res.render('user/product_details', {
-      product,
-      relatedProducts,
+      product: processedProduct,
+      relatedProducts: processedRelatedProducts,
       title: product.productName,
       user: req.session.user || null
     });

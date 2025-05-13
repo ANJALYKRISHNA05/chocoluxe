@@ -49,6 +49,14 @@ exports.addToCart = async (req, res) => {
       (item) => item.product.toString() === productId && item.sku === variant.sku
     );
 
+    // Calculate the best offer and offerPrice
+    const productOffer = variant.productOffer || 0;
+    const categoryOffer = product.category.categoryOffer || 0;
+    const effectiveOffer = Math.max(productOffer, categoryOffer);
+    const basePrice = variant.salePrice < variant.regularPrice && variant.salePrice > 0 ? variant.salePrice : variant.regularPrice;
+    const offerPrice = effectiveOffer > 0 ? basePrice * (1 - effectiveOffer / 100) : basePrice;
+    const originalPrice = basePrice; // Before the offer
+
     if (existingItemIndex > -1) {
       const newQuantity = cart.items[existingItemIndex].quantity + quantity;
       if (newQuantity > MAX_QUANTITY_PER_ITEM) {
@@ -58,8 +66,7 @@ exports.addToCart = async (req, res) => {
         });
       }
       cart.items[existingItemIndex].quantity = newQuantity;
-      cart.items[existingItemIndex].price =
-        variant.salePrice * cart.items[existingItemIndex].quantity;
+      cart.items[existingItemIndex].price = offerPrice * newQuantity;
     } else {
       if (quantity > MAX_QUANTITY_PER_ITEM) {
         return res.status(400).json({
@@ -71,6 +78,7 @@ exports.addToCart = async (req, res) => {
         product: productId,
         sku: variant.sku,
         quantity,
+        price: offerPrice * quantity,
         productImage: variant.productImage[0],
       });
     }
@@ -88,9 +96,34 @@ exports.addToCart = async (req, res) => {
     }
 
     await cart.save();
+
+    // Recalculate cart totals and savings
+    let cartTotal = 0;
+    let totalSavings = 0;
+    for (const item of cart.items) {
+      const itemProduct = await Product.findById(item.product).populate("category");
+      if (!itemProduct || itemProduct.isBlocked || !itemProduct.category || !itemProduct.category.isListed) continue;
+      const itemVariant = itemProduct.variants.find((v) => v.sku === item.sku);
+      if (!itemVariant) continue;
+      const itemProductOffer = itemVariant.productOffer || 0;
+      const itemCategoryOffer = itemProduct.category.categoryOffer || 0;
+      const itemEffectiveOffer = Math.max(itemProductOffer, itemCategoryOffer);
+      const itemBasePrice = itemVariant.salePrice < itemVariant.regularPrice && itemVariant.salePrice > 0 ? itemVariant.salePrice : itemVariant.regularPrice;
+      const itemOfferPrice = itemEffectiveOffer > 0 ? itemBasePrice * (1 - itemEffectiveOffer / 100) : itemBasePrice;
+      const itemOriginalPrice = itemBasePrice;
+      cartTotal += itemOfferPrice * item.quantity;
+      totalSavings += (itemOriginalPrice - itemOfferPrice) * item.quantity;
+    }
+
     const itemCount = cart.items.length;
 
-    res.json({ success: true, message: "Product added to cart", itemCount });
+    res.json({
+      success: true,
+      message: "Product added to cart",
+      itemCount,
+      cartTotal,
+      totalSavings,
+    });
   } catch (error) {
     console.error("Error adding to cart:", error);
     res.status(500).json({ success: false, message: "Server error" });
@@ -107,12 +140,13 @@ exports.loadCart = async (req, res) => {
     const cart = await Cart.findOne({ user: userId }).populate({
       path: "items.product",
       populate: {
-      path: "category",
-      model: "Category",
+        path: "category",
+        model: "Category",
       },
     });
     let cartItems = [];
     let total = 0;
+    let totalSavings = 0;
     let hasInvalidItems = false;
 
     if (cart && cart.items.length > 0) {
@@ -132,28 +166,50 @@ exports.loadCart = async (req, res) => {
         }
 
         const variant = product?.variants.find((v) => v.sku === item.sku);
-        const price = variant && typeof variant.salePrice === 'number' ? variant.salePrice : 0;
-        const subtotal = errorMessage ? 0 : price * item.quantity;
-        if (!errorMessage) {
+        let price = 0;
+        let effectiveOffer = 0;
+        let offerPrice = 0;
+        let originalPrice = 0;
+        let subtotal = 0;
+        let savings = 0;
+
+        if (variant && !errorMessage) {
+          const productOffer = variant.productOffer || 0;
+          const categoryOffer = product.category.categoryOffer || 0;
+          effectiveOffer = Math.max(productOffer, categoryOffer);
+          const basePrice = variant.salePrice < variant.regularPrice && variant.salePrice > 0 ? variant.salePrice : variant.regularPrice;
+          offerPrice = effectiveOffer > 0 ? basePrice * (1 - effectiveOffer / 100) : basePrice;
+          originalPrice = basePrice; // Price before the offer
+          price = offerPrice;
+          subtotal = price * item.quantity;
+          savings = (originalPrice - offerPrice) * item.quantity;
           total += subtotal;
+          totalSavings += savings;
+
+          // Update the stored price in the cart item to reflect the offerPrice
+          item.price = subtotal;
         }
 
         return {
           ...item.toObject(),
           product,
           variant,
+          effectiveOffer,
+          offerPrice,
+          originalPrice,
           subtotal,
+          savings,
           errorMessage,
         };
       });
 
-      
       await cart.save();
     }
 
     res.render("user/cart", {
       cartItems,
       total,
+      totalSavings,
       user: req.session.user || null,
       title: "Your Cart",
       hasInvalidItems,
@@ -187,7 +243,13 @@ exports.updateCartQuantity = async (req, res) => {
       });
     }
 
-    const cart = await Cart.findOne({ user: userId }).populate("items.product");
+    const cart = await Cart.findOne({ user: userId }).populate({
+      path: "items.product",
+      populate: {
+        path: "category",
+        model: "Category",
+      },
+    });
     if (!cart) {
       return res
         .status(404)
@@ -214,6 +276,13 @@ exports.updateCartQuantity = async (req, res) => {
         .json({ success: false, message: "Product is no longer available" });
     }
 
+    if (!product.category || !product.category.isListed) {
+      return res.status(400).json({
+        success: false,
+        message: "Product category is unavailable",
+      });
+    }
+
     const variant = product.variants.find((v) => v.sku === item.sku);
     if (!variant) {
       return res
@@ -228,27 +297,50 @@ exports.updateCartQuantity = async (req, res) => {
       });
     }
 
+    // Calculate the offer price
+    const productOffer = variant.productOffer || 0;
+    const categoryOffer = product.category.categoryOffer || 0;
+    const effectiveOffer = Math.max(productOffer, categoryOffer);
+    const basePrice = variant.salePrice < variant.regularPrice && variant.salePrice > 0 ? variant.salePrice : variant.regularPrice;
+    const offerPrice = effectiveOffer > 0 ? basePrice * (1 - effectiveOffer / 100) : basePrice;
+    const originalPrice = basePrice;
+
     item.quantity = quantity;
+    item.price = offerPrice * quantity;
     await cart.save();
 
-    const cartTotal = cart.items.reduce((sum, cartItem) => {
+    // Recalculate cart totals and savings
+    let cartTotal = 0;
+    let totalSavings = 0;
+    let itemCount = 0;
+    for (const cartItem of cart.items) {
       const itemProduct = cartItem.product;
-      if (!itemProduct || itemProduct.isBlocked) return sum;
+      if (!itemProduct || itemProduct.isBlocked || !itemProduct.category || !itemProduct.category.isListed) continue;
       const itemVariant = itemProduct.variants.find((v) => v.sku === cartItem.sku);
-      if (!itemVariant) return sum;
-      const price = itemVariant && typeof itemVariant.salePrice === 'number' ? itemVariant.salePrice : 0;
-      return sum + price * cartItem.quantity;
-    }, 0);
+      if (!itemVariant) continue;
+      const itemProductOffer = itemVariant.productOffer || 0;
+      const itemCategoryOffer = itemProduct.category.categoryOffer || 0;
+      const itemEffectiveOffer = Math.max(itemProductOffer, itemCategoryOffer);
+      const itemBasePrice = itemVariant.salePrice < itemVariant.regularPrice && itemVariant.salePrice > 0 ? itemVariant.salePrice : itemVariant.regularPrice;
+      const itemOfferPrice = itemEffectiveOffer > 0 ? itemBasePrice * (1 - itemEffectiveOffer / 100) : itemBasePrice;
+      const itemOriginalPrice = itemBasePrice;
+      cartTotal += itemOfferPrice * cartItem.quantity;
+      totalSavings += (itemOriginalPrice - itemOfferPrice) * cartItem.quantity;
+      itemCount++;
+    }
 
-    const itemCount = cart.items.filter(
-      (cartItem) => cartItem.product && !cartItem.product.isBlocked
-    ).length;
-    const itemSubtotal = (variant && typeof variant.salePrice === 'number' ? variant.salePrice : 0) * quantity;
+    const itemSubtotal = offerPrice * quantity;
+    const itemSavings = (originalPrice - offerPrice) * quantity;
 
     res.json({
       success: true,
       itemSubtotal,
+      itemSavings,
+      effectiveOffer,
+      offerPrice,
+      originalPrice,
       cartTotal,
+      totalSavings,
       itemCount,
     });
   } catch (error) {
@@ -272,7 +364,13 @@ exports.removeFromCart = async (req, res) => {
         .json({ success: false, message: "Invalid item ID" });
     }
 
-    const cart = await Cart.findOne({ user: userId }).populate("items.product");
+    const cart = await Cart.findOne({ user: userId }).populate({
+      path: "items.product",
+      populate: {
+        path: "category",
+        model: "Category",
+      },
+    });
     if (!cart) {
       return res
         .status(404)
@@ -291,21 +389,31 @@ exports.removeFromCart = async (req, res) => {
     cart.items.splice(itemIndex, 1);
     await cart.save();
 
-    const cartTotal = cart.items.reduce((sum, cartItem) => {
+    // Recalculate cart totals and savings
+    let cartTotal = 0;
+    let totalSavings = 0;
+    let itemCount = 0;
+    for (const cartItem of cart.items) {
       const itemProduct = cartItem.product;
-      if (!itemProduct || itemProduct.isBlocked) return sum;
+      if (!itemProduct || itemProduct.isBlocked || !itemProduct.category || !itemProduct.category.isListed) continue;
       const itemVariant = itemProduct.variants.find((v) => v.sku === cartItem.sku);
-      if (!itemVariant) return sum;
-      const price = itemVariant && typeof itemVariant.salePrice === 'number' ? itemVariant.salePrice : 0;
-      return sum + price * cartItem.quantity;
-    }, 0);
-
-    const itemCount = cart.items.length;
+      if (!itemVariant) continue;
+      const itemProductOffer = itemVariant.productOffer || 0;
+      const itemCategoryOffer = itemProduct.category.categoryOffer || 0;
+      const itemEffectiveOffer = Math.max(itemProductOffer, itemCategoryOffer);
+      const itemBasePrice = itemVariant.salePrice < itemVariant.regularPrice && itemVariant.salePrice > 0 ? itemVariant.salePrice : itemVariant.regularPrice;
+      const itemOfferPrice = itemEffectiveOffer > 0 ? itemBasePrice * (1 - itemEffectiveOffer / 100) : itemBasePrice;
+      const itemOriginalPrice = itemBasePrice;
+      cartTotal += itemOfferPrice * cartItem.quantity;
+      totalSavings += (itemOriginalPrice - itemOfferPrice) * cartItem.quantity;
+      itemCount++;
+    }
 
     res.json({
       success: true,
       message: "Item removed from cart",
       cartTotal,
+      totalSavings,
       itemCount,
     });
   } catch (error) {

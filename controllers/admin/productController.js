@@ -191,3 +191,33 @@ exports.toggleProductStatus = async (req, res) => {
     res.status(500).json({ success: false, message: 'Error toggling product status' });
   }
 };
+
+exports.updateProductOffer = async (req, res) => {
+  try {
+    const productId = req.params.id;
+    const { variants } = req.body;
+    const product = await Product.findById(productId);
+    if (!product) {
+      return res.status(404).json({ success: false, message: 'Product not found' });
+    }
+
+    for (const variantUpdate of variants) {
+      const index = parseInt(variantUpdate.index);
+      if (index >= 0 && index < product.variants.length) {
+        const productOffer = parseInt(variantUpdate.productOffer) || 0;
+        if (productOffer < 0 || productOffer > 100) {
+          return res.status(400).json({ success: false, message: `Invalid offer percentage for variant ${index + 1}` });
+        }
+        product.variants[index].productOffer = productOffer;
+      } else {
+        return res.status(400).json({ success: false, message: `Invalid variant index ${index}` });
+      }
+    }
+
+    await product.save();
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error updating product offer:', error);
+    res.status(500).json({ success: false, message: 'Error updating product offer' });
+  }
+};

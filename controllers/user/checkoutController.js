@@ -10,7 +10,7 @@ const path = require('path');
 exports.addCheckoutAddress = async (req, res) => {
   try {
     const userId = req.session.user._id;
-    const {name,addressType,address,city,state,pincode,phone,isDefault} = req.body;
+    const { name, addressType, address, city, state, pincode, phone, isDefault } = req.body;
 
     if (!name || !addressType || !address || !city || !state || !pincode || !phone) {
       req.session.message = "All fields are required.";
@@ -30,7 +30,17 @@ exports.addCheckoutAddress = async (req, res) => {
       await Address.updateMany({ userId }, { $set: { isDefault: false } });
     }
 
-    const newAddress = new Address({ userId,name,addressType,address,city,state,pincode,phone,isDefault: isDefault === "true",});
+    const newAddress = new Address({
+      userId,
+      name,
+      addressType,
+      address,
+      city,
+      state,
+      pincode,
+      phone,
+      isDefault: isDefault === "true",
+    });
 
     await newAddress.save();
     req.session.message = "Address added successfully.";
@@ -45,7 +55,7 @@ exports.addCheckoutAddress = async (req, res) => {
 exports.updateCheckoutAddress = async (req, res) => {
   try {
     const userId = req.session.user._id;
-    const {addressId,name,addressType,address,city,state,pincode,phone,isDefault,} = req.body;
+    const { addressId, name, addressType, address, city, state, pincode, phone, isDefault } = req.body;
 
     if (!name || !addressType || !address || !city || !state || !pincode || !phone) {
       req.session.message = "All fields are required.";
@@ -92,7 +102,7 @@ exports.updateCheckoutAddress = async (req, res) => {
 exports.loadCheckout = async (req, res) => {
   try {
     const userId = req.session.user._id;
-    
+
     const cart = await Cart.findOne({ user: userId }).populate({
       path: "items.product",
       populate: {
@@ -107,7 +117,7 @@ exports.loadCheckout = async (req, res) => {
 
     let invalidItems = [];
     let subtotal = 0;
-    let discount = 0;
+    let totalSavings = 0;
     const cartItems = cart.items.map((item) => {
       let errorMessage = null;
       const product = item.product;
@@ -124,21 +134,35 @@ exports.loadCheckout = async (req, res) => {
       }
 
       const variant = product?.variants.find((v) => v.sku === item.sku);
-      const salePrice = variant?.salePrice || 0;
-      const regularPrice = variant?.regularPrice || salePrice;
-      const itemSubtotal = errorMessage ? 0 : salePrice * item.quantity;
-      const itemDiscount = errorMessage ? 0 : (regularPrice - salePrice) * item.quantity;
+      let effectiveOffer = 0;
+      let offerPrice = 0;
+      let originalPrice = 0;
+      let itemSubtotal = 0;
+      let itemSavings = 0;
 
-      if (!errorMessage) {
+      if (variant && !errorMessage) {
+        const productOffer = variant.productOffer || 0;
+        const categoryOffer = product.category.categoryOffer || 0;
+        effectiveOffer = Math.max(productOffer, categoryOffer);
+        const basePrice = variant.salePrice < variant.regularPrice && variant.salePrice > 0 ? variant.salePrice : variant.regularPrice;
+        offerPrice = effectiveOffer > 0 ? basePrice * (1 - effectiveOffer / 100) : basePrice;
+        originalPrice = basePrice;
+        itemSubtotal = offerPrice * item.quantity;
+        itemSavings = (originalPrice - offerPrice) * item.quantity;
+
         subtotal += itemSubtotal;
-        discount += itemDiscount;
+        totalSavings += itemSavings;
       }
 
       return {
         ...item.toObject(),
         product,
         variant,
+        effectiveOffer,
+        offerPrice,
+        originalPrice,
         subtotal: itemSubtotal,
+        savings: itemSavings,
         errorMessage,
       };
     });
@@ -157,7 +181,7 @@ exports.loadCheckout = async (req, res) => {
     res.render("user/checkout", {
       cartItems,
       subtotal,
-      discount,
+      totalSavings,
       total,
       addresses,
       user: req.session.user,
@@ -200,7 +224,7 @@ exports.placeOrder = async (req, res) => {
     }
 
     let subtotal = 0;
-    let discount = 0;
+    let totalSavings = 0;
     const orderItems = [];
     const stockUpdates = [];
     let invalidItems = [];
@@ -238,20 +262,25 @@ exports.placeOrder = async (req, res) => {
         continue;
       }
 
-      const salePrice = variant.salePrice || 0;
-      const regularPrice = variant.regularPrice || salePrice;
-      const itemSubtotal = salePrice * item.quantity;
-      const itemDiscount = (regularPrice - salePrice) * item.quantity;
+      const productOffer = variant.productOffer || 0;
+      const categoryOffer = product.category.categoryOffer || 0;
+      const effectiveOffer = Math.max(productOffer, categoryOffer);
+      const basePrice = variant.salePrice < variant.regularPrice && variant.salePrice > 0 ? variant.salePrice : variant.regularPrice;
+      const offerPrice = effectiveOffer > 0 ? basePrice * (1 - effectiveOffer / 100) : basePrice;
+      const originalPrice = basePrice;
+      const itemSubtotal = offerPrice * item.quantity;
+      const itemSavings = (originalPrice - offerPrice) * item.quantity;
 
       subtotal += itemSubtotal;
-      discount += itemDiscount;
+      totalSavings += itemSavings;
 
       orderItems.push({
         product: product._id,
         sku: item.sku,
         quantity: item.quantity,
-        price: salePrice,
+        price: offerPrice,
         subtotal: itemSubtotal,
+        effectiveOffer,
       });
 
       stockUpdates.push({
@@ -277,7 +306,7 @@ exports.placeOrder = async (req, res) => {
     while (!unique && attempt < maxAttempts) {
       const randomNum = Math.floor(100000 + Math.random() * 900000);
       const potentialOrderId = `${prefix}-${randomNum}`;
-      
+
       const existingOrder = await Order.findOne({ orderId: potentialOrderId });
       if (!existingOrder) {
         orderId = potentialOrderId;
@@ -311,7 +340,7 @@ exports.placeOrder = async (req, res) => {
         phone: address.phone,
       },
       subtotal,
-      discount,
+      totalSavings,
       total,
       paymentMethod,
       status: "Pending",
@@ -527,7 +556,7 @@ exports.generateInvoice = async (req, res) => {
 
     const order = await Order.findOne({ orderId, user: userId })
       .populate('items.product');
-    
+
     if (!order) {
       req.session.message = 'Order not found.';
       return res.redirect('/user/orders');
@@ -613,8 +642,8 @@ exports.generateInvoice = async (req, res) => {
       .font('Helvetica')
       .fontSize(10)
       .text(`Subtotal: ₹${order.subtotal.toFixed(2)}`, 400, summaryTop, { align: 'right' })
-      .text(`Discount: -₹${order.discount.toFixed(2)}`, 400, summaryTop + 15, { align: 'right' })
-      .text('Shipping: Free', 400, summaryTop + 30, { align的风: 'right' })
+      .text(`Total Savings: -₹${order.totalSavings.toFixed(2)}`, 400, summaryTop + 15, { align: 'right' })
+      .text('Shipping: Free', 400, summaryTop + 30, { align: 'right' })
       .font('Helvetica-Bold')
       .text(`Total: ₹${order.total.toFixed(2)}`, 400, summaryTop + 45, { align: 'right' });
 

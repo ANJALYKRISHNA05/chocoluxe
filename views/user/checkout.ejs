@@ -207,6 +207,21 @@
       color: #8b5a2b;
       font-size: 1rem;
     }
+
+    .offer-badge {
+      font-size: 0.75rem;
+      padding: 0.3rem 0.6rem;
+      background-color: #c1ceae;
+      border-radius: 20px;
+      letter-spacing: 0.5px;
+      line-height: 1;
+    }
+
+    .original-price {
+      color: #6c757d;
+      font-size: 0.9rem;
+      margin-left: 0.5rem;
+    }
     
     /* Order Summary Styling */
     .order-summary {
@@ -389,6 +404,12 @@
       .order-summary {
         padding: 1.5rem;
       }
+
+      .offer-badge {
+        font-size: 0.65rem;
+        padding: 0.25rem 0.5rem;
+        border-radius: 15px;
+      }
     }
   </style>
 </head>
@@ -397,7 +418,7 @@
 
   <section class="checkout-section py-5">
     <div class="container">
-      <h2 class="mb-4">Checkout</h2>
+      <h2 class="page-title mb-4">Checkout</h2>
 
       <div class="row">
         <div class="col-lg-8">
@@ -470,7 +491,13 @@
                         <p class="mb-1">
                           Flavor: <%= item.variant.flavor %> | Sugar: <%= item.variant.sugarLevel %> | Weight: <%= item.variant.weight %>g
                         </p>
-                        <p class="mb-1">Price: ₹<%= item.variant.salePrice.toFixed(2) %> x <%= item.quantity %></p>
+                        <p class="mb-1">
+                          Price: ₹<%= item.offerPrice.toFixed(2) %> x <%= item.quantity %>
+                          <% if (item.effectiveOffer > 0) { %>
+                            <span class="original-price text-decoration-line-through">₹<%= item.originalPrice.toFixed(2) %></span>
+                            <span class="offer-badge badge bg-success ms-2"><%= item.effectiveOffer %>% OFF</span>
+                          <% } %>
+                        </p>
                         <p class="fw-bold">Subtotal: ₹<%= item.subtotal.toFixed(2) %></p>
                       </div>
                     </div>
@@ -496,8 +523,8 @@
               <span>₹<%= subtotal.toFixed(2) %></span>
             </div>
             <div class="d-flex justify-content-between mb-2">
-              <span>Discount</span>
-              <span>-₹<%= discount.toFixed(2) %></span>
+              <span>Total Savings</span>
+              <span>-₹<%= totalSavings.toFixed(2) %></span>
             </div>
             <div class="d-flex justify-content-between mb-2">
               <span>Shipping</span>

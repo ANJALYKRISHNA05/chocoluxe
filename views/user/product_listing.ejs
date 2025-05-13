@@ -206,7 +206,11 @@
                         </div>
                         <div class="product-footer">
                           <div class="product-pricing">
-                            <% if (product.displayVariant.salePrice < product.displayVariant.regularPrice) { %>
+                            <% if (product.displayVariant.effectiveOffer > 0) { %>
+                              <span class="sale-price">₹<%= product.displayVariant.offerPrice.toFixed(2) %></span>
+                              <span class="regular-price"><del>₹<%= product.displayVariant.originalPrice.toFixed(2) %></del></span>
+                              <span class="offer-badge"><%= product.displayVariant.effectiveOffer %>% OFF</span>
+                            <% } else if (product.displayVariant.salePrice < product.displayVariant.regularPrice) { %>
                               <span class="sale-price">₹<%= product.displayVariant.salePrice.toFixed(2) %></span>
                               <span class="regular-price"><del>₹<%= product.displayVariant.regularPrice.toFixed(2) %></del></span>
                             <% } else { %>
@@ -262,7 +266,6 @@
 </section>
 
 <style>
-  
   .product-listing-section {
     background-color: #f9f5f1;
   }
@@ -305,7 +308,6 @@
     max-width: 600px;
     margin: 0 auto;
   }
-  
   
   .filter-sidebar {
     background-color: #ffffff;
@@ -448,7 +450,6 @@
     background-color: rgba(212, 162, 106, 0.1);
   }
   
-  /* Products Styles */
   .products-content {
     padding: 0 10px;
   }
@@ -649,6 +650,16 @@
     font-weight: normal;
   }
   
+  .offer-badge {
+    font-size: 0.75rem;
+    color: #d4a26a;
+    background-color: rgba(212, 162, 106, 0.15);
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-weight: 600;
+    margin-top: 2px;
+  }
+  
   .product-availability {
     font-size: 0.85rem;
   }
@@ -709,7 +720,6 @@
     margin: 0 auto;
   }
   
-  /* Pagination Styles */
   .pagination-container {
     margin-top: 50px;
     display: flex;
@@ -755,7 +765,6 @@
     color: #ccc;
     cursor: not-allowed;
   }
-  
   
   @media (max-width: 992px) {
     .filter-sidebar {
@@ -816,11 +825,27 @@
     .page-title {
       font-size: 1.8rem;
     }
+    
+    .sale-price {
+      font-size: 1rem;
+    }
+    
+    .regular-price {
+      font-size: 0.85rem;
+    }
+    
+    .regular-price del {
+      font-size: 0.8rem;
+    }
+    
+    .offer-badge {
+      font-size: 0.7rem;
+      padding: 1px 6px;
+    }
   }
 </style>
 
 <script>
-
   document.querySelectorAll('.filter-checkbox').forEach(checkbox => {
     checkbox.addEventListener('change', function() {
       document.getElementById('filterForm').submit();
@@ -833,7 +858,6 @@
     document.getElementById('filterForm').submit();
   }
 
-  
   function updateWishlistBadge(count) {
     const badge = document.querySelector('.wishlist-badge');
     if (badge) {
@@ -845,7 +869,6 @@
       }
     }
   }
-
 
   document.querySelectorAll('.wishlist-btn').forEach(button => {
     button.addEventListener('click', async function() {
@@ -869,7 +892,6 @@
 
         if (data.success) {
           if (isActive) {
-          
             this.classList.remove('active');
             this.setAttribute('title', 'Add to Wishlist');
             updateWishlistBadge(data.itemCount);
@@ -881,7 +903,6 @@
               timer: 1500,
             });
           } else {
-          
             this.classList.add('active');
             this.setAttribute('title', 'Remove from Wishlist');
             updateWishlistBadge(data.itemCount);

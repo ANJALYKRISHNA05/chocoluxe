@@ -27,6 +27,7 @@ router.get('/category/edit/:id', adminAuth, categoryController.loadCategoryForm)
 router.post('/category/add', adminAuth, categoryController.addCategory);
 router.post('/category/edit/:id', adminAuth, categoryController.editCategory);
 router.patch('/category/toggle-status/:id', adminAuth, categoryController.toggleCategoryStatus);
+router.patch('/category/update-offer/:id', categoryController.updateCategoryOffer);
 
 router.get('/products', adminAuth, productController.loadProducts);
 router.get('/products/add', adminAuth, productController.loadProductForm);
@@ -34,6 +35,7 @@ router.get('/products/edit/:id', adminAuth, productController.loadProductForm);
 router.post('/products/add', adminAuth, productUpload.any(), productController.addProduct);
 router.post('/products/edit/:id', adminAuth, productUpload.any(), productController.editProduct);
 router.patch('/products/toggle-status/:id', adminAuth, productController.toggleProductStatus);
+router.patch('/products/update-offer/:id', productController.updateProductOffer);
 
 router.get('/orders', adminAuth, orderController.loadOrders); 
 router.get('/orders/view/:orderId', adminAuth, orderController.loadOrderDetails); 

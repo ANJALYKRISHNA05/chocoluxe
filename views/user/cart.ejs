@@ -97,6 +97,21 @@
       margin-top: 0.5rem;
     }
 
+    .offer-badge {
+      font-size: 0.75rem;
+      padding: 0.3rem 0.6rem;
+      background-color: #c1ceae;
+      border-radius: 20px;
+      letter-spacing: 0.5px;
+      line-height: 1;
+    }
+
+    .original-price {
+      color: #6c757d;
+      font-size: 0.9rem;
+      margin-left: 0.5rem;
+    }
+
     /* Quantity Selector Styling */
     .quantity-selector {
       width: 120px;
@@ -379,6 +394,12 @@
       .empty-cart img {
         width: 150px;
       }
+
+      .offer-badge {
+        font-size: 0.65rem;
+        padding: 0.25rem 0.5rem;
+        border-radius: 15px;
+      }
     }
   </style>
 </head>
@@ -405,8 +426,12 @@
                     </div>
                     <p class="price-info">
                       <span class="price-label">Price:</span> 
-                      <span class="price-value">₹<%= (item.variant.salePrice ? item.variant.salePrice : 0).toFixed(2) %></span> 
-                      <span class="quantity-label">× <%= item.quantity %></span>
+                      <span class="price-value">₹<%= item.offerPrice ? item.offerPrice.toFixed(2) : '0.00' %></span> 
+                      <% if (item.effectiveOffer > 0) { %>
+                        <span class="original-price text-decoration-line-through">₹<%= item.originalPrice ? item.originalPrice.toFixed(2) : '0.00' %></span>
+                        <span class="offer-badge badge bg-success ms-2"><%= item.effectiveOffer %>% OFF</span>
+                      <% } %>
+                      <span class="quantity-label">× <span class="quantity-display"><%= item.quantity %></span></span>
                     </p>
                     <p class="subtotal">Subtotal: ₹<%= item.subtotal.toFixed(2) %></p>
                   <% } %>
@@ -439,11 +464,15 @@
               <hr>
               <div class="summary-item d-flex justify-content-between mb-3">
                 <span>Total Items:</span>
-                <span><%= cartItems.length %></span>
+                <span class="total-items"><%= cartItems.length %></span>
+              </div>
+              <div class="summary-item d-flex justify-content-between mb-3">
+                <span>Total Savings:</span>
+                <span class="total-savings">₹<%= totalSavings.toFixed(2) %></span>
               </div>
               <div class="summary-item d-flex justify-content-between mb-3">
                 <span>Total Amount:</span>
-                <span class="fw-bold">₹<%= total.toFixed(2) %></span>
+                <span class="fw-bold cart-total">₹<%= total.toFixed(2) %></span>
               </div>
               <div class="checkout-container mt-4">
                 <button type="button" class="btn btn-primary btn-lg w-100 proceed-checkout" onclick="location.href='/checkout'" <%= hasInvalidItems ? 'disabled' : '' %>>
@@ -452,7 +481,6 @@
                 <% if (hasInvalidItems) { %>
                   <p class="error-message mt-3"><i class="fas fa-exclamation-circle me-2"></i>Please remove invalid items to proceed</p>
                 <% } %>
-                
               </div>
             </div>
           </div>
@@ -469,16 +497,7 @@
               <i class="fas fa-shopping-bag me-2"></i>Browse Products
             </a>
           </div>
-          <div class="empty-cart-suggestions mt-4">
-            <p class="suggestion-title">You might be interested in:</p>
-            <div class="suggestion-links">
-              <a href="/products?category=truffles" class="suggestion-link">Chocolate Truffles</a>
-              <span class="mx-2">•</span>
-              <a href="/products?category=bars" class="suggestion-link">Chocolate Bars</a>
-              <span class="mx-2">•</span>
-              <a href="/products?category=gift-boxes" class="suggestion-link">Gift Boxes</a>
-            </div>
-          </div>
+       
         </div>
       <% } %>
     </div>
@@ -509,6 +528,13 @@
         updateCartBadge(data.itemCount || 0);
       })
       .catch(error => console.error('Error fetching cart count:', error));
+    }
+
+    function updateCartSummary(data) {
+      document.querySelector('.cart-total').textContent = `₹${data.cartTotal.toFixed(2)}`;
+      document.querySelector('.total-savings').textContent = `₹${data.totalSavings.toFixed(2)}`;
+      document.querySelector('.total-items').textContent = data.itemCount;
+      updateCartBadge(data.itemCount);
     }
 
     document.querySelectorAll('.quantity-minus, .quantity-plus').forEach(button => {
@@ -560,8 +586,23 @@
             const cartItem = document.querySelector(`.cart-item[data-item-id="${itemId}"]`);
             if (cartItem) {
               cartItem.querySelector('.subtotal').textContent = `Subtotal: ₹${data.itemSubtotal.toFixed(2)}`;
-              document.querySelector('.cart-summary .fw-bold').textContent = `₹${data.cartTotal.toFixed(2)}`;
-              updateCartBadge(data.itemCount);
+              cartItem.querySelector('.quantity-display').textContent = quantity;
+              const priceInfo = cartItem.querySelector('.price-info');
+              // Update offer badge and original price dynamically
+              let offerHtml = '';
+              if (data.effectiveOffer > 0) {
+                offerHtml = `
+                  <span class="original-price text-decoration-line-through">₹${data.originalPrice.toFixed(2)}</span>
+                  <span class="offer-badge badge bg-success ms-2">${data.effectiveOffer}% OFF</span>
+                `;
+              }
+              priceInfo.innerHTML = `
+                <span class="price-label">Price:</span> 
+                <span class="price-value">₹${data.offerPrice.toFixed(2)}</span> 
+                ${offerHtml}
+                <span class="quantity-label">× <span class="quantity-display">${quantity}</span></span>
+              `;
+              updateCartSummary(data);
               Swal.fire('Success', 'Quantity updated', 'success');
             } else {
               console.error(`Cart item not found for itemId: ${itemId}`);
@@ -618,12 +659,10 @@
                 const cartItem = document.querySelector(`.cart-item[data-item-id="${itemId}"]`);
                 if (cartItem) {
                   cartItem.remove();
-                  document.querySelector('.cart-summary .fw-bold').textContent = `₹${data.cartTotal.toFixed(2)}`;
-                  updateCartBadge(data.itemCount);
+                  updateCartSummary(data);
                   if (data.itemCount === 0) {
                     location.reload();
                   } else {
-                  
                     const remainingItems = document.querySelectorAll('.cart-item .error-message');
                     if (remainingItems.length === 0) {
                       document.querySelector('.proceed-checkout').disabled = false;

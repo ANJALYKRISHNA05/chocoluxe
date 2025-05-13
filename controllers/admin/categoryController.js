@@ -29,7 +29,8 @@ const categoryController = {
         currentPage: page,
         totalPages: Math.ceil(totalCategories / limit),
         limit,
-        searchQuery 
+        searchQuery,
+        totalCategories // Added to fix the ReferenceError
       });
     } catch (error) {
       console.error('Error loading categories:', error);
@@ -37,11 +38,9 @@ const categoryController = {
     }
   },
 
-  
   loadCategoryForm: async (req, res) => {
     try {
       const categoryId = req.params.id;
-      
       
       if (categoryId) {
         const category = await Category.findById(categoryId);
@@ -57,7 +56,6 @@ const categoryController = {
         });
       }
       
-    
       res.render('admin/admin_category_form', {
         category: null,
         error: null,
@@ -70,21 +68,30 @@ const categoryController = {
     }
   },
 
-  
   addCategory: [
     upload.single('image'),
     async (req, res) => {
       try {
-        const { name, description } = req.body;
+        const { name, description, categoryOffer } = req.body;
         const isListed = req.body.isListed === 'on'; 
         const slug = name.toLowerCase().replace(/\s+/g, '-');
         const image = req.file ? req.file.path : '';
+
+        const offer = parseInt(categoryOffer) || 0;
+        if (offer < 0 || offer > 100) {
+          return res.render('admin/admin_category_form', {
+            error: 'Offer percentage must be between 0 and 100',
+            category: { name, description, categoryOffer: offer, isListed },
+            activePage: 'category',
+            title: 'Add Category'
+          });
+        }
 
         const existingCategory = await Category.findOne({ name });
         if (existingCategory) {
           return res.render('admin/admin_category_form', {
             error: 'Category name already exists',
-            category: { name, description, isListed },
+            category: { name, description, categoryOffer: offer, isListed },
             activePage: 'category',
             title: 'Add Category'
           });
@@ -95,7 +102,8 @@ const categoryController = {
           description,
           image,
           slug,
-          isListed
+          isListed,
+          categoryOffer: offer
         });
 
         await category.save();
@@ -107,22 +115,37 @@ const categoryController = {
     }
   ],
 
- 
   editCategory: [
     upload.single('image'),
     async (req, res) => {
       try {
-        const { name, description } = req.body;
+        const { name, description, categoryOffer } = req.body;
         const isListed = req.body.isListed === 'on'; 
         const categoryId = req.params.id;
         const slug = name.toLowerCase().replace(/\s+/g, '-');
+
+        const offer = parseInt(categoryOffer) || 0;
+        if (offer < 0 || offer > 100) {
+          return res.render('admin/admin_category_form', {
+            error: 'Offer percentage must be between 0 and 100',
+            category: { 
+              _id: categoryId,
+              name, 
+              description, 
+              image: category.image,
+              isListed,
+              categoryOffer: offer
+            },
+            activePage: 'category',
+            title: 'Edit Category'
+          });
+        }
 
         const category = await Category.findById(categoryId);
         if (!category) {
           return res.redirect('/admin/category');
         }
 
-       
         const existingCategory = await Category.findOne({ name, _id: { $ne: categoryId } });
         if (existingCategory) {
           return res.render('admin/admin_category_form', {
@@ -132,7 +155,8 @@ const categoryController = {
               name, 
               description, 
               image: category.image,
-              isListed
+              isListed,
+              categoryOffer: offer
             },
             activePage: 'category',
             title: 'Edit Category'
@@ -143,6 +167,7 @@ const categoryController = {
         category.description = description;
         category.slug = slug;
         category.isListed = isListed;
+        category.categoryOffer = offer;
         
         if (req.file) {
           category.image = req.file.path;
@@ -157,7 +182,6 @@ const categoryController = {
     }
   ],
 
-  
   toggleCategoryStatus: async (req, res) => {
     try {
       const categoryId = req.params.id;
@@ -172,6 +196,30 @@ const categoryController = {
     } catch (error) {
       console.error('Error toggling category status:', error);
       res.status(500).json({ success: false, message: 'Server error' });
+    }
+  },
+
+  updateCategoryOffer: async (req, res) => {
+    try {
+      const categoryId = req.params.id;
+      const { categoryOffer } = req.body;
+      const offer = parseInt(categoryOffer) || 0;
+
+      if (offer < 0 || offer > 100) {
+        return res.status(400).json({ success: false, message: 'Offer percentage must be between 0 and 100' });
+      }
+
+      const category = await Category.findById(categoryId);
+      if (!category) {
+        return res.status(404).json({ success: false, message: 'Category not found' });
+      }
+
+      category.categoryOffer = offer;
+      await category.save();
+      res.json({ success: true });
+    } catch (error) {
+      console.error('Error updating category offer:', error);
+      res.status(500).json({ success: false, message: 'Error updating category offer' });
     }
   }
 };
