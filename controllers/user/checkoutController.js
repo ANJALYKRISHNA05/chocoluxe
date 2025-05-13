@@ -340,7 +340,7 @@ exports.placeOrder = async (req, res) => {
         phone: address.phone,
       },
       subtotal,
-      totalSavings,
+      discount: totalSavings, // Save totalSavings to the discount field
       total,
       paymentMethod,
       status: "Pending",
