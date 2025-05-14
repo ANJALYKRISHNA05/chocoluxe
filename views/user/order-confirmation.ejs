@@ -112,7 +112,7 @@
       margin-bottom: 1.5rem;
       background: linear-gradient(145deg, #fff, #f8f3ef);
       box-shadow: 0 5px 15px rgba(0, 0, 0, 0.03);
-      transition: all 0.4s ease;
+      transition: all: 0.4s ease;
       display: flex;
       align-items: center;
     }
@@ -337,10 +337,18 @@
               <span>Subtotal</span>
               <span>₹<%= order.subtotal.toFixed(2) %></span>
             </div>
-            <div class="d-flex justify-content-between mb-2">
-              <span>Total Savings</span>
-              <span>-₹<%= order.discount.toFixed(2) %></span>
-            </div>
+            <% if (order.totalSavings > 0) { %>
+              <div class="d-flex justify-content-between mb-2">
+                <span>Total Savings</span>
+                <span>-₹<%= order.totalSavings.toFixed(2) %></span>
+              </div>
+            <% } %>
+            <% if (order.coupon && order.discount > 0) { %>
+              <div class="d-flex justify-content-between mb-2">
+                <span>Coupon Discount (<%= order.coupon.code %>)</span>
+                <span>-₹<%= order.discount.toFixed(2) %></span>
+              </div>
+            <% } %>
             <div class="d-flex justify-content-between mb-2">
               <span>Shipping</span>
               <span>Free</span>

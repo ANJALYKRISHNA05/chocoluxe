@@ -441,6 +441,7 @@ exports.placeOrder = async (req, res) => {
       coupon: couponId,
       subtotal,
       discount,
+      totalSavings,
       total: subtotal - discount,
       paymentMethod,
       status: "Pending",
