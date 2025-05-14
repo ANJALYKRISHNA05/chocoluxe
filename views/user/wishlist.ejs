@@ -197,7 +197,7 @@
         margin-bottom: 0.75rem;
     }
     
-    .sale-price {
+    .offer-price {
         color: #8b5a2b;
         font-weight: 700;
         font-size: 1.25rem;
@@ -205,11 +205,18 @@
         order: 1;
     }
     
-    .regular-price {
+    .original-price {
         color: #5d534c;
         text-decoration: line-through;
         font-size: 0.9rem;
         order: 2;
+    }
+    
+    .offer-percentage {
+        color: #28a745;
+        font-size: 0.9rem;
+        font-weight: 600;
+        order: 3;
     }
     
     .stock-status {
@@ -338,68 +345,73 @@
                 <h3>Your wishlist is empty</h3>
                 <a href="/products" class="btn btn-primary">Shop Now</a>
             </div>
-    <% } else { %>
-        <div class="row">
-            <% wishlistItems.forEach(item => { %>
-                <div class="col-md-4 mb-4">
-                    <div class="wishlist-card">
-                        <div class="card-body">
-                            <% if (item.errorMessage) { %>
-                                <div class="alert alert-custom text-center">
-                                    <%= item.errorMessage %>
-                                </div>
-                            <% } else { %>
-                                <div class="img-container">
-                                    <img src="<%= item.productImage %>" alt="<%= item.product?.name || 'Product Image' %>" class="img-fluid">
-                                </div>
-                                <h5 class="card-title">
-                                    <%= item.product.name %>
-                                </h5>
-                                <div class="variant-info">
-                                    <% if (item.variant.flavor) { %>
-                                        <span><%= item.variant.flavor %></span>
-                                    <% } %>
-                                    <% if (item.variant.sugarLevel) { %>
-                                        <span><%= item.variant.sugarLevel %></span>
-                                    <% } %>
-                                    <% if (item.variant.weight) { %>
-                                        <span><%= item.variant.weight %>g</span>
-                                    <% } %>
-                                </div>
-                                <div class="price-container">
-                                    <span class="sale-price">
-                                        ₹<%= item.variant.salePrice %>
-                                    </span>
-                                    <span class="regular-price">
-                                        ₹<%= item.variant.regularPrice %>
-                                    </span>
-                                </div>
-                                <p class="stock-status <%= item.variant.stock_quantity > 0 ? 'in-stock' : 'out-of-stock' %>">
-                                    <%= item.variant.stock_quantity > 0 ? 'In Stock' : 'Out of Stock' %>
-                                </p>
-                                <div class="action-buttons">
-                                    <button class="btn btn-remove remove-from-wishlist" data-item-id="<%= item._id %>">
-                                        <i class="fas fa-trash"></i> Remove
-                                    </button>
-                                    <button class="btn btn-add-cart add-to-cart" data-product-id="<%= item.product._id %>" data-variant-id="<%= item.variant._id %>" <%= item.variant.stock_quantity === 0 ? 'disabled' : '' %>>
-                                        <i class="fas fa-shopping-cart"></i> Add to Cart
-                                    </button>
-                                </div>
-                            <% } %>
+        <% } else { %>
+            <div class="row">
+                <% wishlistItems.forEach(item => { %>
+                    <div class="col-md-4 mb-4">
+                        <div class="wishlist-card">
+                            <div class="card-body">
+                                <% if (item.errorMessage) { %>
+                                    <div class="alert alert-custom text-center">
+                                        <%= item.errorMessage %>
+                                    </div>
+                                <% } else { %>
+                                    <div class="img-container">
+                                        <img src="<%= item.productImage %>" alt="<%= item.product?.name || 'Product Image' %>" class="img-fluid">
+                                    </div>
+                                    <h5 class="card-title">
+                                        <%= item.product.name %>
+                                    </h5>
+                                    <div class="variant-info">
+                                        <% if (item.variant.flavor) { %>
+                                            <span><%= item.variant.flavor %></span>
+                                        <% } %>
+                                        <% if (item.variant.sugarLevel) { %>
+                                            <span><%= item.variant.sugarLevel %></span>
+                                        <% } %>
+                                        <% if (item.variant.weight) { %>
+                                            <span><%= item.variant.weight %>g</span>
+                                        <% } %>
+                                    </div>
+                                    <div class="price-container">
+                                        <span class="offer-price">
+                                            ₹<%= item.offerPrice.toFixed(2) %>
+                                        </span>
+                                        <span class="original-price">
+                                            ₹<%= item.basePrice.toFixed(2) %>
+                                        </span>
+                                        <% if (item.effectiveOffer > 0) { %>
+                                            <span class="offer-percentage">
+                                                <%= item.effectiveOffer %>% Off
+                                            </span>
+                                        <% } %>
+                                    </div>
+                                    <p class="stock-status <%= item.variant.stock_quantity > 0 ? 'in-stock' : 'out-of-stock' %>">
+                                        <%= item.variant.stock_quantity > 0 ? 'In Stock' : 'Out of Stock' %>
+                                    </p>
+                                    <div class="action-buttons">
+                                        <button class="btn btn-remove remove-from-wishlist" data-item-id="<%= item._id %>">
+                                            <i class="fas fa-trash"></i> Remove
+                                        </button>
+                                        <button class="btn btn-add-cart add-to-cart" data-product-id="<%= item.product._id %>" data-variant-id="<%= item.variant._id %>" <%= item.variant.stock_quantity === 0 ? 'disabled' : '' %>>
+                                            <i class="fas fa-shopping-cart"></i> Add to Cart
+                                        </button>
+                                    </div>
+                                <% } %>
+                            </div>
                         </div>
                     </div>
-                </div>
-            <% }) %>
-        </div>
-        
-        <% if (hasInvalidItems) { %>
-            <div class="alert alert-custom text-center mt-4">
-                <i class="fas fa-exclamation-circle me-2"></i>
-                Some items in your wishlist are unavailable. Please remove them to continue.
+                <% }) %>
             </div>
+            
+            <% if (hasInvalidItems) { %>
+                <div class="alert alert-custom text-center mt-4">
+                    <i class="fas fa-exclamation-circle me-2"></i>
+                    Some items in your wishlist are unavailable. Please remove them to continue.
+                </div>
+            <% } %>
         <% } %>
-    <% } %>
-</main>
+    </main>
 
 <script>
     document.querySelectorAll('.remove-from-wishlist').forEach(button => {
@@ -482,4 +494,4 @@
         });
     });
 </script>
- <%- include('../partials/user/footer') %>
+<%- include('../partials/user/footer') %>

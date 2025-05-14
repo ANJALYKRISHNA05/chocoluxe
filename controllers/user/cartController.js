@@ -49,13 +49,13 @@ exports.addToCart = async (req, res) => {
       (item) => item.product.toString() === productId && item.sku === variant.sku
     );
 
-    // Calculate the best offer and offerPrice
+    
     const productOffer = variant.productOffer || 0;
     const categoryOffer = product.category.categoryOffer || 0;
     const effectiveOffer = Math.max(productOffer, categoryOffer);
     const basePrice = variant.salePrice < variant.regularPrice && variant.salePrice > 0 ? variant.salePrice : variant.regularPrice;
     const offerPrice = effectiveOffer > 0 ? basePrice * (1 - effectiveOffer / 100) : basePrice;
-    const originalPrice = basePrice; // Before the offer
+    const originalPrice = basePrice; 
 
     if (existingItemIndex > -1) {
       const newQuantity = cart.items[existingItemIndex].quantity + quantity;

@@ -109,11 +109,37 @@ exports.loadWishlist = async (req, res) => {
 
         const variant = product?.variants.find((v) => v.sku === item.sku);
 
+        let effectiveOffer = 0;
+        let basePrice = 0;
+        let offerPrice = 0;
+        let itemSavings = 0;
+
+        if (variant && !errorMessage) {
+          const productOffer = variant.productOffer || 0;
+          const categoryOffer = product.category?.categoryOffer || 0;
+          effectiveOffer = Math.max(productOffer, categoryOffer);
+
+          // Determine the base price: use salePrice if it exists and is less than regularPrice, otherwise use regularPrice
+          basePrice = variant.salePrice && variant.salePrice < variant.regularPrice && variant.salePrice > 0
+            ? variant.salePrice
+            : variant.regularPrice;
+
+          // Calculate the offer price after applying the effective offer
+          offerPrice = effectiveOffer > 0 ? basePrice * (1 - effectiveOffer / 100) : basePrice;
+
+          // Calculate the savings (difference between base price and offer price)
+          itemSavings = basePrice - offerPrice;
+        }
+
         return {
           ...item.toObject(),
           product,
           variant,
           errorMessage,
+          effectiveOffer,
+          basePrice,
+          offerPrice: offerPrice || 0,
+          itemSavings: itemSavings || 0,
         };
       });
 

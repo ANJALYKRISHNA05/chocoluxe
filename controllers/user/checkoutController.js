@@ -340,7 +340,7 @@ exports.placeOrder = async (req, res) => {
         phone: address.phone,
       },
       subtotal,
-      discount: totalSavings, // Save totalSavings to the discount field
+      discount: totalSavings, 
       total,
       paymentMethod,
       status: "Pending",
@@ -642,7 +642,7 @@ exports.generateInvoice = async (req, res) => {
       .font('Helvetica')
       .fontSize(10)
       .text(`Subtotal: ₹${order.subtotal.toFixed(2)}`, 400, summaryTop, { align: 'right' })
-      .text(`Total Savings: -₹${order.totalSavings.toFixed(2)}`, 400, summaryTop + 15, { align: 'right' })
+      .text(`Total Savings: -₹${order.discount.toFixed(2)}`, 400, summaryTop + 15, { align: 'right' }) // Changed to order.discount
       .text('Shipping: Free', 400, summaryTop + 30, { align: 'right' })
       .font('Helvetica-Bold')
       .text(`Total: ₹${order.total.toFixed(2)}`, 400, summaryTop + 45, { align: 'right' });
