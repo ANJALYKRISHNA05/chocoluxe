@@ -37,6 +37,10 @@ const orderSchema = new Schema(
           type: Number,
           required: true,
         },
+        effectiveOffer: {
+          type: Number,
+          default: 0,
+        },
       },
     ],
     shippingAddress: {
@@ -69,6 +73,11 @@ const orderSchema = new Schema(
         type: String,
         required: true,
       },
+    },
+    coupon: {
+      type: Schema.Types.ObjectId,
+      ref: "Coupon",
+      default: null,
     },
     subtotal: {
       type: Number,
@@ -127,7 +136,6 @@ const orderSchema = new Schema(
   { timestamps: true }
 );
 
-
 orderSchema.pre('save', async function(next) {
   try {
     if (this.isNew && !this.orderId) {
@@ -137,7 +145,7 @@ orderSchema.pre('save', async function(next) {
       const maxAttempts = 10;
 
       while (!unique && attempt < maxAttempts) {
-        const randomNum = Math.floor(100000 + Math.random() * 900000); 
+        const randomNum = Math.floor(100000 + Math.random() * 900000);
         const potentialOrderId = `${prefix}-${randomNum}`;
         
         const existingOrder = await mongoose.model("Order").findOne({ orderId: potentialOrderId });

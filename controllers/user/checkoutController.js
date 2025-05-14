@@ -1,11 +1,109 @@
+const mongoose = require("mongoose");
 const Cart = require("../../models/cartSchema");
 const Address = require("../../models/addressSchema");
 const Order = require("../../models/orderSchema");
 const Product = require("../../models/productSchema");
 const Category = require("../../models/categorySchema");
+const Coupon = require("../../models/couponSchema");
 const PDFDocument = require('pdfkit');
 const fs = require('fs');
 const path = require('path');
+
+// Helper functions from cartController.js
+const calculateCartTotals = async (cart, userId) => {
+  let cartTotal = 0;
+  let totalSavings = 0;
+  let subtotal = 0;
+  let itemCount = 0;
+  let discount = cart.discount || 0;
+  let appliedCoupon = null;
+
+  if (cart && cart.items.length > 0) {
+    for (const item of cart.items) {
+      const itemProduct = await Product.findById(item.product).populate("category");
+      if (!itemProduct || itemProduct.isBlocked || !itemProduct.category || !itemProduct.category.isListed) continue;
+      const itemVariant = itemProduct.variants.find((v) => v.sku === item.sku);
+      if (!itemVariant) continue;
+      const itemProductOffer = itemVariant.productOffer || 0;
+      const itemCategoryOffer = itemProduct.category.categoryOffer || 0;
+      const itemEffectiveOffer = Math.max(itemProductOffer, itemCategoryOffer);
+      const itemBasePrice = itemVariant.salePrice < itemVariant.regularPrice && itemVariant.salePrice > 0 ? itemVariant.salePrice : itemVariant.regularPrice;
+      const itemOfferPrice = itemEffectiveOffer > 0 ? itemBasePrice * (1 - itemEffectiveOffer / 100) : itemBasePrice;
+      const itemOriginalPrice = itemBasePrice;
+      const itemSubtotal = itemOfferPrice * item.quantity;
+      subtotal += itemSubtotal;
+      totalSavings += (itemOriginalPrice - itemOfferPrice) * item.quantity;
+      itemCount++;
+    }
+
+    if (cart.coupon) {
+      const coupon = await Coupon.findById(cart.coupon);
+      if (coupon) {
+        appliedCoupon = {
+          code: coupon.code,
+          description: coupon.description,
+          discountType: coupon.discountType,
+          discountAmount: coupon.discountAmount,
+        };
+        discount = cart.discount;
+      } else {
+        cart.coupon = null;
+        cart.discount = 0;
+        await cart.save();
+        discount = 0;
+      }
+    }
+
+    cartTotal = subtotal - discount;
+  }
+
+  return { cartTotal, totalSavings, itemCount, subtotal, discount, appliedCoupon };
+};
+
+const validateAndApplyCoupon = async (coupon, userId, subtotal, cart) => {
+  if (!coupon.isActive) {
+    cart.coupon = null;
+    cart.discount = 0;
+    await cart.save();
+    return null;
+  }
+
+  const now = new Date();
+  if (now < coupon.startDate || now > coupon.endDate) {
+    cart.coupon = null;
+    cart.discount = 0;
+    await cart.save();
+    return null;
+  }
+
+  if (subtotal < coupon.minPurchase) {
+    return null;
+  }
+
+  if (coupon.usedCount >= coupon.usageLimit) {
+    cart.coupon = null;
+    cart.discount = 0;
+    await cart.save();
+    return null;
+  }
+
+  const userUsed = coupon.usedBy.some((entry) => entry.user.toString() === userId);
+  if (userUsed) {
+    return null;
+  }
+
+  let discount = 0;
+  if (coupon.discountType === "percentage") {
+    discount = (coupon.discountAmount / 100) * subtotal;
+    if (coupon.maxDiscount && discount > coupon.maxDiscount) {
+      discount = coupon.maxDiscount;
+    }
+  } else if (coupon.discountType === "fixed") {
+    discount = coupon.discountAmount;
+  }
+
+  return discount;
+};
 
 exports.addCheckoutAddress = async (req, res) => {
   try {
@@ -109,15 +207,13 @@ exports.loadCheckout = async (req, res) => {
         path: "category",
         model: "Category",
       },
-    });
+    }).populate("coupon");
     if (!cart || cart.items.length === 0) {
       req.session.message = "Your cart is empty.";
       return res.redirect("/cart");
     }
 
     let invalidItems = [];
-    let subtotal = 0;
-    let totalSavings = 0;
     const cartItems = cart.items.map((item) => {
       let errorMessage = null;
       const product = item.product;
@@ -149,9 +245,6 @@ exports.loadCheckout = async (req, res) => {
         originalPrice = basePrice;
         itemSubtotal = offerPrice * item.quantity;
         itemSavings = (originalPrice - offerPrice) * item.quantity;
-
-        subtotal += itemSubtotal;
-        totalSavings += itemSavings;
       }
 
       return {
@@ -172,7 +265,7 @@ exports.loadCheckout = async (req, res) => {
       return res.redirect("/cart");
     }
 
-    const total = subtotal;
+    const { subtotal, totalSavings, discount, cartTotal: total, appliedCoupon } = await calculateCartTotals(cart, userId);
     const addresses = await Address.find({ userId }).sort({ isDefault: -1, createdAt: -1 });
 
     const message = req.session.message || '';
@@ -182,7 +275,9 @@ exports.loadCheckout = async (req, res) => {
       cartItems,
       subtotal,
       totalSavings,
+      discount,
       total,
+      appliedCoupon,
       addresses,
       user: req.session.user,
       title: "Checkout",
@@ -217,14 +312,13 @@ exports.placeOrder = async (req, res) => {
         path: "category",
         model: "Category",
       },
-    });
+    }).populate("coupon");
     if (!cart || cart.items.length === 0) {
       req.session.message = "Your cart is empty.";
       return res.redirect("/cart");
     }
 
-    let subtotal = 0;
-    let totalSavings = 0;
+    const { subtotal, totalSavings, discount, appliedCoupon } = await calculateCartTotals(cart, userId);
     const orderItems = [];
     const stockUpdates = [];
     let invalidItems = [];
@@ -267,12 +361,7 @@ exports.placeOrder = async (req, res) => {
       const effectiveOffer = Math.max(productOffer, categoryOffer);
       const basePrice = variant.salePrice < variant.regularPrice && variant.salePrice > 0 ? variant.salePrice : variant.regularPrice;
       const offerPrice = effectiveOffer > 0 ? basePrice * (1 - effectiveOffer / 100) : basePrice;
-      const originalPrice = basePrice;
       const itemSubtotal = offerPrice * item.quantity;
-      const itemSavings = (originalPrice - offerPrice) * item.quantity;
-
-      subtotal += itemSubtotal;
-      totalSavings += itemSavings;
 
       orderItems.push({
         product: product._id,
@@ -294,8 +383,6 @@ exports.placeOrder = async (req, res) => {
       req.session.message = "Some items in your cart are invalid. Please remove them to proceed.";
       return res.redirect("/checkout");
     }
-
-    const total = subtotal;
 
     let unique = false;
     let attempt = 0;
@@ -326,6 +413,18 @@ exports.placeOrder = async (req, res) => {
       );
     }
 
+    // Mark coupon as used if applied
+    let couponId = null;
+    if (cart.coupon && appliedCoupon) {
+      const coupon = await Coupon.findById(cart.coupon);
+      if (coupon) {
+        coupon.usedCount += 1;
+        coupon.usedBy.push({ user: userId, usedAt: new Date() });
+        await coupon.save();
+        couponId = coupon._id;
+      }
+    }
+
     const order = new Order({
       orderId,
       user: userId,
@@ -339,16 +438,18 @@ exports.placeOrder = async (req, res) => {
         pincode: address.pincode,
         phone: address.phone,
       },
+      coupon: couponId,
       subtotal,
-      discount: totalSavings, 
-      total,
+      discount,
+      total: subtotal - discount,
       paymentMethod,
       status: "Pending",
     });
 
     await order.save();
 
-    await Cart.findOneAndUpdate({ user: userId }, { $set: { items: [] } });
+    // Clear cart
+    await Cart.findOneAndUpdate({ user: userId }, { $set: { items: [], coupon: null, discount: 0 } });
 
     res.redirect(`/order-confirmation/${order.orderId}`);
   } catch (error) {
@@ -363,7 +464,7 @@ exports.loadOrderConfirmation = async (req, res) => {
     const userId = req.session.user._id;
     const orderId = req.params.orderId;
 
-    const order = await Order.findOne({ orderId, user: userId }).populate("items.product");
+    const order = await Order.findOne({ orderId, user: userId }).populate("items.product").populate("coupon");
     if (!order) {
       req.session.message = "Order not found.";
       return res.redirect("/user/profile");
@@ -396,7 +497,7 @@ exports.loadOrderDetails = async (req, res) => {
     const userId = req.session.user._id;
     const orderId = req.params.orderId;
 
-    const order = await Order.findOne({ orderId, user: userId }).populate("items.product");
+    const order = await Order.findOne({ orderId, user: userId }).populate("items.product").populate("coupon");
     if (!order) {
       req.session.message = "Order not found.";
       return res.redirect("/user/profile");
@@ -452,6 +553,7 @@ exports.loadOrderHistory = async (req, res) => {
 
     const orders = await Order.find(query)
       .populate("items.product")
+      .populate("coupon")
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit);
@@ -488,12 +590,12 @@ exports.cancelOrder = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Cancellation reason is required.' });
     }
 
-    const order = await Order.findOne({ orderId, user: userId });
+    const order = await Order.findOne({ orderId, user: userId }).populate("coupon");
     if (!order) {
       return res.status(404).json({ success: false, message: 'Order not found.' });
     }
 
-    if (order.status !== 'Pending' && order.status !== 'confirmed') {
+    if (order.status !== 'Pending' && order.status !== 'Confirmed') {
       return res.status(400).json({ success: false, message: 'Order cannot be cancelled in this status.' });
     }
 
@@ -501,6 +603,17 @@ exports.cancelOrder = async (req, res) => {
       await Product.updateOne(
         { _id: item.product, "variants.sku": item.sku },
         { $inc: { "variants.$.stock_quantity": item.quantity } }
+      );
+    }
+
+    // If coupon was used, revert its usage
+    if (order.coupon) {
+      await Coupon.updateOne(
+        { _id: order.coupon },
+        {
+          $inc: { usedCount: -1 },
+          $pull: { usedBy: { user: userId } }
+        }
       );
     }
 
@@ -555,7 +668,8 @@ exports.generateInvoice = async (req, res) => {
     const orderId = req.params.orderId;
 
     const order = await Order.findOne({ orderId, user: userId })
-      .populate('items.product');
+      .populate('items.product')
+      .populate('coupon');
 
     if (!order) {
       req.session.message = 'Order not found.';
@@ -642,16 +756,27 @@ exports.generateInvoice = async (req, res) => {
       .font('Helvetica')
       .fontSize(10)
       .text(`Subtotal: ₹${order.subtotal.toFixed(2)}`, 400, summaryTop, { align: 'right' })
-      .text(`Total Savings: -₹${order.discount.toFixed(2)}`, 400, summaryTop + 15, { align: 'right' }) // Changed to order.discount
-      .text('Shipping: Free', 400, summaryTop + 30, { align: 'right' })
-      .font('Helvetica-Bold')
-      .text(`Total: ₹${order.total.toFixed(2)}`, 400, summaryTop + 45, { align: 'right' });
+      .text(`Total Savings: -₹${order.totalSavings.toFixed(2)}`, 400, summaryTop + 15, { align: 'right' });
+
+    if (order.coupon) {
+      doc
+        .text(`Coupon (${order.coupon.code}): -₹${order.discount.toFixed(2)}`, 400, summaryTop + 30, { align: 'right' });
+      doc
+        .text('Shipping: Free', 400, summaryTop + 45, { align: 'right' })
+        .font('Helvetica-Bold')
+        .text(`Total: ₹${order.total.toFixed(2)}`, 400, summaryTop + 60, { align: 'right' });
+    } else {
+      doc
+        .text('Shipping: Free', 400, summaryTop + 30, { align: 'right' })
+        .font('Helvetica-Bold')
+        .text(`Total: ₹${order.total.toFixed(2)}`, 400, summaryTop + 45, { align: 'right' });
+    }
 
     doc
       .fontSize(10)
       .font('Helvetica')
-      .text('Thank you for shopping with CHOCOLUXE!', 50, summaryTop + 80, { align: 'center' })
-      .text('For any queries, contact us at contact@chocoluxe.com', 50, summaryTop + 95, { align: 'center' });
+      .text('Thank you for shopping with CHOCOLUXE!', 50, summaryTop + 95, { align: 'center' })
+      .text('For any queries, contact us at contact@chocoluxe.com', 50, summaryTop + 110, { align: 'center' });
 
     doc.end();
   } catch (error) {
