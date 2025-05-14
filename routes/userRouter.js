@@ -1,3 +1,4 @@
+
 const express = require('express');
 const router = express.Router();
 const passport = require("passport");
@@ -5,11 +6,8 @@ const userController = require('../controllers/user/userController');
 const shopController = require('../controllers/user/shopController');
 const cartController = require('../controllers/user/cartController');
 const checkoutController = require('../controllers/user/checkoutController');
-
 const walletController = require('../controllers/user/walletController');
-
 const wishlistController = require('../controllers/user/wishlistController');
-
 const { userAuth } = require('../middlewares/auth');
 const { profileStorage } = require('../config/cloudinary');
 const multer = require('multer');
@@ -25,13 +23,12 @@ router.post("/user/resend-otp", userController.resendOtp);
 router.get('/user/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
 router.get('/user/auth/google/callback', passport.authenticate('google', { failureRedirect: '/signup' }), (req, res) => {
     const user = req.user;
-    
     req.session.user = {
         _id: user._id.toString(),
         username: user.username,
         email: user.email,
         isBlocked: user.isBlocked,
-        profileImage: user.profileImage || '/Images/default-profile.jpg' 
+        profileImage: user.profileImage || '/Images/default-profile.jpg'
     };
     res.redirect('/');
 });
@@ -70,33 +67,24 @@ router.get('/cart', userAuth, cartController.loadCart);
 router.post('/cart/update-quantity', userAuth, cartController.updateCartQuantity);
 router.post('/cart/remove', userAuth, cartController.removeFromCart);
 router.get('/cart/item-count', userAuth, cartController.getCartItemCount);
-
-
+router.post('/cart/apply-coupon', userAuth, cartController.applyCoupon);
+router.post('/cart/remove-coupon', userAuth, cartController.removeCoupon);
 
 router.post('/add-to-wishlist', userAuth, wishlistController.addToWishlist);
 router.get('/wishlist', userAuth, wishlistController.loadWishlist);
 router.post('/wishlist/remove', userAuth, wishlistController.removeFromWishlist);
 router.get('/wishlist/item-count', userAuth, wishlistController.getWishlistItemCount);
 
-
-
 router.get('/checkout', userAuth, checkoutController.loadCheckout);
 router.post('/checkout/place-order', userAuth, checkoutController.placeOrder);
 router.get('/order-confirmation/:orderId', userAuth, checkoutController.loadOrderConfirmation);
 router.get('/order-details/:orderId', userAuth, checkoutController.loadOrderDetails);
 router.post('/orders/:orderId/request-return', userAuth, checkoutController.requestReturn);
-
-
-
 router.post('/checkout/address/add', userAuth, checkoutController.addCheckoutAddress);
 router.post('/checkout/address/update', userAuth, checkoutController.updateCheckoutAddress);
-
 router.get('/user/orders', userAuth, checkoutController.loadOrderHistory);
-
 router.post('/orders/:orderId/cancel', userAuth, checkoutController.cancelOrder);
-
 router.get('/orders/:orderId/invoice', userAuth, checkoutController.generateInvoice);
-
 router.get('/user/wallet', userAuth, walletController.loadWallet);
 
 module.exports = router;

@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -220,6 +221,109 @@
       cursor: not-allowed;
     }
 
+    /* Coupon Section Styling */
+    .coupon-section {
+      margin-bottom: 1.5rem;
+    }
+
+    .coupon-input-group {
+      position: relative;
+    }
+
+    .coupon-input {
+      border-radius: 8px;
+      border: 1px solid #e9e2dc;
+      padding: 0.6rem 1rem;
+    }
+
+    .coupon-input:focus {
+      border-color: #8b5a2b;
+      box-shadow: 0 0 0 0.25rem rgba(139, 90, 43, 0.25);
+    }
+
+    .apply-coupon-btn {
+      background-color: #8b5a2b;
+      border-color: #8b5a2b;
+      color: #fff;
+      border-radius: 8px;
+      padding: 0.6rem 1.5rem;
+      transition: all 0.3s ease;
+    }
+
+    .apply-coupon-btn:hover {
+      background-color: #6d4621;
+      border-color: #6d4621;
+    }
+
+    .applied-coupon {
+      display: flex;
+      align-items: center;
+      background-color: #c1ceae;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      margin-top: 0.5rem;
+    }
+
+    .applied-coupon span {
+      color: #33261d;
+      font-weight: 600;
+    }
+
+    .remove-coupon {
+      background: none;
+      border: none;
+      color: #dc3545;
+      font-size: 1rem;
+      margin-left: 0.5rem;
+      cursor: pointer;
+    }
+
+    .remove-coupon:hover {
+      color: #b02a37;
+    }
+
+    .available-coupons {
+      margin-top: 1rem;
+    }
+
+    .coupon-card {
+      border: 1px solid #e9e2dc;
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 0.75rem;
+      background: linear-gradient(145deg, #fff, #f8f3ef);
+      transition: all 0.3s ease;
+    }
+
+    .coupon-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 5px 15px rgba(139, 90, 43, 0.15);
+    }
+
+    .coupon-card h6 {
+      font-family: 'Playfair Display', serif;
+      color: #33261d;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+
+    .coupon-card p {
+      color: #5d534c;
+      font-size: 0.9rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .apply-coupon-link {
+      color: #8b5a2b;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.3s ease;
+    }
+
+    .apply-coupon-link:hover {
+      color: #6d4621;
+    }
+
     /* Empty Cart Styling */
     .empty-cart {
       text-align: center;
@@ -279,53 +383,6 @@
       border-color: #6d4621;
       transform: translateY(-3px);
       box-shadow: 0 8px 15px rgba(139, 90, 43, 0.25);
-    }
-
-    .empty-cart-suggestions {
-      margin-top: 3rem;
-      padding-top: 1.5rem;
-      border-top: 1px solid rgba(139, 90, 43, 0.15);
-    }
-
-    .suggestion-title {
-      color: #33261d;
-      font-weight: 600;
-      margin-bottom: 1rem;
-      font-size: 1rem;
-    }
-
-    .suggestion-links {
-      display: flex;
-      justify-content: center;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-    }
-
-    .suggestion-link {
-      color: #8b5a2b;
-      text-decoration: none;
-      font-weight: 600;
-      transition: all 0.3s ease;
-      position: relative;
-    }
-
-    .suggestion-link:hover {
-      color: #6d4621;
-    }
-
-    .suggestion-link:after {
-      content: '';
-      position: absolute;
-      bottom: -2px;
-      left: 0;
-      width: 0;
-      height: 2px;
-      background-color: #8b5a2b;
-      transition: width 0.3s ease;
-    }
-
-    .suggestion-link:hover:after {
-      width: 100%;
     }
 
     /* Error Message Styling */
@@ -457,18 +514,49 @@
                 </div>
               </div>
             <% }); %>
+            <!-- Available Coupons -->
+            <% if (availableCoupons && availableCoupons.length > 0) { %>
+              <div class="available-coupons">
+                <h4>Available Coupons</h4>
+                <% availableCoupons.forEach(coupon => { %>
+                  <div class="coupon-card">
+                    <h6><%= coupon.code %></h6>
+                    <p><%= coupon.description %></p>
+                    <p>Min Purchase: ₹<%= coupon.minPurchase.toFixed(2) %> | Expires: <%= new Date(coupon.endDate).toLocaleDateString() %></p>
+                    <a href="#" class="apply-coupon-link" onclick="applyCouponFromCard('<%= coupon.code %>')">Apply Coupon</a>
+                  </div>
+                <% }) %>
+              </div>
+            <% } %>
           </div>
           <div class="col-lg-4">
             <div class="cart-summary">
               <h4><i class="fas fa-shopping-basket me-2"></i>Cart Summary</h4>
               <hr>
+              <!-- Coupon Input -->
+              <div class="coupon-section">
+                <div class="input-group coupon-input-group">
+                  <input type="text" class="form-control coupon-input" id="couponCode" placeholder="Enter Coupon Code" <%= appliedCoupon ? 'disabled' : '' %>>
+                  <button class="btn apply-coupon-btn" type="button" onclick="applyCoupon()" <%= appliedCoupon ? 'disabled' : '' %>>Apply</button>
+                </div>
+                <% if (appliedCoupon) { %>
+                  <div class="applied-coupon">
+                    <span>Applied: <%= appliedCoupon.code %> (<%= appliedCoupon.discountType === 'percentage' ? appliedCoupon.discountAmount + '%' : '₹' + appliedCoupon.discountAmount %> off)</span>
+                    <button class="remove-coupon" onclick="removeCoupon()"><i class="fas fa-times"></i></button>
+                  </div>
+                <% } %>
+              </div>
               <div class="summary-item d-flex justify-content-between mb-3">
-                <span>Total Items:</span>
-                <span class="total-items"><%= cartItems.length %></span>
+                <span>Subtotal:</span>
+                <span class="subtotal-amount">₹<%= subtotal.toFixed(2) %></span>
               </div>
               <div class="summary-item d-flex justify-content-between mb-3">
                 <span>Total Savings:</span>
                 <span class="total-savings">₹<%= totalSavings.toFixed(2) %></span>
+              </div>
+              <div class="summary-item d-flex justify-content-between mb-3">
+                <span>Coupon Discount:</span>
+                <span class="coupon-discount">₹<%= discount.toFixed(2) %></span>
               </div>
               <div class="summary-item d-flex justify-content-between mb-3">
                 <span>Total Amount:</span>
@@ -497,7 +585,6 @@
               <i class="fas fa-shopping-bag me-2"></i>Browse Products
             </a>
           </div>
-       
         </div>
       <% } %>
     </div>
@@ -533,12 +620,102 @@
     function updateCartSummary(data) {
       document.querySelector('.cart-total').textContent = `₹${data.cartTotal.toFixed(2)}`;
       document.querySelector('.total-savings').textContent = `₹${data.totalSavings.toFixed(2)}`;
-      document.querySelector('.total-items').textContent = data.itemCount;
+      document.querySelector('.subtotal-amount').textContent = `₹${data.subtotal.toFixed(2)}`;
+      document.querySelector('.coupon-discount').textContent = `₹${data.discount.toFixed(2)}`;
       updateCartBadge(data.itemCount);
+
+      // Update coupon UI
+      const couponInput = document.querySelector('#couponCode');
+      const applyButton = document.querySelector('.apply-coupon-btn');
+      const appliedCouponDiv = document.querySelector('.applied-coupon');
+      if (data.appliedCoupon) {
+        couponInput.disabled = true;
+        applyButton.disabled = true;
+        if (!appliedCouponDiv) {
+          const newCouponDiv = document.createElement('div');
+          newCouponDiv.className = 'applied-coupon';
+          newCouponDiv.innerHTML = `
+            <span>Applied: ${data.appliedCoupon.code} (${data.appliedCoupon.discountType === 'percentage' ? data.appliedCoupon.discountAmount + '%' : '₹' + data.appliedCoupon.discountAmount} off)</span>
+            <button class="remove-coupon" onclick="removeCoupon()"><i class="fas fa-times"></i></button>
+          `;
+          document.querySelector('.coupon-section').appendChild(newCouponDiv);
+        }
+      } else {
+        couponInput.disabled = false;
+        applyButton.disabled = false;
+        if (appliedCouponDiv) {
+          appliedCouponDiv.remove();
+        }
+      }
+    }
+
+    async function applyCoupon() {
+      const couponCode = document.querySelector('#couponCode').value.trim();
+      if (!couponCode) {
+        Swal.fire('Error', 'Please enter a coupon code', 'error');
+        return;
+      }
+
+      try {
+        const response = await fetch('/cart/apply-coupon', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ couponCode }),
+        });
+
+        const data = await response.json();
+        if (data.success) {
+          updateCartSummary(data);
+          Swal.fire('Success', data.message, 'success');
+        } else {
+          Swal.fire('Error', data.message, 'error');
+        }
+      } catch (error) {
+        Swal.fire('Error', 'An error occurred while applying the coupon', 'error');
+      }
+    }
+
+    async function applyCouponFromCard(couponCode) {
+      try {
+        const response = await fetch('/cart/apply-coupon', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ couponCode }),
+        });
+
+        const data = await response.json();
+        if (data.success) {
+          updateCartSummary(data);
+          Swal.fire('Success', data.message, 'success');
+        } else {
+          Swal.fire('Error', data.message, 'error');
+        }
+      } catch (error) {
+        Swal.fire('Error', 'An error occurred while applying the coupon', 'error');
+      }
+    }
+
+    async function removeCoupon() {
+      try {
+        const response = await fetch('/cart/remove-coupon', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+        });
+
+        const data = await response.json();
+        if (data.success) {
+          updateCartSummary(data);
+          Swal.fire('Success', data.message, 'success');
+        } else {
+          Swal.fire('Error', data.message, 'error');
+        }
+      } catch (error) {
+        Swal.fire('Error', 'An error occurred while removing the coupon', 'error');
+      }
     }
 
     document.querySelectorAll('.quantity-minus, .quantity-plus').forEach(button => {
-      button.addEventListener('click', function() {
+      button.addEventListener('click', async function() {
         const itemId = this.dataset.itemId;
         const input = document.querySelector(`.quantity-input[data-item-id="${itemId}"]`);
         if (!input) {
@@ -561,26 +738,26 @@
 
         this.disabled = true;
 
-        fetch('/cart/update-quantity', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ itemId, quantity })
-        })
-        .then(response => {
+        try {
+          const response = await fetch('/cart/update-quantity', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ itemId, quantity }),
+          });
+
           if (response.status === 401 || response.redirected) {
             Swal.fire('Session Expired', 'Please log in to continue', 'warning')
               .then(() => {
                 window.location.href = '/user/login';
               });
-            return null;
+            return;
           }
+
           if (!response.ok) {
             throw new Error('Network response was not ok');
           }
-          return response.json();
-        })
-        .then(data => {
-          if (!data) return;
+
+          const data = await response.json();
           if (data.success) {
             input.value = quantity;
             const cartItem = document.querySelector(`.cart-item[data-item-id="${itemId}"]`);
@@ -588,7 +765,6 @@
               cartItem.querySelector('.subtotal').textContent = `Subtotal: ₹${data.itemSubtotal.toFixed(2)}`;
               cartItem.querySelector('.quantity-display').textContent = quantity;
               const priceInfo = cartItem.querySelector('.price-info');
-              // Update offer badge and original price dynamically
               let offerHtml = '';
               if (data.effectiveOffer > 0) {
                 offerHtml = `
@@ -610,14 +786,12 @@
           } else {
             Swal.fire('Error', data.message, 'error');
           }
-        })
-        .catch(error => {
+        } catch (error) {
           console.error('Error updating quantity:', error);
           Swal.fire('Error', 'An error occurred while updating quantity', 'error');
-        })
-        .finally(() => {
+        } finally {
           this.disabled = false;
-        });
+        }
       });
     });
 
@@ -631,30 +805,30 @@
           icon: 'warning',
           showCancelButton: true,
           confirmButtonText: 'Yes, remove it!'
-        }).then(result => {
+        }).then(async (result) => {
           if (result.isConfirmed) {
             this.disabled = true;
 
-            fetch('/cart/remove', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ itemId })
-            })
-            .then(response => {
+            try {
+              const response = await fetch('/cart/remove', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ itemId }),
+              });
+
               if (response.status === 401 || response.redirected) {
                 Swal.fire('Session Expired', 'Please log in to continue', 'warning')
                   .then(() => {
                     window.location.href = '/user/login';
                   });
-                return null;
+                return;
               }
+
               if (!response.ok) {
                 throw new Error('Network response was not ok');
               }
-              return response.json();
-            })
-            .then(data => {
-              if (!data) return;
+
+              const data = await response.json();
               if (data.success) {
                 const cartItem = document.querySelector(`.cart-item[data-item-id="${itemId}"]`);
                 if (cartItem) {
@@ -677,14 +851,12 @@
               } else {
                 Swal.fire('Error', data.message, 'error');
               }
-            })
-            .catch(error => {
+            } catch (error) {
               console.error('Error removing item:', error);
               Swal.fire('Error', 'An error occurred while removing item', 'error');
-            })
-            .finally(() => {
+            } finally {
               this.disabled = false;
-            });
+            }
           }
         });
       });

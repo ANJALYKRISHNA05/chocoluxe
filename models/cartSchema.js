@@ -1,3 +1,4 @@
+
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
 
@@ -29,6 +30,15 @@ const cartSchema = new Schema(
         },
       },
     ],
+    coupon: {
+      type: Schema.Types.ObjectId,
+      ref: "Coupon",
+      default: null,
+    },
+    discount: {
+      type: Number,
+      default: 0,
+    },
   },
   { timestamps: true }
 );
