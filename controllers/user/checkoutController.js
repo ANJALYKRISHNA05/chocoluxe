@@ -5,6 +5,7 @@ const Order = require("../../models/orderSchema");
 const Product = require("../../models/productSchema");
 const Category = require("../../models/categorySchema");
 const Coupon = require("../../models/couponSchema");
+const Wallet = require("../../models/walletSchema");
 const PDFDocument = require('pdfkit');
 const fs = require('fs');
 const path = require('path');
@@ -267,6 +268,7 @@ exports.loadCheckout = async (req, res) => {
 
     const { subtotal, totalSavings, discount, cartTotal: total, appliedCoupon } = await calculateCartTotals(cart, userId);
     const addresses = await Address.find({ userId }).sort({ isDefault: -1, createdAt: -1 });
+    const wallet = await Wallet.findOne({ userId }) || { balance: 0 }; // Fetch wallet for balance display
 
     const message = req.session.message || '';
     req.session.message = null;
@@ -279,6 +281,7 @@ exports.loadCheckout = async (req, res) => {
       total,
       appliedCoupon,
       addresses,
+      wallet, // Pass wallet to the template
       user: req.session.user,
       title: "Checkout",
       message,
@@ -301,7 +304,7 @@ exports.placeOrder = async (req, res) => {
       return res.redirect("/checkout");
     }
 
-    if (!paymentMethod || paymentMethod !== "Cash on Delivery") {
+    if (!paymentMethod || !["Cash on Delivery", "Wallet"].includes(paymentMethod)) {
       req.session.message = "Please select a valid payment method.";
       return res.redirect("/checkout");
     }
@@ -319,6 +322,21 @@ exports.placeOrder = async (req, res) => {
     }
 
     const { subtotal, totalSavings, discount, appliedCoupon } = await calculateCartTotals(cart, userId);
+    const total = subtotal - discount;
+
+    // Wallet payment validation
+    if (paymentMethod === "Wallet") {
+      let wallet = await Wallet.findOne({ userId });
+      if (!wallet) {
+        wallet = new Wallet({ userId, balance: 0, transactions: [] });
+        await wallet.save();
+      }
+      if (wallet.balance < total) {
+        req.session.message = "Insufficient wallet balance.";
+        return res.redirect("/checkout");
+      }
+    }
+
     const orderItems = [];
     const stockUpdates = [];
     let invalidItems = [];
@@ -425,6 +443,19 @@ exports.placeOrder = async (req, res) => {
       }
     }
 
+    // Process wallet payment
+    if (paymentMethod === "Wallet") {
+      const wallet = await Wallet.findOne({ userId });
+      wallet.balance -= total;
+      wallet.transactions.push({
+        transactionType: "debit",
+        transactionAmount: total,
+        description: `Purchase for order ${orderId}`,
+        createdAt: new Date(),
+      });
+      await wallet.save();
+    }
+
     const order = new Order({
       orderId,
       user: userId,
@@ -442,9 +473,9 @@ exports.placeOrder = async (req, res) => {
       subtotal,
       discount,
       totalSavings,
-      total: subtotal - discount,
+      total,
       paymentMethod,
-      status: "Pending",
+      status: paymentMethod === "Wallet" ? "Confirmed" : "Pending", // Wallet payments are confirmed immediately
     });
 
     await order.save();
@@ -618,6 +649,22 @@ exports.cancelOrder = async (req, res) => {
       );
     }
 
+    // Refund to wallet if payment was made via wallet
+    if (order.paymentMethod === "Wallet") {
+      let wallet = await Wallet.findOne({ userId });
+      if (!wallet) {
+        wallet = new Wallet({ userId, balance: 0, transactions: [] });
+      }
+      wallet.balance += order.total;
+      wallet.transactions.push({
+        transactionType: "credit",
+        transactionAmount: order.total,
+        description: `Refund for order ${order.orderId} (cancelled)`,
+        createdAt: new Date(),
+      });
+      await wallet.save();
+    }
+
     order.status = 'Cancelled';
     order.cancelReason = reason;
     await order.save();
@@ -708,20 +755,21 @@ exports.generateInvoice = async (req, res) => {
       .text(`Invoice #${order.orderId}`, 50, 150)
       .fontSize(12)
       .font('Helvetica')
-      .text(`Date: ${new Date(order.createdAt).toLocaleDateString()}`, 50, 170);
+      .text(`Date: ${new Date(order.createdAt).toLocaleDateString()}`, 50, 170)
+      .text(`Payment Method: ${order.paymentMethod}`, 50, 190); // Added payment method to invoice
 
     doc
       .fontSize(12)
       .font('Helvetica-Bold')
-      .text('Bill To:', 50, 200)
+      .text('Bill To:', 50, 220)
       .font('Helvetica')
       .fontSize(10)
-      .text(order.shippingAddress.name, 50, 215)
-      .text(order.shippingAddress.address, 50, 230)
-      .text(`${order.shippingAddress.city}, ${order.shippingAddress.state} ${order.shippingAddress.pincode}`, 50, 245)
-      .text(`Phone: ${order.shippingAddress.phone}`, 50, 260);
+      .text(order.shippingAddress.name, 50, 235)
+      .text(order.shippingAddress.address, 50, 250)
+      .text(`${order.shippingAddress.city}, ${order.shippingAddress.state} ${order.shippingAddress.pincode}`, 50, 265)
+      .text(`Phone: ${order.shippingAddress.phone}`, 50, 280);
 
-    const tableTop = 300;
+    const tableTop = 320;
     doc
       .font('Helvetica-Bold')
       .fontSize(10)

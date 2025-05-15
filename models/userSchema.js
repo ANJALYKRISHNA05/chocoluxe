@@ -33,6 +33,16 @@ const userSchema = new mongoose.Schema({
     type: String,
     default: "/Images/default-profile.jpg",
   },
+    referralCode: {
+    type: String,
+    unique: true,
+    sparse: true,
+  },
+  referredBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    default: null,
+  },
   isBlocked: {
     type: Boolean,
     default: false,

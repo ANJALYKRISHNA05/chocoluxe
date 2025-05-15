@@ -481,6 +481,13 @@
                       Cash on Delivery
                     </label>
                   </div>
+                  <div class="form-check mb-3">
+                    <input class="form-check-input" type="radio" name="paymentMethod" 
+                           id="payment-wallet" value="Wallet" <%= wallet.balance < total ? 'disabled' : '' %> required>
+                    <label class="form-check-label" for="payment-wallet">
+                      Wallet (Balance: ₹<%= wallet.balance.toFixed(2) %>)
+                    </label>
+                  </div>
 
                   <h4 class="mt-4 mb-3">Order Items</h4>
                   <% cartItems.forEach(item => { %>
@@ -515,37 +522,37 @@
         </div>
 
         <div class="col-lg-4">
-  <div class="order-summary">
-    <h4>Order Summary</h4>
-    <hr>
-    <div class="d-flex justify-content-between mb-2">
-      <span>Subtotal</span>
-      <span>₹<%= subtotal.toFixed(2) %></span>
-    </div>
-    <div class="d-flex justify-content-between mb-2">
-      <span>Total Savings</span>
-      <span>-₹<%= totalSavings.toFixed(2) %></span>
-    </div>
-    <% if (appliedCoupon) { %>
-      <div class="d-flex justify-content-between mb-2">
-        <span>Coupon (<%= appliedCoupon.code %>)</span>
-        <span>-₹<%= discount.toFixed(2) %></span>
-      </div>
-    <% } %>
-    <div class="d-flex justify-content-between mb-2">
-      <span>Shipping</span>
-      <span>Free</span>
-    </div>
-    <hr>
-    <div class="d-flex justify-content-between mb-2">
-      <span class="fw-bold">Total</span>
-      <span class="fw-bold">₹<%= total.toFixed(2) %></span>
-    </div>
-    <button type="button" class="btn btn-primary btn-lg w-100 mt-3" onclick="placeOrder()">
-      Place Order
-    </button>
-  </div>
-</div>
+          <div class="order-summary">
+            <h4>Order Summary</h4>
+            <hr>
+            <div class="d-flex justify-content-between mb-2">
+              <span>Subtotal</span>
+              <span>₹<%= subtotal.toFixed(2) %></span>
+            </div>
+            <div class="d-flex justify-content-between mb-2">
+              <span>Total Savings</span>
+              <span>-₹<%= totalSavings.toFixed(2) %></span>
+            </div>
+            <% if (appliedCoupon) { %>
+              <div class="d-flex justify-content-between mb-2">
+                <span>Coupon (<%= appliedCoupon.code %>)</span>
+                <span>-₹<%= discount.toFixed(2) %></span>
+              </div>
+            <% } %>
+            <div class="d-flex justify-content-between mb-2">
+              <span>Shipping</span>
+              <span>Free</span>
+            </div>
+            <hr>
+            <div class="d-flex justify-content-between mb-2">
+              <span class="fw-bold">Total</span>
+              <span class="fw-bold">₹<%= total.toFixed(2) %></span>
+            </div>
+            <button type="button" class="btn btn-primary btn-lg w-100 mt-3" onclick="placeOrder()">
+              Place Order
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   </section>
