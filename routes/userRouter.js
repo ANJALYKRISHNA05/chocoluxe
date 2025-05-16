@@ -7,6 +7,7 @@ const cartController = require('../controllers/user/cartController');
 const checkoutController = require('../controllers/user/checkoutController');
 const walletController = require('../controllers/user/walletController');
 const wishlistController = require('../controllers/user/wishlistController');
+const Wallet = require('../models/walletSchema');
 const { userAuth } = require('../middlewares/auth');
 const { profileStorage } = require('../config/cloudinary');
 const multer = require('multer');
@@ -20,83 +21,98 @@ router.post('/user/login', userController.login);
 router.post("/user/verify-otp", userController.verifyOtp);
 router.post("/user/resend-otp", userController.resendOtp);
 router.get('/user/auth/google', (req, res, next) => {
-    // Store referral code in session if provided
+    // Store referral code in session if it exists in query params
+    console.log('Google Auth Route - Query params:', req.query);
     if (req.query.referralCode) {
         req.session.referralCode = req.query.referralCode;
+        console.log('Google Auth Route - Stored referral code in session:', req.query.referralCode);
     }
     next();
 }, passport.authenticate('google', { scope: ['profile', 'email'] }));
 router.get('/user/auth/google/callback', passport.authenticate('google', { failureRedirect: '/signup' }), async (req, res) => {
-    try {
-        const Wallet = require('../models/walletSchema');
+    const user = req.user;
+    req.session.user = {
+        _id: user._id.toString(),
+        username: user.username,
+        email: user.email,
+        isBlocked: user.isBlocked,
+        profileImage: user.profileImage || '/Images/default-profile.jpg'
+    };
+    
+    console.log('Google Callback - Session data:', req.session);
+    
+    // Check if this is a new user with a referral
+    const isNewUser = await Wallet.findOne({ userId: user._id }) ? false : true;
+    console.log('Google Callback - Is new user:', isNewUser);
+    console.log('Google Callback - User object:', user);
+    
+    if (isNewUser) {
+        // Check for referral info in the session
+        console.log('Google Callback - Google Referral data:', req.session.googleReferral);
         
-        // Handle both formats - regular user object or {user, isNewUser} object
-        const userData = req.user.user ? req.user.user : req.user;
-        const isNewUser = req.user.isNewUser || false;
+        // Get referrer info from either the user object or the session
+        let referredBy = user.referredBy;
+        let referrerUsername = '';
         
-        // Set user session
-        req.session.user = {
-            _id: userData._id.toString(),
-            username: userData.username,
-            email: userData.email,
-            isBlocked: userData.isBlocked,
-            profileImage: userData.profileImage || '/Images/default-profile.jpg'
-        };
+        // If we have referral info in the session but not in the user object, update the user
+        if (!referredBy && req.session.googleReferral && req.session.googleReferral.referrerId) {
+            referredBy = req.session.googleReferral.referrerId;
+            referrerUsername = req.session.googleReferral.referrerUsername;
+            
+            // Update the user with the referral info
+            console.log('Google Callback - Updating user with referral info:', referredBy);
+            await User.findByIdAndUpdate(user._id, { referredBy: referredBy });
+        }
         
-        // If this is a new user with referral, create wallet with referral benefits
-        if (isNewUser && userData.referredBy) {
-            // Create wallet for the new user with referral bonus
+        console.log('Google Callback - Final referredBy value:', referredBy);
+        
+        // Create wallet for the new user with referral bonus if applicable
+        const userId = user._id;
+        const existingWallet = await Wallet.findOne({ userId });
+        if (!existingWallet) {
             const newWallet = new Wallet({
-                userId: userData._id,
-                balance: 50,
-                transactions: [{
+                userId,
+                balance: referredBy ? 50 : 0,
+                transactions: referredBy ? [{
                     transactionType: 'credit',
                     transactionAmount: 50,
                     description: 'Referral bonus for signing up with referral code'
-                }]
+                }] : []
             });
             await newWallet.save();
             
-            // Credit the referrer's wallet
-            const referrerWallet = await Wallet.findOne({ userId: userData.referredBy });
-            if (referrerWallet) {
-                referrerWallet.balance += 100;
-                referrerWallet.transactions.push({
-                    transactionType: 'credit',
-                    transactionAmount: 100,
-                    description: `Referral bonus for referring ${userData.username}`
-                });
-                await referrerWallet.save();
-            } else {
-                const newReferrerWallet = new Wallet({
-                    userId: userData.referredBy,
-                    balance: 100,
-                    transactions: [{
+            // Credit the referrer's wallet if applicable
+            if (referredBy) {
+                const referrerWallet = await Wallet.findOne({ userId: referredBy });
+                if (referrerWallet) {
+                    referrerWallet.balance += 100;
+                    referrerWallet.transactions.push({
                         transactionType: 'credit',
                         transactionAmount: 100,
-                        description: `Referral bonus for referring ${userData.username}`
-                    }]
-                });
-                await newReferrerWallet.save();
+                        description: `Referral bonus for referring ${user.username}`
+                    });
+                    await referrerWallet.save();
+                } else {
+                    const newReferrerWallet = new Wallet({
+                        userId: referredBy,
+                        balance: 100,
+                        transactions: [{
+                            transactionType: 'credit',
+                            transactionAmount: 100,
+                            description: `Referral bonus for referring ${user.username}`
+                        }]
+                    });
+                    await newReferrerWallet.save();
+                }
             }
-            
-            // Clear the referral code from session
-            delete req.session.referralCode;
-        } else if (isNewUser) {
-            // Create a regular wallet for new user without referral
-            const newWallet = new Wallet({
-                userId: userData._id,
-                balance: 0,
-                transactions: []
-            });
-            await newWallet.save();
         }
         
-        res.redirect('/');
-    } catch (error) {
-        console.error('Error in Google auth callback:', error);
-        res.redirect('/');
+        // Clear the session data
+        delete req.session.newGoogleUser;
+        delete req.session.referralCode;
     }
+    
+    res.redirect('/');
 });
 router.get('/user/logout', userController.logout);
 

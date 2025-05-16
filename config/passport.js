@@ -7,7 +7,7 @@ passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
     callbackURL: '/user/auth/google/callback',
-    passReqToCallback: true // Pass request to callback
+    passReqToCallback: true  // Pass request to callback
 },
 async (req, accessToken, refreshToken, profile, done) => {
     try {
@@ -15,15 +15,28 @@ async (req, accessToken, refreshToken, profile, done) => {
         if (user) {
             return done(null, user);
         } else {
-            // Check for referral code in session (if available)
+            // Store the referral code in session if available
+            const referralCode = req.session.referralCode;
+            console.log('Google Auth - Referral Code from session:', referralCode);
             let referredBy = null;
-            if (req.session && req.session.referralCode) {
-                const referrer = await User.findOne({ referralCode: req.session.referralCode });
+            
+            if (referralCode) {
+                const referrer = await User.findOne({ referralCode });
+                console.log('Google Auth - Referrer found:', referrer ? 'Yes' : 'No');
                 if (referrer) {
                     referredBy = referrer._id;
+                    console.log('Google Auth - Referrer ID:', referredBy);
+                    // Store referral info in session for callback access
+                    req.session.googleReferral = {
+                        referralCode,
+                        referrerId: referrer._id,
+                        referrerUsername: referrer.username
+                    };
+                    await new Promise((resolve) => req.session.save(resolve));
+                    console.log('Google Auth - Saved referral info to session');
                 }
             }
-
+            
             user = new User({ 
                 username: profile.displayName,
                 email: profile.emails[0].value,
@@ -31,7 +44,14 @@ async (req, accessToken, refreshToken, profile, done) => {
                 referredBy: referredBy
             });
             await user.save();
-            return done(null, { user, isNewUser: true });
+            
+            // Store the new user in the session for processing referral benefits later
+            req.session.newGoogleUser = {
+                userId: user._id,
+                referredBy: referredBy
+            };
+            
+            return done(null, user);
         }
     } catch (err) {
         return done(err, null);

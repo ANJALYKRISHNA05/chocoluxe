@@ -114,7 +114,7 @@
                         <% } %>
                         <button type="submit" class="btn btn-custom">Create Account</button>
                         <div class="or-text mt-3">or</div>
-                        <a href="/user/auth/google" id="googleAuthLink" class="google-btn">
+                        <a href="/user/auth/google" id="googleSignInBtn" class="google-btn">
                             <img src="https://www.google.com/s2/favicons?domain=google.com" alt="Google"> Continue with Google
                         </a>
                     </form>
@@ -272,14 +272,25 @@
             confirmPassword.addEventListener('input', validateConfirmPassword);
             referralCode.addEventListener('input', function() {
                 validateReferralCode();
-                // Update Google auth link with referral code
-                const googleAuthLink = document.getElementById('googleAuthLink');
-                if (referralCode.value && validation.validateReferralCode(referralCode.value)) {
-                    googleAuthLink.href = `/user/auth/google?referralCode=${referralCode.value}`;
-                } else {
-                    googleAuthLink.href = '/user/auth/google';
-                }
+                updateGoogleSignInUrl();
             });
+            
+            // Update Google sign-in URL with referral code
+            function updateGoogleSignInUrl() {
+                const googleSignInBtn = document.getElementById('googleSignInBtn');
+                const referralCodeValue = referralCode.value.trim();
+                
+                if (referralCodeValue) {
+                    // Don't validate with regex here - let the server handle validation
+                    googleSignInBtn.href = `/user/auth/google?referralCode=${encodeURIComponent(referralCodeValue)}`;
+                    console.log('Updated Google sign-in URL with referral code:', referralCodeValue);
+                } else {
+                    googleSignInBtn.href = '/user/auth/google';
+                }
+            }
+            
+            // Initialize the Google sign-in URL on page load
+            updateGoogleSignInUrl();
         });
     </script>
 </body>
