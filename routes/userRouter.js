@@ -1,4 +1,3 @@
-
 const express = require('express');
 const router = express.Router();
 const passport = require("passport");
@@ -20,17 +19,84 @@ router.get('/user/login', userController.loadLogin);
 router.post('/user/login', userController.login);
 router.post("/user/verify-otp", userController.verifyOtp);
 router.post("/user/resend-otp", userController.resendOtp);
-router.get('/user/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
-router.get('/user/auth/google/callback', passport.authenticate('google', { failureRedirect: '/signup' }), (req, res) => {
-    const user = req.user;
-    req.session.user = {
-        _id: user._id.toString(),
-        username: user.username,
-        email: user.email,
-        isBlocked: user.isBlocked,
-        profileImage: user.profileImage || '/Images/default-profile.jpg'
-    };
-    res.redirect('/');
+router.get('/user/auth/google', (req, res, next) => {
+    // Store referral code in session if provided
+    if (req.query.referralCode) {
+        req.session.referralCode = req.query.referralCode;
+    }
+    next();
+}, passport.authenticate('google', { scope: ['profile', 'email'] }));
+router.get('/user/auth/google/callback', passport.authenticate('google', { failureRedirect: '/signup' }), async (req, res) => {
+    try {
+        const Wallet = require('../models/walletSchema');
+        
+        // Handle both formats - regular user object or {user, isNewUser} object
+        const userData = req.user.user ? req.user.user : req.user;
+        const isNewUser = req.user.isNewUser || false;
+        
+        // Set user session
+        req.session.user = {
+            _id: userData._id.toString(),
+            username: userData.username,
+            email: userData.email,
+            isBlocked: userData.isBlocked,
+            profileImage: userData.profileImage || '/Images/default-profile.jpg'
+        };
+        
+        // If this is a new user with referral, create wallet with referral benefits
+        if (isNewUser && userData.referredBy) {
+            // Create wallet for the new user with referral bonus
+            const newWallet = new Wallet({
+                userId: userData._id,
+                balance: 50,
+                transactions: [{
+                    transactionType: 'credit',
+                    transactionAmount: 50,
+                    description: 'Referral bonus for signing up with referral code'
+                }]
+            });
+            await newWallet.save();
+            
+            // Credit the referrer's wallet
+            const referrerWallet = await Wallet.findOne({ userId: userData.referredBy });
+            if (referrerWallet) {
+                referrerWallet.balance += 100;
+                referrerWallet.transactions.push({
+                    transactionType: 'credit',
+                    transactionAmount: 100,
+                    description: `Referral bonus for referring ${userData.username}`
+                });
+                await referrerWallet.save();
+            } else {
+                const newReferrerWallet = new Wallet({
+                    userId: userData.referredBy,
+                    balance: 100,
+                    transactions: [{
+                        transactionType: 'credit',
+                        transactionAmount: 100,
+                        description: `Referral bonus for referring ${userData.username}`
+                    }]
+                });
+                await newReferrerWallet.save();
+            }
+            
+            // Clear the referral code from session
+            delete req.session.referralCode;
+        } else if (isNewUser) {
+            // Create a regular wallet for new user without referral
+            const newWallet = new Wallet({
+                userId: userData._id,
+                balance: 0,
+                transactions: []
+            });
+            await newWallet.save();
+        }
+        
+        res.redirect('/');
+    } catch (error) {
+        console.error('Error in Google auth callback:', error);
+        res.redirect('/');
+    }
 });
 router.get('/user/logout', userController.logout);
 

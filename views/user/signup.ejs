@@ -43,7 +43,6 @@
         .footer a:hover { color: #fff; }
         .footer .payment-icons img { width: 30px; margin: 5px; }
 
-        /* Responsive Design */
         @media (max-width: 768px) {
             .navbar { padding: 15px; flex-direction: column; align-items: flex-start; }
             .navbar .brand { margin-bottom: 15px; }
@@ -72,8 +71,6 @@
     </style>
 </head>
 <body>
-  
-
     <div class="login-container">
         <div class="card">
             <div class="card-body login-section">
@@ -105,6 +102,11 @@
                             <input type="password" class="form-control" name="confirmPassword" id="confirmPassword" placeholder="Confirm Password" required>
                             <div id="error5" class="error-message"></div>
                         </div>
+                        <div class="form-group">
+                            <label for="referralCode">Referral Code (Optional)</label>
+                            <input type="text" class="form-control" name="referralCode" id="referralCode" placeholder="Enter referral code">
+                            <div id="error6" class="error-message"></div>
+                        </div>
                         <% if (message && message.length > 0) { %>
                             <div class="alert alert-danger" id="serverMessage">
                                 <%= message %>
@@ -112,7 +114,7 @@
                         <% } %>
                         <button type="submit" class="btn btn-custom">Create Account</button>
                         <div class="or-text mt-3">or</div>
-                        <a href="/user/auth/google" class="google-btn">
+                        <a href="/user/auth/google" id="googleAuthLink" class="google-btn">
                             <img src="https://www.google.com/s2/favicons?domain=google.com" alt="Google"> Continue with Google
                         </a>
                     </form>
@@ -121,28 +123,26 @@
             </div>
         </div>
     </div>
-
-    
-
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            
-        
             const username = document.getElementById('username');
             const email = document.getElementById('email');
             const phone = document.getElementById('phone');
             const password = document.getElementById('password');
             const confirmPassword = document.getElementById('confirmPassword');
+            const referralCode = document.getElementById('referralCode');
             const error1 = document.getElementById('error1');
             const error2 = document.getElementById('error2');
             const error3 = document.getElementById('error3');
             const error4 = document.getElementById('error4');
             const error5 = document.getElementById('error5');
+            const error6 = document.getElementById('error6');
         
             const validation = {
                 usernamePattern: /^[a-z]{5,20}$/,
                 emailPattern: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
                 phonePattern: /^\d{10}$/,
+                referralCodePattern: /^[A-Z0-9]{8}$/,
                 validateUsername: function (value) {
                     const lowercaseValue = value.toLowerCase();
                     username.value = lowercaseValue; 
@@ -170,6 +170,10 @@
                 },
                 validateConfirmPassword: function (pass, confirm) {
                     return pass === confirm;
+                },
+                validateReferralCode: function (value) {
+                    if (!value) return true; // Referral code is optional
+                    return value.match(this.referralCodePattern) !== null;
                 }
             };
     
@@ -233,19 +237,32 @@
                 }
             }
         
+            function validateReferralCode() {
+                if (!validation.validateReferralCode(referralCode.value)) {
+                    error6.style.display = 'block';
+                    error6.textContent = 'Referral code must be 8 alphanumeric characters';
+                    return false;
+                } else {
+                    error6.style.display = 'none';
+                    error6.textContent = '';
+                    return true;
+                }
+            }
+        
             function validateForm() {
                 const isUsernameValid = validateUsername();
                 const isEmailValid = validateEmail();
                 const isPhoneValid = validatePhone();
                 const isPasswordValid = validatePassword();
                 const isConfirmPasswordValid = validateConfirmPassword();
+                const isReferralCodeValid = validateReferralCode();
         
                 const serverMessage = document.getElementById('serverMessage');
-                if (serverMessage && (isUsernameValid && isEmailValid && isPhoneValid && isPasswordValid && isConfirmPasswordValid)) {
+                if (serverMessage && (isUsernameValid && isEmailValid && isPhoneValid && isPasswordValid && isConfirmPasswordValid && isReferralCodeValid)) {
                     serverMessage.classList.add('hide');
                 }
         
-                return isUsernameValid && isEmailValid && isPhoneValid && isPasswordValid && isConfirmPasswordValid;
+                return isUsernameValid && isEmailValid && isPhoneValid && isPasswordValid && isConfirmPasswordValid && isReferralCodeValid;
             }
         
             username.addEventListener('input', validateUsername);
@@ -253,17 +270,16 @@
             phone.addEventListener('input', validatePhone);
             password.addEventListener('input', validatePassword);
             confirmPassword.addEventListener('input', validateConfirmPassword);
-        
-        
-        
-            [username, email, phone, password, confirmPassword].forEach(input => {
-                input.addEventListener('input', updateServerMessage);
+            referralCode.addEventListener('input', function() {
+                validateReferralCode();
+                // Update Google auth link with referral code
+                const googleAuthLink = document.getElementById('googleAuthLink');
+                if (referralCode.value && validation.validateReferralCode(referralCode.value)) {
+                    googleAuthLink.href = `/user/auth/google?referralCode=${referralCode.value}`;
+                } else {
+                    googleAuthLink.href = '/user/auth/google';
+                }
             });
-        
-            function toggleMenu() {
-                const navbar = document.querySelector('.navbar');
-                navbar.classList.toggle('active');
-            }
         });
     </script>
 </body>

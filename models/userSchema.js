@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
+const crypto = require("crypto");
 
 const userSchema = new mongoose.Schema({
   username: {
@@ -33,7 +34,7 @@ const userSchema = new mongoose.Schema({
     type: String,
     default: "/Images/default-profile.jpg",
   },
-    referralCode: {
+  referralCode: {
     type: String,
     unique: true,
     sparse: true,
@@ -61,6 +62,23 @@ const userSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+});
+
+// Generate a unique referral code before saving a new user
+userSchema.pre("save", async function (next) {
+  if (this.isNew && !this.referralCode) {
+    let isUnique = false;
+    let referralCode;
+    while (!isUnique) {
+      referralCode = crypto.randomBytes(4).toString("hex").toUpperCase();
+      const existingUser = await mongoose.model("User").findOne({ referralCode });
+      if (!existingUser) {
+        isUnique = true;
+      }
+    }
+    this.referralCode = referralCode;
+  }
+  next();
 });
 
 const User = mongoose.model("User", userSchema);

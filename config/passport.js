@@ -6,21 +6,32 @@ require("dotenv").config();
 passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    callbackURL: '/user/auth/google/callback'
+    callbackURL: '/user/auth/google/callback',
+    passReqToCallback: true // Pass request to callback
 },
-async (accessToken, refreshToken, profile, done) => {
+async (req, accessToken, refreshToken, profile, done) => {
     try {
         let user = await User.findOne({ googleId: profile.id });
         if (user) {
             return done(null, user);
         } else {
+            // Check for referral code in session (if available)
+            let referredBy = null;
+            if (req.session && req.session.referralCode) {
+                const referrer = await User.findOne({ referralCode: req.session.referralCode });
+                if (referrer) {
+                    referredBy = referrer._id;
+                }
+            }
+
             user = new User({ 
                 username: profile.displayName,
                 email: profile.emails[0].value,
                 googleId: profile.id,
+                referredBy: referredBy
             });
             await user.save();
-            return done(null, user);
+            return done(null, { user, isNewUser: true });
         }
     } catch (err) {
         return done(err, null);

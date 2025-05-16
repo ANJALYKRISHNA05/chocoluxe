@@ -144,6 +144,26 @@
             background: #adb5bd;
             border-radius: 10px;
         }
+        .referral-section {
+            margin-top: 2rem;
+        }
+        .referral-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            padding: 1.5rem;
+        }
+        .referral-button {
+            background-color: #d4a373;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            transition: background-color 0.3s;
+        }
+        .referral-button:hover {
+            background-color: #b8860b;
+        }
         @media (max-width: 768px) {
             .wallet-container {
                 padding: 1rem;
@@ -163,11 +183,9 @@
 
     <div class="container-fluid py-5">
         <div class="row g-4">
-         
             <div class="col-lg-3 col-md-4">
                 <%- include('../partials/user/sidebar', { activeTab: 'wallet' }) %>
             </div>
-         
             <div class="col-lg-9 col-md-8">
                 <div class="wallet-container">
                     <h1 class="section-title fs-2">Your Chocoluxe Wallet</h1>
@@ -241,6 +259,42 @@
                                             <%= wallet.transactions.length %> total
                                         </div>
                                     </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="referral-section">
+                        <div class="referral-card">
+                            <h5 class="mb-3">Referral Program</h5>
+                            <p>Invite friends and earn rewards!</p>
+                            <button type="button" class="referral-button" data-bs-toggle="modal" data-bs-target="#referralModal">
+                                View Referral Details
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="modal fade" id="referralModal" tabindex="-1" aria-labelledby="referralModalLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="referralModalLabel">Your Referral Details</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="mb-3">
+                                        <strong>Your Referral Code:</strong>
+                                        <span class="badge bg-primary ms-2"><%= referralCode %></span>
+                                        <button class="btn btn-sm btn-outline-secondary ms-2" onclick="copyReferralCode()">Copy</button>
+                                    </div>
+                                    <div class="mb-3">
+                                        <strong>Total Referral Bonus Earned:</strong>
+                                        <span class="text-success">₹<%= referralBonus.toFixed(2) %></span>
+                                    </div>
+                                    <p>Share your referral code with friends! When they sign up using your code, they get ₹50, and you get ₹100 credited to your wallet.</p>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                                 </div>
                             </div>
                         </div>
@@ -323,6 +377,15 @@
         function closeRefundAlert() {
             const alert = document.getElementById('refundAlert');
             if (alert) alert.style.display = 'none';
+        }
+
+        function copyReferralCode() {
+            const referralCode = '<%= referralCode %>';
+            navigator.clipboard.writeText(referralCode).then(() => {
+                alert('Referral code copied to clipboard!');
+            }).catch(err => {
+                console.error('Failed to copy referral code:', err);
+            });
         }
     </script>
 </body>

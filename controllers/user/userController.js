@@ -1,6 +1,7 @@
 const bcrypt = require('bcrypt');
 const User = require('../../models/userSchema');
 const Address = require("../../models/addressSchema");
+const Wallet = require("../../models/walletSchema");
 const nodemailer = require('nodemailer');
 const crypto = require("crypto");
 require('dotenv').config();
@@ -63,7 +64,7 @@ async function sendVerificationEmail(email, otp) {
 
 const signup = async (req, res) => {
     try {
-        const { username, email, phone, password, confirmPassword } = req.body;
+        const { username, email, phone, password, confirmPassword, referralCode } = req.body;
 
         const usernamePattern = /^[a-z]{5,20}$/;
         const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
@@ -89,13 +90,22 @@ const signup = async (req, res) => {
             return res.render('user/signup', { message: 'User with this email or username already exists' });
         }
 
+        let referredBy = null;
+        if (referralCode) {
+            const referrer = await User.findOne({ referralCode });
+            if (!referrer) {
+                return res.render('user/signup', { message: 'Invalid referral code' });
+            }
+            referredBy = referrer._id;
+        }
+
         const otp = generateOtp();
         const emailSent = await sendVerificationEmail(email, otp);
         if (!emailSent) {
             return res.render('user/signup', { message: 'Failed to send verification email. Please try again.' });
         }
         req.session.userOtp = otp;
-        req.session.userData = { username, email, phone, password };
+        req.session.userData = { username, email, phone, password, referredBy };
         res.render('user/verify-otp');
         console.log('OTP sent:', otp);
     } catch (error) {
@@ -127,12 +137,49 @@ const verifyOtp = async (req, res) => {
             username: userData.username,
             email: userData.email,
             phone: userData.phone || null,
-            password: hashedPassword
+            password: hashedPassword,
+            referredBy: userData.referredBy
         });
 
         await newUser.save();
 
-       
+        // Create wallet for the new user
+        const newWallet = new Wallet({
+            userId: newUser._id,
+            balance: userData.referredBy ? 50 : 0,
+            transactions: userData.referredBy ? [{
+                transactionType: 'credit',
+                transactionAmount: 50,
+                description: 'Referral bonus for signing up with referral code'
+            }] : []
+        });
+        await newWallet.save();
+
+        // If referred, credit the referrer's wallet
+        if (userData.referredBy) {
+            const referrerWallet = await Wallet.findOne({ userId: userData.referredBy });
+            if (referrerWallet) {
+                referrerWallet.balance += 100;
+                referrerWallet.transactions.push({
+                    transactionType: 'credit',
+                    transactionAmount: 100,
+                    description: `Referral bonus for referring ${newUser.username}`
+                });
+                await referrerWallet.save();
+            } else {
+                const newReferrerWallet = new Wallet({
+                    userId: userData.referredBy,
+                    balance: 100,
+                    transactions: [{
+                        transactionType: 'credit',
+                        transactionAmount: 100,
+                        description: `Referral bonus for referring ${newUser.username}`
+                    }]
+                });
+                await newReferrerWallet.save();
+            }
+        }
+
         req.session.user = {
             _id: newUser._id.toString(),
             username: newUser.username,
@@ -405,7 +452,6 @@ const loadProfile = async (req, res) => {
     }
 };
 
-
 const loadEditProfile = async (req, res) => {
     try {
         const user = await User.findById(req.session.user._id);
@@ -413,7 +459,6 @@ const loadEditProfile = async (req, res) => {
             return res.redirect('/user/login');
         }
         
-       
         req.session.user.profileImage = user.profileImage || '/Images/default-profile.jpg';
 
         res.render('user/edit-profile', {
@@ -505,7 +550,6 @@ const updateProfile = async (req, res) => {
             { new: true }
         );
         
-        
         req.session.user = {
             _id: updatedUser._id,
             username: updatedUser.username,
@@ -548,7 +592,6 @@ const verifyEmailUpdate = async (req, res) => {
             { new: true }
         );
         
-       
         req.session.user = {
             _id: updatedUser._id,
             username: updatedUser.username,
@@ -599,7 +642,6 @@ const loadAddresses = async (req, res) => {
         
         const addresses = await Address.find({ userId }).sort({ isDefault: -1, createdAt: -1 });
         
-       
         res.render('user/address', {
             addresses,
             user: req.session.user,
@@ -619,7 +661,6 @@ const loadAddresses = async (req, res) => {
 
 const loadAddAddressForm = async (req, res) => {
     try {
-     
         res.render('user/address-form', {
             user: req.session.user,
             activeTab: 'address',
@@ -928,7 +969,6 @@ const setDefaultAddress = async (req, res) => {
 
 const loadChangePassword = async (req, res) => {
     try {
-      
         res.render('user/change-password', {
             user: req.session.user,
             activeTab: 'password',
