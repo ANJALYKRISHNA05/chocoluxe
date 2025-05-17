@@ -167,6 +167,13 @@ router.post('/checkout/address/update', userAuth, checkoutController.updateCheck
 router.get('/user/orders', userAuth, checkoutController.loadOrderHistory);
 router.post('/orders/:orderId/cancel', userAuth, checkoutController.cancelOrder);
 router.get('/orders/:orderId/invoice', userAuth, checkoutController.generateInvoice);
+
+// Razorpay integration routes
+router.post('/checkout/create-razorpay-order', userAuth, checkoutController.createRazorpayOrder);
+router.post('/checkout/verify-payment', userAuth, checkoutController.verifyPayment);
+router.get('/checkout/payment-failed/:orderId', userAuth, checkoutController.handlePaymentFailure);
+router.get('/checkout/payment-cancelled/:orderId', userAuth, checkoutController.handlePaymentCancellation);
+router.get('/checkout/retry-payment/:orderId', userAuth, checkoutController.retryPayment);
 router.get('/user/wallet', userAuth, walletController.loadWallet);
 
 module.exports = router;

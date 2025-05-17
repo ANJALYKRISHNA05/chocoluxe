@@ -9,6 +9,14 @@ const Wallet = require("../../models/walletSchema");
 const PDFDocument = require('pdfkit');
 const fs = require('fs');
 const path = require('path');
+const Razorpay = require('razorpay');
+const crypto = require('crypto');
+
+// Initialize Razorpay
+const razorpay = new Razorpay({
+  key_id: process.env.RAZORPAY_KEY_ID,
+  key_secret: process.env.RAZORPAY_KEY_SECRET
+});
 
 // Helper functions from cartController.js
 const calculateCartTotals = async (cart, userId) => {
@@ -304,7 +312,7 @@ exports.placeOrder = async (req, res) => {
       return res.redirect("/checkout");
     }
 
-    if (!paymentMethod || !["Cash on Delivery", "Wallet"].includes(paymentMethod)) {
+    if (!paymentMethod || !["Cash on Delivery", "Wallet", "Razorpay"].includes(paymentMethod)) {
       req.session.message = "Please select a valid payment method.";
       return res.redirect("/checkout");
     }
@@ -455,6 +463,9 @@ exports.placeOrder = async (req, res) => {
       });
       await wallet.save();
     }
+    
+    // For Razorpay, we don't process payment here as it's handled separately
+    // The order is created with 'Pending Payment' status
 
     const order = new Order({
       orderId,
@@ -475,7 +486,8 @@ exports.placeOrder = async (req, res) => {
       totalSavings,
       total,
       paymentMethod,
-      status: paymentMethod === "Wallet" ? "Confirmed" : "Pending", // Wallet payments are confirmed immediately
+      status: paymentMethod === "Wallet" ? "Confirmed" : 
+              paymentMethod === "Razorpay" ? "Pending Payment" : "Pending", // Set appropriate status based on payment method
     });
 
     await order.save();
@@ -487,6 +499,319 @@ exports.placeOrder = async (req, res) => {
   } catch (error) {
     console.error("Error placing order:", error);
     req.session.message = "Error placing order: " + error.message;
+    res.redirect("/checkout");
+  }
+};
+
+// Create Razorpay order
+exports.createRazorpayOrder = async (req, res) => {
+  try {
+    const userId = req.session.user._id;
+    const { addressId } = req.body;
+
+    // Validate address
+    const address = await Address.findOne({ _id: addressId, userId });
+    if (!address) {
+      return res.json({ success: false, message: "Please select a valid address." });
+    }
+
+    // Get cart details
+    const cart = await Cart.findOne({ user: userId }).populate({
+      path: "items.product",
+      populate: {
+        path: "category",
+        model: "Category",
+      },
+    }).populate("coupon");
+
+    if (!cart || cart.items.length === 0) {
+      return res.json({ success: false, message: "Your cart is empty." });
+    }
+
+    // Calculate totals
+    const { subtotal, totalSavings, discount, cartTotal: total, appliedCoupon } = await calculateCartTotals(cart, userId);
+    
+    // Generate unique order ID
+    let unique = false;
+    let attempt = 0;
+    const maxAttempts = 10;
+    let orderId;
+    const prefix = 'ORD';
+
+    while (!unique && attempt < maxAttempts) {
+      const randomNum = Math.floor(100000 + Math.random() * 900000);
+      const potentialOrderId = `${prefix}-${randomNum}`;
+
+      const existingOrder = await Order.findOne({ orderId: potentialOrderId });
+      if (!existingOrder) {
+        orderId = potentialOrderId;
+        unique = true;
+      }
+      attempt++;
+    }
+
+    if (!unique) {
+      throw new Error('Unable to generate a unique orderId after maximum attempts');
+    }
+
+    // Create Razorpay order
+    const razorpayOrder = await razorpay.orders.create({
+      amount: Math.round(total * 100), // Convert to paise
+      currency: 'INR',
+      receipt: orderId,
+      payment_capture: 1, // Auto capture payment
+    });
+
+    // Store temporary order details in session for verification later
+    req.session.pendingRazorpayOrder = {
+      orderId,
+      addressId,
+      razorpayOrderId: razorpayOrder.id,
+      amount: total,
+      userId
+    };
+
+    return res.json({
+      success: true,
+      order: {
+        id: razorpayOrder.id,
+        amount: razorpayOrder.amount,
+        currency: razorpayOrder.currency,
+        receipt: razorpayOrder.receipt
+      }
+    });
+  } catch (error) {
+    console.error("Error creating Razorpay order:", error);
+    return res.json({ success: false, message: "Error creating order: " + error.message });
+  }
+};
+
+// Verify Razorpay payment
+exports.verifyPayment = async (req, res) => {
+  try {
+    const { payment, order: razorpayOrder } = req.body;
+    
+    // Get the pending order details from session
+    const pendingOrder = req.session.pendingRazorpayOrder;
+    if (!pendingOrder || pendingOrder.razorpayOrderId !== razorpayOrder.id) {
+      return res.json({ success: false, message: "Invalid order details." });
+    }
+
+    // Verify payment signature
+    const text = razorpayOrder.id + "|" + payment.razorpay_payment_id;
+    const generatedSignature = crypto
+      .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
+      .update(text)
+      .digest("hex");
+
+    if (generatedSignature !== payment.razorpay_signature) {
+      return res.json({ success: false, message: "Invalid payment signature." });
+    }
+
+    // Process the order now that payment is verified
+    const userId = pendingOrder.userId;
+    const addressId = pendingOrder.addressId;
+    const orderId = pendingOrder.orderId;
+
+    // Get necessary data
+    const address = await Address.findOne({ _id: addressId, userId });
+    const cart = await Cart.findOne({ user: userId }).populate({
+      path: "items.product",
+      populate: {
+        path: "category",
+        model: "Category",
+      },
+    }).populate("coupon");
+
+    const { subtotal, totalSavings, discount, appliedCoupon } = await calculateCartTotals(cart, userId);
+    const total = subtotal - discount;
+
+    // Process order items
+    const orderItems = [];
+    const stockUpdates = [];
+
+    for (const item of cart.items) {
+      const product = item.product;
+      const variant = product.variants.find((v) => v.sku === item.sku);
+      
+      const productOffer = variant.productOffer || 0;
+      const categoryOffer = product.category.categoryOffer || 0;
+      const effectiveOffer = Math.max(productOffer, categoryOffer);
+      const basePrice = variant.salePrice < variant.regularPrice && variant.salePrice > 0 ? variant.salePrice : variant.regularPrice;
+      const offerPrice = effectiveOffer > 0 ? basePrice * (1 - effectiveOffer / 100) : basePrice;
+      const itemSubtotal = offerPrice * item.quantity;
+
+      orderItems.push({
+        product: product._id,
+        sku: item.sku,
+        quantity: item.quantity,
+        price: offerPrice,
+        subtotal: itemSubtotal,
+        effectiveOffer,
+      });
+
+      stockUpdates.push({
+        productId: product._id,
+        sku: item.sku,
+        quantity: item.quantity,
+      });
+    }
+
+    // Update stock
+    for (const update of stockUpdates) {
+      await Product.updateOne(
+        { _id: update.productId, "variants.sku": update.sku },
+        { $inc: { "variants.$.stock_quantity": -update.quantity } }
+      );
+    }
+
+    // Mark coupon as used if applied
+    let couponId = null;
+    if (cart.coupon && appliedCoupon) {
+      const coupon = await Coupon.findById(cart.coupon);
+      if (coupon) {
+        coupon.usedCount += 1;
+        coupon.usedBy.push({ user: userId, usedAt: new Date() });
+        await coupon.save();
+        couponId = coupon._id;
+      }
+    }
+
+    // Create order
+    const newOrder = new Order({
+      orderId,
+      user: userId,
+      items: orderItems,
+      shippingAddress: {
+        name: address.name,
+        addressType: address.addressType,
+        address: address.address,
+        city: address.city,
+        state: address.state,
+        pincode: address.pincode,
+        phone: address.phone,
+      },
+      coupon: couponId,
+      subtotal,
+      discount,
+      totalSavings,
+      total,
+      paymentMethod: "Razorpay",
+      status: "Confirmed", // Payment is already confirmed
+      paymentDetails: {
+        razorpayOrderId: razorpayOrder.id,
+        razorpayPaymentId: payment.razorpay_payment_id,
+        razorpaySignature: payment.razorpay_signature
+      }
+    });
+
+    await newOrder.save();
+
+    // Clear cart
+    await Cart.findOneAndUpdate({ user: userId }, { $set: { items: [], coupon: null, discount: 0 } });
+    
+    // Clear the pending order from session
+    delete req.session.pendingRazorpayOrder;
+
+    return res.json({ success: true, orderId: newOrder.orderId });
+  } catch (error) {
+    console.error("Error verifying payment:", error);
+    return res.json({ success: false, message: "Error verifying payment: " + error.message });
+  }
+};
+
+// Handle payment failure
+exports.handlePaymentFailure = async (req, res) => {
+  try {
+    const orderId = req.params.orderId;
+    const pendingOrder = req.session.pendingRazorpayOrder;
+    
+    // Clear the pending order from session
+    if (pendingOrder && pendingOrder.orderId === orderId) {
+      delete req.session.pendingRazorpayOrder;
+    }
+    
+    res.render("user/order-failure", {
+      orderId,
+      errorMessage: "Your payment was not successful. Please try again.",
+      user: req.session.user,
+      title: "Payment Failed"
+    });
+  } catch (error) {
+    console.error("Error handling payment failure:", error);
+    req.session.message = "Error processing payment failure.";
+    res.redirect("/checkout");
+  }
+};
+
+// Handle payment cancellation
+exports.handlePaymentCancellation = async (req, res) => {
+  try {
+    const orderId = req.params.orderId;
+    const pendingOrder = req.session.pendingRazorpayOrder;
+    
+    // Clear the pending order from session
+    if (pendingOrder && pendingOrder.orderId === orderId) {
+      delete req.session.pendingRazorpayOrder;
+    }
+    
+    res.render("user/order-failure", {
+      orderId,
+      errorMessage: "You cancelled the payment process. You can try again or choose a different payment method.",
+      user: req.session.user,
+      title: "Payment Cancelled"
+    });
+  } catch (error) {
+    console.error("Error handling payment cancellation:", error);
+    req.session.message = "Error processing payment cancellation.";
+    res.redirect("/checkout");
+  }
+};
+
+// Retry payment for a failed order
+exports.retryPayment = async (req, res) => {
+  try {
+    const orderId = req.params.orderId;
+    const userId = req.session.user._id;
+    
+    // Find the order
+    const order = await Order.findOne({ orderId, user: userId });
+    if (!order) {
+      // Simply redirect to checkout without showing error message
+      return res.redirect("/checkout");
+    }
+    
+    // Create a new Razorpay order
+    const razorpayOrder = await razorpay.orders.create({
+      amount: Math.round(order.total * 100), // Convert to paise
+      currency: 'INR',
+      receipt: order.orderId,
+      payment_capture: 1, // Auto capture payment
+    });
+    
+    // Store order details in session
+    req.session.pendingRazorpayOrder = {
+      orderId: order.orderId,
+      addressId: null, // Not needed for retry
+      razorpayOrderId: razorpayOrder.id,
+      amount: order.total,
+      userId
+    };
+    
+    res.render("user/retry-payment", {
+      order,
+      razorpayOrder: {
+        id: razorpayOrder.id,
+        amount: razorpayOrder.amount,
+        currency: razorpayOrder.currency
+      },
+      user: req.session.user,
+      title: "Retry Payment",
+      razorpayKeyId: process.env.RAZORPAY_KEY_ID
+    });
+  } catch (error) {
+    console.error("Error retrying payment:", error);
+    req.session.message = "Error setting up payment retry.";
     res.redirect("/checkout");
   }
 };
@@ -521,6 +846,18 @@ exports.loadOrderConfirmation = async (req, res) => {
     console.error("Error loading order confirmation:", error);
     req.session.message = "Error loading order confirmation page.";
     res.redirect("/user/profile");
+  }
+};
+
+// Update orderSchema to include payment details
+exports.updateOrderSchema = async () => {
+  try {
+    // This is just a placeholder function to document the schema change
+    // In a real application, we'd use a migration script
+    // The actual schema update is in the orderSchema.js file
+    console.log('Order schema updated to include payment details');
+  } catch (error) {
+    console.error('Error updating order schema:', error);
   }
 };
 
@@ -628,9 +965,10 @@ exports.cancelOrder = async (req, res) => {
     }
 
     if (order.status !== 'Pending' && order.status !== 'Confirmed') {
-      return res.status(400).json({ success: false, message: 'Order cannot be cancelled in this status.' });
+      return res.status(400).json({ success: false, message: 'Order cannot be cancelled at this stage.' });
     }
 
+    // Return stock to inventory
     for (const item of order.items) {
       await Product.updateOne(
         { _id: item.product, "variants.sku": item.sku },
@@ -638,30 +976,83 @@ exports.cancelOrder = async (req, res) => {
       );
     }
 
-    // If coupon was used, revert its usage
+    // Return coupon usage if applicable
     if (order.coupon) {
-      await Coupon.updateOne(
-        { _id: order.coupon },
-        {
-          $inc: { usedCount: -1 },
-          $pull: { usedBy: { user: userId } }
-        }
-      );
+      const coupon = await Coupon.findById(order.coupon);
+      if (coupon) {
+        coupon.usedCount -= 1;
+        coupon.usedBy = coupon.usedBy.filter(
+          (entry) => entry.user.toString() !== userId.toString()
+        );
+        await coupon.save();
+      }
     }
 
-    // Refund to wallet if payment was made via wallet
-    if (order.paymentMethod === "Wallet") {
+    // Process refund based on payment method
+    if (order.paymentMethod === 'Wallet' || order.paymentMethod === 'Razorpay') {
+      // Get or create wallet
       let wallet = await Wallet.findOne({ userId });
       if (!wallet) {
-        wallet = new Wallet({ userId, balance: 0, transactions: [] });
+        wallet = new Wallet({
+          userId,
+          balance: 0,
+          transactions: []
+        });
       }
-      wallet.balance += order.total;
-      wallet.transactions.push({
-        transactionType: "credit",
-        transactionAmount: order.total,
-        description: `Refund for order ${order.orderId} (cancelled)`,
-        createdAt: new Date(),
-      });
+
+      // For Razorpay payments, try to process refund through Razorpay first
+      if (order.paymentMethod === 'Razorpay' && order.paymentDetails && order.paymentDetails.razorpayPaymentId) {
+        try {
+          // Attempt to refund through Razorpay API
+          const refund = await razorpay.payments.refund(order.paymentDetails.razorpayPaymentId, {
+            amount: Math.round(order.total * 100), // Convert to paise
+            notes: {
+              orderId: order.orderId,
+              reason: reason
+            }
+          });
+
+          // Record refund details in order
+          order.refundDetails = {
+            refundId: refund.id,
+            amount: order.total,
+            status: refund.status,
+            processedAt: new Date()
+          };
+
+          // Also add to wallet for record keeping
+          wallet.balance += order.total;
+          wallet.transactions.push({
+            transactionType: "credit",
+            transactionAmount: order.total,
+            description: `Refund for order ${order.orderId} (cancelled) - Razorpay refund ID: ${refund.id}`,
+            createdAt: new Date(),
+          });
+
+          console.log(`Razorpay refund processed successfully for order ${order.orderId}`);
+        } catch (refundError) {
+          console.error(`Razorpay refund failed for order ${order.orderId}:`, refundError);
+
+          // Fallback to wallet refund if Razorpay refund fails
+          wallet.balance += order.total;
+          wallet.transactions.push({
+            transactionType: "credit",
+            transactionAmount: order.total,
+            description: `Refund for order ${order.orderId} (cancelled) - Added to wallet`,
+            createdAt: new Date(),
+          });
+        }
+      } else if (order.paymentMethod === 'Wallet') {
+        // Direct wallet refund for wallet payments
+        wallet.balance += order.total;
+        wallet.transactions.push({
+          transactionType: "credit",
+          transactionAmount: order.total,
+          description: `Refund for order ${order.orderId} (cancelled)`,
+          createdAt: new Date(),
+        });
+      }
+
       await wallet.save();
     }
 

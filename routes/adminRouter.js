@@ -6,6 +6,7 @@ const categoryController = require('../controllers/admin/categoryController');
 const productController = require('../controllers/admin/productController');
 const orderController = require('../controllers/admin/orderController');
 const couponController = require('../controllers/admin/couponController');
+const salesController = require('../controllers/admin/salesController');
 const { adminAuth } = require('../middlewares/auth');
 const multer = require('multer');
 const { productStorage } = require('../config/cloudinary');
@@ -51,5 +52,10 @@ router.post('/coupons/edit/:id', adminAuth, couponController.updateCoupon);
 router.patch('/coupons/toggle-status/:id', adminAuth, couponController.toggleCouponStatus);
 router.delete('/coupons/delete/:id', adminAuth, couponController.deleteCoupon);
 router.get('/coupons/usage/:id', adminAuth, couponController.getCouponUsage);
+
+// Sales Report Routes
+router.get('/sales-report', adminAuth, salesController.loadSalesReport);
+router.get('/sales-report/download/pdf', adminAuth, salesController.downloadPdfReport);
+router.get('/sales-report/download/excel', adminAuth, salesController.downloadExcelReport);
 
 module.exports = router;

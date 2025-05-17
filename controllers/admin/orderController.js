@@ -2,6 +2,13 @@ const Order = require('../../models/orderSchema');
 const Product = require('../../models/productSchema');
 const User = require('../../models/userSchema');
 const Wallet = require('../../models/walletSchema');
+const Razorpay = require('razorpay');
+
+// Initialize Razorpay
+const razorpay = new Razorpay({
+  key_id: process.env.RAZORPAY_KEY_ID,
+  key_secret: process.env.RAZORPAY_KEY_SECRET
+});
 
 exports.loadOrders = async (req, res) => {
     try {
@@ -147,7 +154,7 @@ exports.acceptReturn = async (req, res) => {
       return res.status(400).json({ success: false, message: 'No pending return request for this order.' });
     }
 
-
+    // Update product stock
     for (const item of order.items) {
       await Product.updateOne(
         { _id: item.product, 'variants.sku': item.sku },
@@ -155,33 +162,81 @@ exports.acceptReturn = async (req, res) => {
       );
     }
 
+    // Process refund based on payment method
+    let refundMessage = 'Return request approved and amount refunded to wallet.';
     
-    let wallet = await Wallet.findOne({ userId: order.user });
-    if (!wallet) {
-      wallet = new Wallet({
-        userId: order.user,
-        balance: 0,
-        transactions: [],
+    if (order.paymentMethod === 'Razorpay' && order.paymentDetails && order.paymentDetails.razorpayPaymentId) {
+      try {
+        // Process Razorpay refund
+        const refund = await razorpay.payments.refund(order.paymentDetails.razorpayPaymentId, {
+          amount: Math.round(order.total * 100), // Convert to paise
+          notes: {
+            orderId: order.orderId,
+            reason: 'Return approved'
+          }
+        });
+        
+        // Save refund details to order
+        order.refundDetails = {
+          refundId: refund.id,
+          amount: refund.amount / 100, // Convert back to rupees
+          status: refund.status,
+          processedAt: new Date()
+        };
+        
+        refundMessage = 'Return request approved and amount refunded to original payment method.';
+      } catch (refundError) {
+        console.error('Razorpay refund failed, refunding to wallet instead:', refundError);
+        
+        // If Razorpay refund fails, refund to wallet as fallback
+        let wallet = await Wallet.findOne({ userId: order.user });
+        if (!wallet) {
+          wallet = new Wallet({
+            userId: order.user,
+            balance: 0,
+            transactions: [],
+          });
+        }
+
+        wallet.balance += order.total;
+        wallet.transactions.push({
+          transactionType: 'credit',
+          transactionAmount: order.total,
+          description: `Refund for order ${order.orderId} (Razorpay refund failed)`,
+          createdAt: new Date(),
+        });
+
+        await wallet.save();
+        refundMessage = 'Return request approved and amount refunded to wallet (payment gateway refund failed).';
+      }
+    } else {
+      // For COD and Wallet payments, refund to wallet
+      let wallet = await Wallet.findOne({ userId: order.user });
+      if (!wallet) {
+        wallet = new Wallet({
+          userId: order.user,
+          balance: 0,
+          transactions: [],
+        });
+      }
+
+      wallet.balance += order.total;
+      wallet.transactions.push({
+        transactionType: 'credit',
+        transactionAmount: order.total,
+        description: `Refund for order ${order.orderId}`,
+        createdAt: new Date(),
       });
+
+      await wallet.save();
     }
-
-    wallet.balance += order.total;
-    wallet.transactions.push({
-      transactionType: 'credit',
-      transactionAmount: order.total,
-      description: `Refund for order ${order.orderId}`,
-      createdAt: new Date(),
-    });
-
-    await wallet.save();
-
   
     order.status = 'Returned';
     order.return.status = 'approved';
     order.return.processedAt = new Date();
     await order.save();
 
-    res.json({ success: true, message: 'Return request approved and amount refunded to wallet.' });
+    res.json({ success: true, message: refundMessage });
   } catch (error) {
     console.error('Error accepting return:', error);
     res.status(500).json({ success: false, message: 'Error accepting return.' });

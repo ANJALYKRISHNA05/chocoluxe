@@ -488,6 +488,13 @@
                       Wallet (Balance: ₹<%= wallet.balance.toFixed(2) %>)
                     </label>
                   </div>
+                  <div class="form-check mb-3">
+                    <input class="form-check-input" type="radio" name="paymentMethod" 
+                           id="payment-razorpay" value="Razorpay" required>
+                    <label class="form-check-label" for="payment-razorpay">
+                      <img src="https://razorpay.com/assets/razorpay-glyph.svg" alt="Razorpay" style="height: 20px; margin-right: 8px;"> Pay with Razorpay
+                    </label>
+                  </div>
 
                   <h4 class="mt-4 mb-3">Order Items</h4>
                   <% cartItems.forEach(item => { %>
@@ -625,6 +632,7 @@
   <%- include('../partials/user/footer') %>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
   <script>
     const addressModal = document.getElementById('addressModal');
     addressModal.addEventListener('show.bs.modal', function (event) {
@@ -699,6 +707,12 @@
         Swal.fire('Error', 'Please select a payment method.', 'error');
         return;
       }
+      
+      // If Razorpay is selected, handle it differently
+      if (selectedPaymentMethod.value === 'Razorpay') {
+        initiateRazorpayPayment(selectedAddress.value);
+        return;
+      }
 
       Swal.fire({
         title: 'Confirm Order',
@@ -713,13 +727,138 @@
       });
     }
 
-    <% if (typeof message !== 'undefined' && message) { %>
+    // Razorpay payment handling
+    function initiateRazorpayPayment(addressId) {
+      // Show loading
+      Swal.fire({
+        title: 'Processing',
+        text: 'Initiating payment...',
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+        }
+      });
+
+      // Create order on server
+      fetch('/checkout/create-razorpay-order', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          addressId: addressId,
+          paymentMethod: 'Razorpay'
+        })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          Swal.close();
+          openRazorpayCheckout(data.order);
+        } else {
+          Swal.fire('Error', data.message || 'Failed to create order', 'error');
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        Swal.fire('Error', 'Something went wrong. Please try again.', 'error');
+      });
+    }
+
+    function openRazorpayCheckout(orderData) {
+      const options = {
+        key: '<%= process.env.RAZORPAY_KEY_ID %>', // Replace with your actual key ID
+        amount: orderData.amount,
+        currency: orderData.currency,
+        name: 'Choco Luxe',
+        description: 'Premium Chocolate Purchase',
+        image: '/assets/images/logo.png',
+        order_id: orderData.id,
+        handler: function (response) {
+          // Handle successful payment
+          verifyPayment(response, orderData);
+        },
+        prefill: {
+          name: '<%= user.username %>',
+          email: '<%= user.email %>',
+          contact: '<%= user.phone %>'
+        },
+        theme: {
+          color: '#8b5a2b'
+        },
+        modal: {
+          ondismiss: function() {
+            // Handle dismissal
+            Swal.fire({
+              title: 'Payment Cancelled',
+              text: 'You cancelled the payment process. Would you like to try again?',
+              icon: 'warning',
+              showCancelButton: true,
+              confirmButtonText: 'Try Again',
+              cancelButtonText: 'Cancel Order'
+            }).then((result) => {
+              if (result.isConfirmed) {
+                initiateRazorpayPayment(document.querySelector('input[name="addressId"]:checked').value);
+              } else {
+                window.location.href = '/checkout/payment-cancelled/' + orderData.receipt;
+              }
+            });
+          }
+        }
+      };
+      
+      const rzp = new Razorpay(options);
+      rzp.open();
+      
+      rzp.on('payment.failed', function (response) {
+        Swal.fire({
+          title: 'Payment Failed',
+          text: response.error.description,
+          icon: 'error',
+          confirmButtonText: 'Try Again'
+        }).then(() => {
+          window.location.href = '/checkout/payment-failed/' + orderData.receipt;
+        });
+      });
+    }
+
+    function verifyPayment(payment, order) {
+      fetch('/checkout/verify-payment', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          payment: payment,
+          order: order
+        })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          window.location.href = '/order-confirmation/' + data.orderId;
+        } else {
+          Swal.fire('Error', data.message || 'Payment verification failed', 'error');
+          setTimeout(() => {
+            window.location.href = '/checkout/payment-failed/' + order.receipt;
+          }, 3000);
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        Swal.fire('Error', 'Payment verification failed. Please contact support.', 'error');
+      });
+    }
+  </script>
+
+  <% if (typeof message !== 'undefined' && message) { %>
+    <script>
       Swal.fire({
         icon: 'info',
         title: 'Message',
-        text: '<%= message %>',
+        text: '<%= message %>'
       });
-    <% } %>
-  </script>
+    </script>
+  <% } %>
 </body>
 </html>
