@@ -73,6 +73,8 @@ exports.addToWishlist = async (req, res) => {
   }
 };
 
+
+
 exports.loadWishlist = async (req, res) => {
   try {
     const userId = req.session.user;
@@ -119,7 +121,7 @@ exports.loadWishlist = async (req, res) => {
           const categoryOffer = product.category?.categoryOffer || 0;
           effectiveOffer = Math.max(productOffer, categoryOffer);
 
-          // Determine the base price: use salePrice if it exists and is less than regularPrice, otherwise use regularPrice
+          
           basePrice = variant.salePrice && variant.salePrice < variant.regularPrice && variant.salePrice > 0
             ? variant.salePrice
             : variant.regularPrice;

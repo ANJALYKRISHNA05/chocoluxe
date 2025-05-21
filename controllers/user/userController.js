@@ -713,6 +713,7 @@ const addAddress = async (req, res) => {
         const userId = req.session.user._id;
         let { name, addressType, address, city, state, pincode, phone, isDefault } = req.body;
         
+        // Trim inputs
         name = name ? name.trim() : '';
         addressType = addressType ? addressType.trim() : '';
         address = address ? address.trim() : '';
@@ -721,52 +722,59 @@ const addAddress = async (req, res) => {
         pincode = pincode ? pincode.trim() : '';
         phone = phone ? phone.trim() : '';
         
+        // Required fields check
         if (!name || !addressType || !address || !city || !state || !pincode || !phone) {
             req.session.message = 'All fields are required.';
             return res.redirect('/user/address/add');
         }
         
-        const namePattern = /^[A-Za-z\s\.\-']{2,50}$/;
+        // Name validation
+        const namePattern = /^[A-Za-z][A-Za-z\s\.\-']{1,49}$/;
         if (!namePattern.test(name)) {
-            req.session.message = 'Name must contain only letters, spaces, and basic punctuation (2-50 characters).';
+            req.session.message = 'Name must start with a letter, contain only letters, spaces, periods, hyphens, or apostrophes (2-50 characters).';
             return res.redirect('/user/address/add');
         }
         
-        if (address.length < 5) {
-            req.session.message = 'Please enter a valid address (minimum 5 characters).';
+        // Address validation
+        if (address.length < 5 || address.length > 100) {
+            req.session.message = 'Address must be between 5 and 100 characters.';
             return res.redirect('/user/address/add');
         }
         
-        const locationPattern = /^[A-Za-z\s\-']{2,30}$/;
+        // City and State validation
+        const locationPattern = /^[A-Za-z][A-Za-z\s\-']{1,29}$/;
         if (!locationPattern.test(city)) {
-            req.session.message = 'City must contain only letters(2-30 characters).';
+            req.session.message = 'City must start with a letter, contain only letters, spaces, hyphens, or apostrophes (2-30 characters).';
             return res.redirect('/user/address/add');
         }
         
         if (!locationPattern.test(state)) {
-            req.session.message = 'State must contain only letters (2-30 characters).';
+            req.session.message = 'State must start with a letter, contain only letters, spaces, hyphens, or apostrophes (2-30 characters).';
             return res.redirect('/user/address/add');
         }
         
+        // Pincode validation
         const pincodePattern = /^\d{6}$/;
-        const phonePattern = /^\d{10}$/;
-        
         if (!pincodePattern.test(pincode)) {
-            req.session.message = 'Pincode must be 6 digits.';
+            req.session.message = 'Pincode must be exactly 6 digits.';
             return res.redirect('/user/address/add');
         }
         
+        // Phone validation
+        const phonePattern = /^[6-9]\d{9}$/;
         if (!phonePattern.test(phone)) {
-            req.session.message = 'Phone number must be 10 digits.';
+            req.session.message = 'Phone number must be 10 digits and start with 6, 7, 8, or 9.';
             return res.redirect('/user/address/add');
         }
         
+        // Address type validation
         const validAddressTypes = ['home', 'work', 'office', 'other'];
         if (!validAddressTypes.includes(addressType.toLowerCase())) {
-            req.session.message = 'Please select a valid address type.';
+            req.session.message = 'Invalid address type. Choose from Home, Work, Office, or Other.';
             return res.redirect('/user/address/add');
         }
         
+        // Handle default address
         if (isDefault === 'true') {
             await Address.updateMany(
                 { userId },
@@ -777,7 +785,7 @@ const addAddress = async (req, res) => {
         const newAddress = new Address({
             userId,
             name,
-            addressType,
+            addressType: addressType.toLowerCase(),
             address,
             city,
             state,
@@ -797,7 +805,7 @@ const addAddress = async (req, res) => {
         res.redirect('/user/address');
     } catch (error) {
         console.error('Error adding address:', error);
-        req.session.message = 'Error adding address.';
+        req.session.message = 'An error occurred while adding the address.';
         res.redirect('/user/address/add');
     }
 };
@@ -808,6 +816,7 @@ const updateAddress = async (req, res) => {
         const addressId = req.body.addressId;
         let { name, addressType, address, city, state, pincode, phone, isDefault } = req.body;
         
+        // Trim inputs
         name = name ? name.trim() : '';
         addressType = addressType ? addressType.trim() : '';
         address = address ? address.trim() : '';
@@ -816,58 +825,66 @@ const updateAddress = async (req, res) => {
         pincode = pincode ? pincode.trim() : '';
         phone = phone ? phone.trim() : '';
         
+        // Required fields check
         if (!name || !addressType || !address || !city || !state || !pincode || !phone) {
             req.session.message = 'All fields are required.';
             return res.redirect(`/user/address/edit/${addressId}`);
         }
         
-        const namePattern = /^[A-Za-z\s\.\-']{2,50}$/;
+        // Name validation
+        const namePattern = /^[A-Za-z][A-Za-z\s\.\-']{1,49}$/;
         if (!namePattern.test(name)) {
-            req.session.message = 'Name must contain only letters, spaces, and basic punctuation (2-50 characters).';
+            req.session.message = 'Name must start with a letter, contain only letters, spaces, periods, hyphens, or apostrophes (2-50 characters).';
             return res.redirect(`/user/address/edit/${addressId}`);
         }
         
-        if (address.length < 5) {
-            req.session.message = 'Please enter a valid address (minimum 5 characters).';
+        // Address validation
+        if (address.length < 5 || address.length > 100) {
+            req.session.message = 'Address must be between 5 and 100 characters.';
             return res.redirect(`/user/address/edit/${addressId}`);
         }
         
-        const locationPattern = /^[A-Za-z\s\-']{2,30}$/;
+        // City and State validation
+        const locationPattern = /^[A-Za-z][A-Za-z\s\-']{1,29}$/;
         if (!locationPattern.test(city)) {
-            req.session.message = 'City must contain only letters and spaces (2-30 characters).';
+            req.session.message = 'City must start with a letter, contain only letters, spaces, hyphens, or apostrophes (2-30 characters).';
             return res.redirect(`/user/address/edit/${addressId}`);
         }
         
         if (!locationPattern.test(state)) {
-            req.session.message = 'State must contain only letters and spaces (2-30 characters).';
+            req.session.message = 'State must start with a letter, contain only letters, spaces, hyphens, or apostrophes (2-30 characters).';
             return res.redirect(`/user/address/edit/${addressId}`);
         }
         
+        // Pincode validation
         const pincodePattern = /^\d{6}$/;
-        const phonePattern = /^\d{10}$/;
-        
         if (!pincodePattern.test(pincode)) {
-            req.session.message = 'Pincode must be 6 digits.';
+            req.session.message = 'Pincode must be exactly 6 digits.';
             return res.redirect(`/user/address/edit/${addressId}`);
         }
         
+        // Phone validation
+        const phonePattern = /^[6-9]\d{9}$/;
         if (!phonePattern.test(phone)) {
-            req.session.message = 'Phone number must be 10 digits.';
+            req.session.message = 'Phone number must be 10 digits and start with 6, 7, 8, or 9.';
             return res.redirect(`/user/address/edit/${addressId}`);
         }
-     
+        
+        // Address type validation
         const validAddressTypes = ['home', 'work', 'office', 'other'];
         if (!validAddressTypes.includes(addressType.toLowerCase())) {
-            req.session.message = 'Please select a valid address type.';
+            req.session.message = 'Invalid address type. Choose from Home, Work, Office, or Other.';
             return res.redirect(`/user/address/edit/${addressId}`);
         }
         
+        // Verify address exists
         const existingAddress = await Address.findOne({ _id: addressId, userId });
         if (!existingAddress) {
             req.session.message = 'Address not found.';
             return res.redirect('/user/address');
         }
         
+        // Handle default address
         if (isDefault === 'true') {
             await Address.updateMany(
                 { userId, _id: { $ne: addressId } },
@@ -879,7 +896,7 @@ const updateAddress = async (req, res) => {
             addressId,
             {
                 name,
-                addressType,
+                addressType: addressType.toLowerCase(),
                 address,
                 city,
                 state,
@@ -893,8 +910,8 @@ const updateAddress = async (req, res) => {
         res.redirect('/user/address');
     } catch (error) {
         console.error('Error updating address:', error);
-        req.session.message = 'Error updating address.';
-        res.redirect('/user/address');
+        req.session.message = 'An error occurred while updating the address.';
+        res.redirect(`/user/address/edit/${req.body.addressId}`);
     }
 };
 
@@ -910,7 +927,7 @@ const deleteAddress = async (req, res) => {
         }
         
         const wasDefault = address.isDefault;
-     
+        
         await Address.findByIdAndDelete(addressId);
         
         await User.findByIdAndUpdate(
@@ -932,7 +949,7 @@ const deleteAddress = async (req, res) => {
         res.redirect('/user/address');
     } catch (error) {
         console.error('Error deleting address:', error);
-        req.session.message = 'Error deleting address.';
+        req.session.message = 'An error occurred while deleting the address.';
         res.redirect('/user/address');
     }
 };
@@ -958,11 +975,11 @@ const setDefaultAddress = async (req, res) => {
             { isDefault: true }
         );
         
-        req.session.message = 'Default address updated.';
+        req.session.message = 'Default address set successfully.';
         res.redirect('/user/address');
     } catch (error) {
         console.error('Error setting default address:', error);
-        req.session.message = 'Error setting default address.';
+        req.session.message = 'An error occurred while setting the default address.';
         res.redirect('/user/address');
     }
 };
@@ -1013,6 +1030,12 @@ const changePassword = async (req, res) => {
             return res.redirect('/user/change-password');
         }
         
+        // Check for spaces in newPassword
+        if (/\s/.test(newPassword)) {
+            req.session.message = 'Password cannot contain spaces.';
+            return res.redirect('/user/change-password');
+        }
+        
         const passwordPatterns = {
             length: newPassword.length >= 8,
             uppercase: /[A-Z]/.test(newPassword),
@@ -1021,7 +1044,7 @@ const changePassword = async (req, res) => {
             special: /[^A-Za-z0-9]/.test(newPassword)
         };
         
-        if (Object.values(passwordPatterns).filter(Boolean).length < 5) {
+        if (Object.values(passwordPatterns).filter(Boolean).length < 4) {
             req.session.message = 'Password must be at least 8 characters long and include uppercase, lowercase, number, and special character.';
             return res.redirect('/user/change-password');
         }

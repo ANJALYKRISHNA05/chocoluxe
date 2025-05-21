@@ -11,7 +11,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <style>
-    /* Global Styles */
+    
     body {
       font-family: 'Nunito Sans', sans-serif;
       background-color: #fcf9f7;
@@ -25,7 +25,7 @@
       padding: 3rem 0;
     }
 
-    /* Page Title Styling */
+   
     .page-title {
       font-family: 'Playfair Display', serif;
       color: #33261d;
@@ -46,7 +46,7 @@
       background: linear-gradient(90deg, #8b5a2b, transparent);
     }
 
-    /* Cart Item Styling */
+   
     .cart-item {
       border: none;
       border-radius: 12px;
@@ -141,7 +141,7 @@
       color: #fff;
     }
 
-    /* Remove Button Styling */
+  
     .remove-item {
       background-color: #fff;
       border: 1px solid #dc3545;
@@ -162,7 +162,7 @@
       box-shadow: 0 5px 10px rgba(220, 53, 69, 0.25);
     }
 
-    /* Cart Summary Styling */
+  
     .cart-summary {
       border: none;
       border-radius: 12px;
@@ -221,7 +221,7 @@
       cursor: not-allowed;
     }
 
-    /* Coupon Section Styling */
+    
     .coupon-section {
       margin-bottom: 1.5rem;
     }
@@ -480,6 +480,9 @@
                       <span class="badge bg-light text-dark me-2"><%= item.variant.flavor %></span>
                       <span class="badge bg-light text-dark me-2"><%= item.variant.sugarLevel %> sugar</span>
                       <span class="badge bg-light text-dark"><%= item.variant.weight %>g</span>
+                      <% if (item.isOutOfStock) { %>
+                        <span class="badge bg-danger ms-2">Out of Stock</span>
+                      <% } %>
                     </div>
                     <p class="price-info">
                       <span class="price-label">Price:</span> 
@@ -514,7 +517,7 @@
                 </div>
               </div>
             <% }); %>
-            <!-- Available Coupons -->
+          
             <% if (availableCoupons && availableCoupons.length > 0) { %>
               <div class="available-coupons">
                 <h4>Available Coupons</h4>
@@ -533,7 +536,7 @@
             <div class="cart-summary">
               <h4><i class="fas fa-shopping-basket me-2"></i>Cart Summary</h4>
               <hr>
-              <!-- Coupon Input -->
+              
               <div class="coupon-section">
                 <div class="input-group coupon-input-group">
                   <input type="text" class="form-control coupon-input" id="couponCode" placeholder="Enter Coupon Code" <%= appliedCoupon ? 'disabled' : '' %>>
@@ -563,12 +566,16 @@
                 <span class="fw-bold cart-total">₹<%= total.toFixed(2) %></span>
               </div>
               <div class="checkout-container mt-4">
-                <button type="button" class="btn btn-primary btn-lg w-100 proceed-checkout" onclick="location.href='/checkout'" <%= hasInvalidItems ? 'disabled' : '' %>>
+                <button type="button" class="btn btn-primary btn-lg w-100 proceed-checkout" onclick="validateCouponAndProceed()" <%= (hasInvalidItems || hasOutOfStockItems) ? 'disabled' : '' %>>
                   <i class="fas fa-credit-card me-2"></i>Proceed to Checkout
                 </button>
                 <% if (hasInvalidItems) { %>
                   <p class="error-message mt-3"><i class="fas fa-exclamation-circle me-2"></i>Please remove invalid items to proceed</p>
                 <% } %>
+                <% if (hasOutOfStockItems) { %>
+                  <p class="error-message mt-3"><i class="fas fa-exclamation-circle me-2"></i>Please remove out-of-stock items to proceed</p>
+                <% } %>
+                <div id="coupon-validation-message" class="error-message mt-3" style="display: none;"></div>
               </div>
             </div>
           </div>
@@ -862,7 +869,150 @@
       });
     });
 
-    document.addEventListener('DOMContentLoaded', fetchCartItemCount);
+    document.addEventListener('DOMContentLoaded', function() {
+      fetchCartItemCount();
+    });
+
+   
+    async function validateCouponAndProceed() {
+   
+      const appliedCouponDiv = document.querySelector('.applied-coupon');
+      
+      if (!appliedCouponDiv) {
+        
+        window.location.href = '/checkout';
+        return;
+      }
+      
+      try {
+        
+        const proceedButton = document.querySelector('.proceed-checkout');
+        const originalButtonText = proceedButton.innerHTML;
+        proceedButton.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Validating...';
+        proceedButton.disabled = true;
+        
+        
+        const response = await fetch('/cart/validate-coupon', {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' }
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+          
+          window.location.href = '/checkout';
+        } else {
+          
+          proceedButton.innerHTML = originalButtonText;
+          proceedButton.disabled = false;
+          
+          const messageDiv = document.getElementById('coupon-validation-message');
+          messageDiv.innerHTML = `<i class="fas fa-exclamation-circle me-2"></i>${data.message}`;
+          messageDiv.style.display = 'block';
+          
+         
+          if (data.couponRemoved) {
+            updateCartSummary(data);
+            
+           
+            Swal.fire({
+              title: 'Coupon Removed',
+              text: data.message,
+              icon: 'warning',
+              toast: true,
+              position: 'top-end',
+              showConfirmButton: false,
+              timer: 5000,
+              timerProgressBar: true
+            });
+          }
+        }
+      } catch (error) {
+        console.error('Error validating coupon:', error);
+        const messageDiv = document.getElementById('coupon-validation-message');
+        messageDiv.innerHTML = '<i class="fas fa-exclamation-circle me-2"></i>An error occurred while validating the coupon. Please try again.';
+        messageDiv.style.display = 'block';
+        
+       
+        const proceedButton = document.querySelector('.proceed-checkout');
+        proceedButton.innerHTML = '<i class="fas fa-credit-card me-2"></i>Proceed to Checkout';
+        proceedButton.disabled = false;
+      }
+    }
+
   </script>
 </body>
 </html>
+
+        document.addEventListener('DOMContentLoaded', function() {
+          fetchCartItemCount();
+        });
+
+        async function validateCouponAndProceed() {
+          // Check if there's an applied coupon
+          const appliedCouponDiv = document.querySelector('.applied-coupon');
+          if (appliedCouponDiv) {
+            try {
+              // Show loading indicator
+              const proceedButton = document.querySelector('.proceed-checkout');
+              const originalButtonText = proceedButton.innerHTML;
+              proceedButton.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Validating...';
+              proceedButton.disabled = true;
+              
+              // Validate the coupon
+              const response = await fetch('/cart/validate-coupon', {
+                method: 'GET',
+                headers: { 'Content-Type': 'application/json' }
+              });
+              
+              const data = await response.json();
+              
+              if (data.success) {
+                // Coupon is valid, proceed to checkout
+                window.location.href = '/checkout';
+              } else {
+                // Coupon is invalid, show error message
+                proceedButton.innerHTML = originalButtonText;
+                proceedButton.disabled = false;
+                
+                const messageDiv = document.getElementById('coupon-validation-message');
+                messageDiv.innerHTML = `<i class="fas fa-exclamation-circle me-2"></i>${data.message}`;
+                messageDiv.style.display = 'block';
+                
+                // Remove the invalid coupon
+                if (data.couponRemoved) {
+                  updateCartSummary(data);
+                  
+                  // Show toast notification
+                  Swal.fire({
+                    title: 'Coupon Removed',
+                    text: data.message,
+                    icon: 'warning',
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 5000,
+                    timerProgressBar: true
+                  });
+                }
+              }
+            } catch (error) {
+              console.error('Error validating coupon:', error);
+              const messageDiv = document.getElementById('coupon-validation-message');
+              messageDiv.innerHTML = '<i class="fas fa-exclamation-circle me-2"></i>An error occurred while validating the coupon. Please try again.';
+              messageDiv.style.display = 'block';
+              
+              // Reset button
+              const proceedButton = document.querySelector('.proceed-checkout');
+              proceedButton.innerHTML = '<i class="fas fa-credit-card me-2"></i>Proceed to Checkout';
+              proceedButton.disabled = false;
+            }
+          } else {
+            // No coupon applied, proceed directly to checkout
+            window.location.href = '/checkout';
+          }
+        }
+      </script>
+    </body>
+  </html>

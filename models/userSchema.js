@@ -64,7 +64,7 @@ const userSchema = new mongoose.Schema({
   },
 });
 
-// Generate a unique referral code before saving a new user
+
 userSchema.pre("save", async function (next) {
   if (this.isNew && !this.referralCode) {
     let isUnique = false;

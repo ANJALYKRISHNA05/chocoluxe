@@ -12,7 +12,7 @@ const path = require('path');
 const Razorpay = require('razorpay');
 const crypto = require('crypto');
 
-// Initialize Razorpay
+
 const razorpay = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID,
   key_secret: process.env.RAZORPAY_KEY_SECRET
@@ -223,6 +223,7 @@ exports.loadCheckout = async (req, res) => {
     }
 
     let invalidItems = [];
+    let outOfStockItems = [];
     const cartItems = cart.items.map((item) => {
       let errorMessage = null;
       const product = item.product;
@@ -237,8 +238,18 @@ exports.loadCheckout = async (req, res) => {
         errorMessage = "Product category is unavailable";
         invalidItems.push({ sku: item.sku, errorMessage });
       }
-
+      
+      // Check if the product is out of stock
       const variant = product?.variants.find((v) => v.sku === item.sku);
+      if (variant && variant.stock_quantity < item.quantity) {
+        errorMessage = "Product is out of stock";
+        outOfStockItems.push({ 
+          sku: item.sku, 
+          productName: product.productName,
+          available: variant.stock_quantity,
+          requested: item.quantity 
+        });
+      }
       let effectiveOffer = 0;
       let offerPrice = 0;
       let originalPrice = 0;
@@ -271,6 +282,16 @@ exports.loadCheckout = async (req, res) => {
 
     if (invalidItems.length > 0) {
       req.session.message = "Some items in your cart are invalid. Please remove them to proceed.";
+      return res.redirect("/cart");
+    }
+    
+    if (outOfStockItems.length > 0) {
+      // Format a detailed message about out-of-stock items
+      const itemMessages = outOfStockItems.map(item => 
+        `${item.productName} (Available: ${item.available}, Requested: ${item.requested})`
+      ).join(', ');
+      
+      req.session.message = `Some items in your cart are out of stock: ${itemMessages}. Please update quantities or remove these items to proceed.`;
       return res.redirect("/cart");
     }
 

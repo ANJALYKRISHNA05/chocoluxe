@@ -192,13 +192,13 @@
             position: absolute; 
             top: 45px; 
             right: 0; 
-            background-color: var(--text-light); 
-            border: none; 
-            border-radius: 8px; 
-            padding: 0.8rem 0; 
+            background-color: white; 
+            border: 1px solid rgba(0,0,0,0.1); 
+            border-radius: 10px; 
+            padding: 8px 0; 
             z-index: 1000; 
             min-width: 200px; 
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
             animation: fadeIn 0.3s ease;
         }
         
@@ -214,31 +214,45 @@
             right: 15px;
             width: 16px;
             height: 16px;
-            background-color: var(--text-light);
+            background-color: white;
             transform: rotate(45deg);
+            border-top: 1px solid rgba(0,0,0,0.1);
+            border-left: 1px solid rgba(0,0,0,0.1);
         }
         
-        .user-dropdown a { 
-            display: flex; 
-            align-items: center; 
-            padding: 0.8rem 1.5rem; 
-            color: var(--text-dark); 
-            font-size: 0.95rem; 
-            gap: 12px; 
-            transition: var(--transition);
+        .dropdown-item { 
+            display: flex !important; 
+            align-items: center !important; 
+            padding: 12px 16px !important; 
+            color: var(--text-dark) !important; 
+            font-size: 0.95rem !important; 
+            transition: all 0.2s ease !important;
+            text-decoration: none !important;
+            width: 100% !important;
+            box-sizing: border-box !important;
+            position: relative !important;
+            border-left: 3px solid transparent !important;
         }
         
-        .user-dropdown a i { 
-            font-size: 1.1rem; 
-            color: var(--primary);
-            width: 20px;
-            text-align: center;
-            
+        .dropdown-item i { 
+            font-size: 1.1rem !important; 
+            color: var(--primary) !important;
+            width: 30px !important;
+            display: flex !important;
+            justify-content: center !important;
+            align-items: center !important;
+            margin-right: 10px !important;
         }
         
-        .user-dropdown a:hover { 
-            background-color: rgba(0,0,0,0.05); 
-            color: var(--primary); 
+        .dropdown-item span {
+            display: inline-block !important;
+            font-weight: 500 !important;
+        }
+        
+        .dropdown-item:hover { 
+            background-color: rgba(0,0,0,0.05) !important; 
+            color: var(--primary) !important; 
+            border-left: 3px solid var(--primary) !important;
         }
         
         .user-menu.active .user-dropdown { 
@@ -401,12 +415,12 @@
                     <span class="cart-badge"></span>
                 </a>
                 <div class="user-menu">
-                    <a href="#" onclick="toggleUserMenu()"><i class="fas fa-user"></i></a>
+                    <a href="#" onclick="toggleUserMenu(event)"><i class="fas fa-user"></i></a>
                     <div class="user-dropdown">
-                        <a href="/user/profile"><i class="fas fa-user-circle"></i> Profile</a>
-                        <a href="/user/orders"><i class="fas fa-box"></i> My Orders</a>
-                        <a href="/wishlist"><i class="fas fa-heart"></i> Wishlist</a>
-                        <a href="/user/logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                        <a href="/user/profile" class="dropdown-item"><i class="fas fa-user-circle"></i><span>Profile</span></a>
+                        <a href="/user/orders" class="dropdown-item"><i class="fas fa-box"></i><span>My Orders</span></a>
+                        <a href="/wishlist" class="dropdown-item"><i class="fas fa-heart"></i><span>Wishlist</span></a>
+                        <a href="/user/logout" class="dropdown-item"><i class="fas fa-sign-out-alt"></i><span>Logout</span></a>
                     </div>
                 </div>
             </div>
@@ -418,7 +432,8 @@
             navbar.classList.toggle('active');
         }
 
-        function toggleUserMenu() {
+        function toggleUserMenu(event) {
+            event.preventDefault();
             const userMenu = document.querySelector('.user-menu');
             userMenu.classList.toggle('active');
         }
