@@ -214,7 +214,7 @@ const loadLogin = async (req, res) => {
 
 const login = async (req, res) => {
     try {
-        const { email, password } = req.body;
+        const { email, password, returnTo } = req.body;
         const user = await User.findOne({ isAdmin: 0, email });
         
         if (!user || !(await bcrypt.compare(password, user.password))) {
@@ -238,7 +238,19 @@ const login = async (req, res) => {
             profileImage: user.profileImage || '/Images/default-profile.jpg'
         };
         console.log('Login successful - Session:', req.session);
-        res.redirect('/');
+        
+        // Determine where to redirect the user
+        // Priority: 1. Form returnTo (from localStorage), 2. Session returnTo, 3. Homepage
+        let redirectUrl = '/';
+        
+        if (returnTo) {
+            redirectUrl = returnTo;
+        } else if (req.session.returnTo) {
+            redirectUrl = req.session.returnTo;
+            delete req.session.returnTo; // Clear the returnTo after using it
+        }
+        
+        res.redirect(redirectUrl);
     } catch (error) {
         console.error('Login error:', error);
         req.session.message = 'An error occurred during login. Please try again.';
@@ -1161,7 +1173,10 @@ const handleGoogleCallback = async (req, res) => {
         delete req.session.referralCode;
     }
     
-    res.redirect('/');
+    // Redirect to the stored returnTo URL if it exists, otherwise to homepage
+    const returnTo = req.session.returnTo || '/';
+    delete req.session.returnTo; // Clear the returnTo after using it
+    res.redirect(returnTo);
 };
 
 module.exports = {

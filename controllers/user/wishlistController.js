@@ -8,9 +8,11 @@ exports.addToWishlist = async (req, res) => {
     const userId = req.session.user;
 
     if (!userId) {
-      return res.status(401).json({
+      return res.json({
         success: false,
+        requireLogin: true,
         message: "Please log in to add items to wishlist",
+        redirectUrl: "/user/login"
       });
     }
 

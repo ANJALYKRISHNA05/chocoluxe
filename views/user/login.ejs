@@ -101,6 +101,26 @@
                             <img src="https://www.google.com/s2/favicons?domain=google.com" alt="Google"> Continue with Google
                         </a>
                     </form>
+
+<script>
+    // Check if there's a returnTo URL in localStorage
+    document.addEventListener('DOMContentLoaded', function() {
+        const returnTo = localStorage.getItem('returnTo');
+        if (returnTo) {
+            // Create a hidden input field to pass the returnTo URL to the server
+            const hiddenInput = document.createElement('input');
+            hiddenInput.type = 'hidden';
+            hiddenInput.name = 'returnTo';
+            hiddenInput.value = returnTo;
+            
+            // Add the hidden input to the form
+            document.querySelector('form').appendChild(hiddenInput);
+            
+            // Clear the returnTo from localStorage
+            localStorage.removeItem('returnTo');
+        }
+    });
+</script>
                     <p class="sign-up-link mt-3">Don't have an account? <a href="/user/signup">Sign up</a></p>
                 </div>
             </div>

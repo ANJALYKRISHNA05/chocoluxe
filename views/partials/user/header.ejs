@@ -128,14 +128,34 @@
         }
         
         .navbar .nav-icons a {
-            position: relative;
             display: flex;
-            align-items: center;
             justify-content: center;
+            align-items: center;
             width: 40px;
             height: 40px;
             border-radius: 50%;
+            background-color: rgba(255,255,255,0.1);
             transition: var(--transition);
+        }
+        
+        .navbar .nav-icons .login-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            background-color: var(--accent);
+            color: var(--primary-dark);
+            font-weight: 600;
+            width: auto;
+            height: auto;
+            transition: all 0.3s ease;
+        }
+        
+        .navbar .nav-icons .login-btn:hover {
+            background-color: var(--accent-light);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
         }
         
         .navbar .nav-icons a:hover {
@@ -406,6 +426,8 @@
                 <a href="/products">Products</a>
             </div>
             <div class="nav-icons">
+                <% if (user) { %>
+                <!-- If user is logged in, show wishlist, cart and user menu -->
                 <a href="/wishlist" class="position-relative">
                     <i class="fas fa-heart"></i>
                     <span class="wishlist-badge"></span>
@@ -420,9 +442,14 @@
                         <a href="/user/profile" class="dropdown-item"><i class="fas fa-user-circle"></i><span>Profile</span></a>
                         <a href="/user/orders" class="dropdown-item"><i class="fas fa-box"></i><span>My Orders</span></a>
                         <a href="/wishlist" class="dropdown-item"><i class="fas fa-heart"></i><span>Wishlist</span></a>
+                        <a href="/user/wallet" class="dropdown-item"><i class="fas fa-wallet"></i><span>Wallet</span></a>
                         <a href="/user/logout" class="dropdown-item"><i class="fas fa-sign-out-alt"></i><span>Logout</span></a>
                     </div>
                 </div>
+                <% } else { %>
+                <!-- If user is not logged in, show login button -->
+                <a href="/user/login" class="login-btn"><i class="fas fa-sign-in-alt"></i> Login</a>
+                <% } %>
             </div>
         </div>
     </nav>
@@ -474,6 +501,8 @@
 
       
 function fetchCartItemCount() {
+<% if (typeof user !== 'undefined' && user) { %>
+    // Only fetch cart count if user is logged in
     fetch('/cart/item-count', {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' }
@@ -490,10 +519,13 @@ function fetchCartItemCount() {
         }
     })
     .catch(error => console.error('Error fetching cart count:', error));
+<% } %>
 }
 
 
 function fetchWishlistItemCount() {
+<% if (typeof user !== 'undefined' && user) { %>
+    // Only fetch wishlist count if user is logged in
     fetch('/wishlist/item-count', {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' }
@@ -510,12 +542,57 @@ function fetchWishlistItemCount() {
         }
     })
     .catch(error => console.error('Error fetching wishlist count:', error));
+<% } %>
 }
 
         
         document.addEventListener('DOMContentLoaded', function() {
             fetchCartItemCount();
             fetchWishlistItemCount();
+        });
+        // Function to handle actions that require login
+        function requireLogin(event, action) {
+            <% if (typeof user === 'undefined' || !user) { %>
+            event.preventDefault();
+            // Store the URL they were trying to access
+            const returnUrl = event.currentTarget.getAttribute('href');
+            if (returnUrl) {
+                // Store the return URL in localStorage
+                localStorage.setItem('returnTo', returnUrl);
+            }
+            
+            // Show message using SweetAlert
+            Swal.fire({
+                title: 'Login Required',
+                text: `Please login to ${action}`,
+                icon: 'info',
+                showCancelButton: true,
+                confirmButtonColor: '#d4a26a',
+                cancelButtonColor: '#3a1c1a',
+                confirmButtonText: 'Login Now',
+                cancelButtonText: 'Later'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = '/user/login';
+                }
+            });
+            <% } %>
+        }
+        
+        // Add event listeners to elements that require login
+        document.addEventListener('DOMContentLoaded', function() {
+            <% if (typeof user === 'undefined' || !user) { %>
+            // Add event listeners to cart and wishlist links
+            const cartLinks = document.querySelectorAll('a[href="/cart"]');
+            cartLinks.forEach(link => {
+                link.addEventListener('click', (e) => requireLogin(e, 'access your cart'));
+            });
+            
+            const wishlistLinks = document.querySelectorAll('a[href="/wishlist"]');
+            wishlistLinks.forEach(link => {
+                link.addEventListener('click', (e) => requireLogin(e, 'access your wishlist'));
+            });
+            <% } %>
         });
     </script>
 </body>

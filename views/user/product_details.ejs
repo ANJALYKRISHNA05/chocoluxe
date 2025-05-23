@@ -384,6 +384,24 @@
             const badge = document.querySelector('.cart-badge');
             badge.textContent = data.itemCount;
             badge.style.display = 'inline-block';
+          } else if (data.requireLogin) {
+            // Store the current URL to redirect back after login
+            localStorage.setItem('returnToUrl', window.location.href);
+            
+            Swal.fire({
+              title: 'Login Required',
+              text: data.message,
+              icon: 'info',
+              showCancelButton: true,
+              confirmButtonColor: '#8b5a2b',
+              cancelButtonColor: '#6c757d',
+              confirmButtonText: 'Login Now',
+              cancelButtonText: 'Continue Exploring'
+            }).then((result) => {
+              if (result.isConfirmed) {
+                window.location.href = data.redirectUrl;
+              }
+            });
           } else {
             Swal.fire('Error', data.message || 'Failed to add product to cart', 'error');
           }
@@ -415,6 +433,24 @@
             const wishlistBadge = document.querySelector('.wishlist-badge');
             wishlistBadge.textContent = data.itemCount;
             wishlistBadge.style.display = 'inline-block';
+          } else if (data.requireLogin) {
+            // Store the current URL to redirect back after login
+            localStorage.setItem('returnToUrl', window.location.href);
+            
+            Swal.fire({
+              title: 'Login Required',
+              text: data.message,
+              icon: 'info',
+              showCancelButton: true,
+              confirmButtonColor: '#8b5a2b',
+              cancelButtonColor: '#6c757d',
+              confirmButtonText: 'Login Now',
+              cancelButtonText: 'Continue Exploring'
+            }).then((result) => {
+              if (result.isConfirmed) {
+                window.location.href = data.redirectUrl;
+              }
+            });
           } else {
             Swal.fire('Error', data.message || 'Failed to add product to wishlist', 'error');
           }

@@ -1,23 +1,44 @@
 const User = require("../models/userSchema");
 
 const userAuth = (req, res, next) => {
+    // Public routes that don't require authentication
+    const publicRoutes = [
+        '/',
+        '/products',
+        '/product',
+        '/about',
+        '/contact',
+        '/search'
+    ];
+    
+    // Check if the current route is a public route
+    const isPublicRoute = publicRoutes.some(route => req.originalUrl.startsWith(route));
+    
     if (req.session.user) {
         User.findById(req.session.user._id)
             .then(data => {
                 if (data && !data.isBlocked) {
-                  
                     req.session.user.profileImage = data.profileImage || '/Images/default-profile.jpg';
                     next();
                 } else {
-                    res.status(401).json({ success: false, message: 'User is blocked or not found' });
+                    // Redirect to login page with message if user is blocked
+                    req.session.message = 'Your account has been blocked. Please contact support.';
+                    res.redirect('/user/login');
                 }
             })
             .catch(error => {
                 console.log('Error in user auth middleware:', error);
-                res.status(500).json({ success: false, message: 'Internal Server Error' });
+                req.session.message = 'An error occurred. Please try again.';
+                res.redirect('/user/login');
             });
+    } else if (isPublicRoute) {
+        // Allow access to public routes without login
+        next();
     } else {
-        res.status(401).json({ success: false, message: 'Please log in' });
+        // Store the URL they were trying to access
+        req.session.returnTo = req.originalUrl;
+        req.session.message = 'Please log in to continue';
+        res.redirect('/user/login');
     }
 };
 

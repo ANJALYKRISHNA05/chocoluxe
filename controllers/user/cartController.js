@@ -12,9 +12,11 @@ exports.addToCart = async (req, res) => {
     const MAX_QUANTITY_PER_ITEM = 5;
 
     if (!userId) {
-      return res.status(401).json({
+      return res.json({
         success: false,
+        requireLogin: true,
         message: "Please log in to add items to cart",
+        redirectUrl: "/user/login"
       });
     }
 
