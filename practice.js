@@ -1,5 +1,6 @@
 const { default: items } = require("razorpay/dist/types/items");
 const Cart = require("./models/cartSchema");
+const Wallet = require("./models/walletSchema");
 
 exports.addToCart=async(req,res)=>{
     try{
@@ -557,6 +558,61 @@ exports.removeCoupon=async(req,res)=>{
 }
 
 
-const existingitems=wishlist.items.some((item)=>item.product.toString()===productId&&item.sku==variant.sku)
+const existingitems=wishlist.items.some((item)=>item.product.toString()===productId&&item.sku==var)
 
 
+exports.loadwallet=async(req,res)=>{
+    try{
+        const userId=req.session.user._id
+        const wallet=await Wallet.findOne({userId}).populate("userId")
+        const user=await User.findById(userId).select("referralCode")
+        if(!wallet){
+            const newwallet=new Wallet({userId,balance:0,transaction:[]})
+            await newwallet.save()
+            return res.render("user/wallet",{
+                wallet:newwallet,user:req.session.user,title:"your wallet",message:"",referralcode=user.referralCode,referralBonus:0
+            })
+        }
+        const referralBonus=wallet.transactions.filter(t=>t.description.includes('Referral Bonus')).reduce((sum,t)=>sum+transactionAmount,0)
+        res.render("user/wallet",{
+            wallet,user:req.session.user,message:req.session.message,referralcode:user.referralCode,referralBonus
+        })
+
+    }catch(error){
+        console.error("Error loading wallet",error)
+        res.status(500).json({success:false,message:"Error loading wallet"})
+    }
+}
+const referralBonus=wallet.transaction.filter(t=>t.desctiption.includes('Referral Bonus')).reduce((sum,t)=>sum+t.transactionAmount,0)
+
+
+exports.requestreturn=async(req,res)=>{
+    try{
+        const userId=req.session.user._id
+        const orderId=req.params.orderId
+        const {reason}=req.body
+        if(!reason){
+            return res.status(401).json({success:false,message:'reason should be there'})
+        }
+        const order=await Order.findOne({orderId,user:userId})
+        if(!order){
+            return res
+        }
+        if(order.status!==Delivered||order.return.requested){
+            return res.status
+        }
+
+    }catch(error){
+        console.log('Error requesting',error)
+        res.status(401).json({success:false,message:'Error requesting'})
+    }
+}
+const totalProducts=await Product.countDocuments({isBlocked:false})
+const ordestatuscounts=await Order.aggregate([
+    {
+        $group:{
+            _id:"$status",
+            count:{$sum:1}
+        }
+    }
+])

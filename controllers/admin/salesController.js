@@ -7,51 +7,48 @@ const ExcelJS = require('exceljs');
 const fs = require('fs');
 const path = require('path');
 
-// Load the sales report page
+
 exports.loadSalesReport = async (req, res) => {
     try {
-        // Default to current date for "daily" report
+       
         const today = new Date();
         const startDate = new Date(today.setHours(0, 0, 0, 0));
         const endDate = new Date(today.setHours(23, 59, 59, 999));
         
-        // Get filter type from query params or default to 'daily'
+       
         const filterType = req.query.filter || 'daily';
         const customStartDate = req.query.startDate ? new Date(req.query.startDate) : null;
         const customEndDate = req.query.endDate ? new Date(req.query.endDate) : null;
         
-        // Set date range based on filter type
+       
         let dateRange = { startDate, endDate };
         
         if (filterType === 'weekly') {
-            // Calculate start of week (Sunday)
+         
             const day = today.getDay();
             const diff = today.getDate() - day;
             dateRange.startDate = new Date(today.setDate(diff));
             dateRange.startDate.setHours(0, 0, 0, 0);
             
-            // End of week (Saturday)
             dateRange.endDate = new Date(dateRange.startDate);
             dateRange.endDate.setDate(dateRange.startDate.getDate() + 6);
             dateRange.endDate.setHours(23, 59, 59, 999);
         } else if (filterType === 'monthly') {
-            // Start of month
+        
             dateRange.startDate = new Date(today.getFullYear(), today.getMonth(), 1);
             dateRange.startDate.setHours(0, 0, 0, 0);
-            
-            // End of month
+         
             dateRange.endDate = new Date(today.getFullYear(), today.getMonth() + 1, 0);
             dateRange.endDate.setHours(23, 59, 59, 999);
         } else if (filterType === 'yearly') {
-            // Start of year
+         
             dateRange.startDate = new Date(today.getFullYear(), 0, 1);
             dateRange.startDate.setHours(0, 0, 0, 0);
             
-            // End of year
             dateRange.endDate = new Date(today.getFullYear(), 11, 31);
             dateRange.endDate.setHours(23, 59, 59, 999);
         } else if (filterType === 'custom' && customStartDate && customEndDate) {
-            // Custom date range
+          
             dateRange.startDate = new Date(customStartDate);
             dateRange.startDate.setHours(0, 0, 0, 0);
             
@@ -59,7 +56,7 @@ exports.loadSalesReport = async (req, res) => {
             dateRange.endDate.setHours(23, 59, 59, 999);
         }
         
-        // Query orders within the date range
+       
         const orders = await Order.find({
             createdAt: { $gte: dateRange.startDate, $lte: dateRange.endDate },
             status: { $nin: ['Cancelled', 'Returned'] } // Exclude cancelled and returned orders

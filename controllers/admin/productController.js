@@ -7,9 +7,16 @@ exports.loadProducts = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 4;
     const skip = (page - 1) * limit;
+    const searchQuery = req.query.search || '';
 
-    const totalProducts = await Product.countDocuments();
-    const products = await Product.find()
+    // Create filter object for search
+    const filter = {};
+    if (searchQuery) {
+      filter.productName = { $regex: searchQuery, $options: 'i' };
+    }
+
+    const totalProducts = await Product.countDocuments(filter);
+    const products = await Product.find(filter)
       .populate('category')
       .sort({ createdAt: -1 }) 
       .skip(skip)
@@ -21,7 +28,8 @@ exports.loadProducts = async (req, res) => {
       currentPage: page,
       totalPages: Math.ceil(totalProducts / limit),
       limit,
-      totalProducts
+      totalProducts,
+      searchQuery
     });
   } catch (error) {
     console.error('Error loading products:', error);

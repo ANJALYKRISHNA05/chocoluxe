@@ -7,7 +7,7 @@ passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
     callbackURL: '/user/auth/google/callback',
-    passReqToCallback: true  // Pass request to callback
+    passReqToCallback: true  
 },
 async (req, accessToken, refreshToken, profile, done) => {
     try {
@@ -15,7 +15,7 @@ async (req, accessToken, refreshToken, profile, done) => {
         if (user) {
             return done(null, user);
         } else {
-            // Store the referral code in session if available
+          
             const referralCode = req.session.referralCode;
             console.log('Google Auth - Referral Code from session:', referralCode);
             let referredBy = null;
@@ -26,7 +26,7 @@ async (req, accessToken, refreshToken, profile, done) => {
                 if (referrer) {
                     referredBy = referrer._id;
                     console.log('Google Auth - Referrer ID:', referredBy);
-                    // Store referral info in session for callback access
+                   
                     req.session.googleReferral = {
                         referralCode,
                         referrerId: referrer._id,
@@ -45,7 +45,7 @@ async (req, accessToken, refreshToken, profile, done) => {
             });
             await user.save();
             
-            // Store the new user in the session for processing referral benefits later
+            
             req.session.newGoogleUser = {
                 userId: user._id,
                 referredBy: referredBy

@@ -49,6 +49,54 @@
       box-shadow: 0 4px 8px rgba(0,0,0,0.1);
     }
     
+    /* Search bar styles */
+    .search-form {
+      min-width: 280px;
+    }
+    
+    .search-form .input-group {
+      border-radius: 5px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    
+    .search-form input {
+      border: 1px solid #e9e9e9;
+      border-right: none;
+      font-size: 14px;
+      padding: 8px 12px;
+    }
+    
+    .search-form input:focus {
+      box-shadow: none;
+      border-color: var(--secondary-color);
+    }
+    
+    .search-btn {
+      background-color: var(--secondary-color);
+      color: white;
+      border: none;
+      padding: 8px 15px;
+      transition: all 0.3s ease;
+    }
+    
+    .search-btn:hover {
+      background-color: var(--primary-color);
+    }
+    
+    .clear-search-btn {
+      background-color: #f8f9fa;
+      color: #6c757d;
+      border: 1px solid #e9e9e9;
+      border-left: none;
+      transition: all 0.3s ease;
+    }
+    
+    .clear-search-btn:hover {
+      background-color: #e9ecef;
+      color: #495057;
+    }
+    
     .product-card-table {
       background-color: white;
       border-radius: 8px;
@@ -302,11 +350,26 @@
         <%- include('../partials/admin/sidebar', { activePage: 'products' }) %>
 
         <main class="col-md-9 col-lg-10 p-0 ps-0 pe-3 py-4">
-          <div class="page-header d-flex justify-content-between align-items-center">
+          <div class="page-header d-flex justify-content-between align-items-center flex-wrap">
             <h1 class="page-title">Products</h1>
-            <a href="/admin/products/add" class="btn add-product-btn text-white">
-              <i class="fas fa-plus me-2"></i>Add Product
-            </a>
+            <div class="d-flex gap-3 mt-2 mt-md-0">
+              <form action="/admin/products" method="GET" class="search-form d-flex">
+                <div class="input-group">
+                  <input type="text" name="search" class="form-control" placeholder="Search by product name..." value="<%= searchQuery ? searchQuery : '' %>">
+                  <button class="btn search-btn" type="submit">
+                    <i class="fas fa-search"></i>
+                  </button>
+                  <% if (searchQuery) { %>
+                    <a href="/admin/products" class="btn clear-search-btn">
+                      <i class="fas fa-times"></i>
+                    </a>
+                  <% } %>
+                </div>
+              </form>
+              <a href="/admin/products/add" class="btn add-product-btn text-white">
+                <i class="fas fa-plus me-2"></i>Add Product
+              </a>
+            </div>
           </div>
 
           <div class="table-responsive product-card-table">
@@ -404,19 +467,19 @@
               <nav aria-label="Page navigation">
                 <ul class="pagination justify-content-center">
                   <li class="page-item <%= currentPage === 1 ? 'disabled' : '' %>">
-                    <a class="page-link" href="/admin/products?page=<%= currentPage - 1 %>&limit=<%= limit %>" aria-label="Previous">
+                    <a class="page-link" href="/admin/products?page=<%= currentPage - 1 %>&limit=<%= limit %><%= searchQuery ? '&search=' + searchQuery : '' %>" aria-label="Previous">
                       <span aria-hidden="true">«</span>
                     </a>
                   </li>
                   
                   <% for (let i = 1; i <= totalPages; i++) { %>
                     <li class="page-item <%= currentPage === i ? 'active' : '' %>">
-                      <a class="page-link" href="/admin/products?page=<%= i %>&limit=<%= limit %>"><%= i %></a>
+                      <a class="page-link" href="/admin/products?page=<%= i %>&limit=<%= limit %><%= searchQuery ? '&search=' + searchQuery : '' %>"><%= i %></a>
                     </li>
                   <% } %>
                   
                   <li class="page-item <%= currentPage === totalPages ? 'disabled' : '' %>">
-                    <a class="page-link" href="/admin/products?page=<%= currentPage + 1 %>&limit=<%= limit %>" aria-label="Next">
+                    <a class="page-link" href="/admin/products?page=<%= currentPage + 1 %>&limit=<%= limit %><%= searchQuery ? '&search=' + searchQuery : '' %>" aria-label="Next">
                       <span aria-hidden="true">»</span>
                     </a>
                   </li>
@@ -512,25 +575,24 @@
       variants.forEach((variant, index) => {
         const variantDiv = document.createElement('div');
         variantDiv.className = 'variant-offer-card';
-        variantDiv.innerHTML = `
-          <div class="variant-offer-label">Variant ${index + 1}: ${variant.flavor}, ${variant.sugarLevel}, ${variant.weight}g</div>
-          <div class="d-flex align-items-center mb-2">
-            <span class="badge bg-secondary me-2">Current Price: ₹${variant.salePrice.toFixed(2)}</span>
-            <span class="badge ${variant.productOffer ? 'bg-success' : 'bg-light text-dark'} me-2">
-              ${variant.productOffer ? variant.productOffer + '% Off' : 'No Offer'}
-            </span>
-          </div>
-          <div class="offer-input-group">
-            <div class="input-group">
-              <span class="input-group-text"><i class="fas fa-percentage"></i></span>
-              <input type="number" class="form-control" name="variants[${index}][productOffer]" value="${variant.productOffer || 0}" min="0" max="100" step="1" placeholder="Enter offer percentage">
-              <input type="hidden" name="variants[${index}][index]" value="${index}">
-            </div>
-            <button type="button" class="remove-offer-btn" onclick="removeOffer('${productId}', ${index})" ${variant.productOffer ? '' : 'disabled'}>
-              <i class="fas fa-trash-alt me-1"></i> Remove
-            </button>
-          </div>
-        `;
+        variantDiv.innerHTML = 
+          '<div class="variant-offer-label">Variant ' + (index + 1) + ': ' + variant.flavor + ', ' + variant.sugarLevel + ', ' + variant.weight + 'g</div>' +
+          '<div class="d-flex align-items-center mb-2">' +
+            '<span class="badge bg-secondary me-2">Current Price: ₹' + variant.salePrice.toFixed(2) + '</span>' +
+            '<span class="badge ' + (variant.productOffer ? 'bg-success' : 'bg-light text-dark') + ' me-2">' +
+              (variant.productOffer ? variant.productOffer + '% Off' : 'No Offer') +
+            '</span>' +
+          '</div>' +
+          '<div class="offer-input-group">' +
+            '<div class="input-group">' +
+              '<span class="input-group-text"><i class="fas fa-percentage"></i></span>' +
+              '<input type="number" class="form-control" name="variants[' + index + '][productOffer]" value="' + (variant.productOffer || 0) + '" min="0" max="100" step="1" placeholder="Enter offer percentage">' +
+              '<input type="hidden" name="variants[' + index + '][index]" value="' + index + '">' +
+            '</div>' +
+            '<button type="button" class="remove-offer-btn" onclick="removeOffer(\'' + productId + '\', ' + index + ')" ' + (variant.productOffer ? '' : 'disabled') + '>' +
+              '<i class="fas fa-trash-alt me-1"></i> Remove' +
+            '</button>' +
+          '</div>';
         container.appendChild(variantDiv);
       });
 

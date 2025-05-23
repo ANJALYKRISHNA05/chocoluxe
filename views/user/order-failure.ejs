@@ -167,7 +167,6 @@
         <div class="action-buttons">
           <% if (orderId) { %>
             <a href="/checkout/retry-payment/<%= orderId %>" class="btn btn-primary btn-lg w-100">Retry Payment</a>
-            <a href="/order-details/<%= orderId %>" class="btn btn-outline-dark btn-lg w-100">View Order Details</a>
           <% } else { %>
             <a href="/checkout" class="btn btn-primary btn-lg w-100">Return to Checkout</a>
           <% } %>

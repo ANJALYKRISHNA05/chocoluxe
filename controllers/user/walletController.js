@@ -7,6 +7,7 @@ exports.loadWallet = async (req, res) => {
 
     const wallet = await Wallet.findOne({ userId }).populate("userId", "name");
     const user = await User.findById(userId).select("referralCode");
+   
     
     if (!wallet) {
       const newWallet = new Wallet({
@@ -24,6 +25,8 @@ exports.loadWallet = async (req, res) => {
         referralBonus: 0
       });
     }
+
+    
 
     const referralBonus = wallet.transactions
       .filter(t => t.description.includes('Referral bonus'))

@@ -42,16 +42,16 @@ const login = async (req, res) => {
 const loadDashboard = async (req, res) => {
     if (req.session.admin) {
         try {
-            // Get total products count
+           
             const totalProducts = await Product.countDocuments({ isBlocked: false });
             
-            // Get total users count (excluding admins)
+           
             const totalUsers = await User.countDocuments({ isAdmin: false });
             
-            // Get total orders count
+
             const totalOrders = await Order.countDocuments();
             
-            // Get order status distribution
+       
             const orderStatusCounts = await Order.aggregate([
                 {
                     $group: {
@@ -61,7 +61,6 @@ const loadDashboard = async (req, res) => {
                 }
             ]);
             
-            // Add color property to each status
             const statusColorMap = {
                 'Pending': '#ffc107',
                 'Pending Payment': '#ffc107',
@@ -77,7 +76,7 @@ const loadDashboard = async (req, res) => {
                 status.color = statusColorMap[status._id] || '#6c757d';
             });
             
-            // Get total revenue
+         
             const revenueData = await Order.aggregate([
                 {
                     $match: {
@@ -93,12 +92,13 @@ const loadDashboard = async (req, res) => {
                     }
                 }
             ]);
+            console.log(revenueData);
             
             const totalRevenue = revenueData.length > 0 ? revenueData[0].totalRevenue : 0;
             const totalDiscount = revenueData.length > 0 ? revenueData[0].totalDiscount : 0;
             const totalSavings = revenueData.length > 0 ? revenueData[0].totalSavings : 0;
             
-            // Get top selling products
+        
             const topProducts = await Order.aggregate([
                 { $unwind: "$items" },
                 {
@@ -127,8 +127,7 @@ const loadDashboard = async (req, res) => {
                     }
                 }
             ]);
-            
-            // Get recent orders
+     
             const recentOrders = await Order.find()
                 .sort({ createdAt: -1 })
                 .limit(5)
@@ -137,7 +136,7 @@ const loadDashboard = async (req, res) => {
                     select: 'productName'
                 });
                 
-            // Format recent orders for display
+     
             const formattedRecentOrders = recentOrders.map(order => {
                 const firstItem = order.items[0];
                 const productName = firstItem?.product?.productName || 'Product Unavailable';

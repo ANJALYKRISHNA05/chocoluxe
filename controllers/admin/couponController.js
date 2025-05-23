@@ -34,17 +34,7 @@ const getCoupons = async (req, res) => {
 
 const addCoupon = async (req, res) => {
   try {
-    const {
-      code,
-      description,
-      discountType,
-      discountAmount,
-      minPurchase,
-      maxDiscount,
-      startDate,
-      endDate,
-      usageLimit,
-    } = req.body;
+    const {code,description,discountType,discountAmount,minPurchase,maxDiscount,startDate,endDate,usageLimit,} = req.body;
 
     const existingCoupon = await Coupon.findOne({
       code: code.trim().toUpperCase(),
@@ -90,6 +80,8 @@ const getEditCoupon = async (req, res) => {
       path: "usedBy.user",
       select: "name email",
     });
+
+    console.log(coupon)
 
     if (!coupon) {
       return res.redirect("/admin/coupons");

@@ -1069,6 +1069,101 @@ const changePassword = async (req, res) => {
     }
 };
 
+const handleGoogleAuth = (req, res, next) => {
+    console.log('Google Auth Route - Query params:', req.query);
+    if (req.query.referralCode) {
+        req.session.referralCode = req.query.referralCode;
+        console.log('Google Auth Route - Stored referral code in session:', req.query.referralCode);
+    }
+    next();
+};
+
+const handleGoogleCallback = async (req, res) => {
+    const user = req.user;
+    req.session.user = {
+        _id: user._id.toString(),
+        username: user.username,
+        email: user.email,
+        isBlocked: user.isBlocked,
+        profileImage: user.profileImage || '/Images/default-profile.jpg'
+    };
+    
+    console.log('Google Callback - Session data:', req.session);
+    
+    // Check if this is a new user with a referral
+    const isNewUser = await Wallet.findOne({ userId: user._id }) ? false : true;
+    console.log('Google Callback - Is new user:', isNewUser);
+    console.log('Google Callback - User object:', user);
+    
+    if (isNewUser) {
+        // Check for referral info in the session
+        console.log('Google Callback - Google Referral data:', req.session.googleReferral);
+        
+        // Get referrer info from either the user object or the session
+        let referredBy = user.referredBy;
+        let referrerUsername = '';
+        
+        // If we have referral info in the session but not in the user object, update the user
+        if (!referredBy && req.session.googleReferral && req.session.googleReferral.referrerId) {
+            referredBy = req.session.googleReferral.referrerId;
+            referrerUsername = req.session.googleReferral.referrerUsername;
+            
+            // Update the user with the referral info
+            console.log('Google Callback - Updating user with referral info:', referredBy);
+            await User.findByIdAndUpdate(user._id, { referredBy: referredBy });
+        }
+        
+        console.log('Google Callback - Final referredBy value:', referredBy);
+        
+        // Create wallet for the new user with referral bonus if applicable
+        const userId = user._id;
+        const existingWallet = await Wallet.findOne({ userId });
+        if (!existingWallet) {
+            const newWallet = new Wallet({
+                userId,
+                balance: referredBy ? 50 : 0,
+                transactions: referredBy ? [{
+                    transactionType: 'credit',
+                    transactionAmount: 50,
+                    description: 'Referral bonus for signing up with referral code'
+                }] : []
+            });
+            await newWallet.save();
+            
+           
+            if (referredBy) {
+                const referrerWallet = await Wallet.findOne({ userId: referredBy });
+                if (referrerWallet) {
+                    referrerWallet.balance += 100;
+                    referrerWallet.transactions.push({
+                        transactionType: 'credit',
+                        transactionAmount: 100,
+                        description: `Referral bonus for referring ${user.username}`
+                    });
+                    await referrerWallet.save();
+                } else {
+                    const newReferrerWallet = new Wallet({
+                        userId: referredBy,
+                        balance: 100,
+                        transactions: [{
+                            transactionType: 'credit',
+                            transactionAmount: 100,
+                            description: `Referral bonus for referring ${user.username}`
+                        }]
+                    });
+                    await newReferrerWallet.save();
+                }
+            }
+        }
+        
+        
+        delete req.session.newGoogleUser;
+        delete req.session.referralCode;
+    }
+    
+    res.redirect('/');
+};
+
 module.exports = {
     pageNotfound,
     loadSignup,
@@ -1096,5 +1191,7 @@ module.exports = {
     deleteAddress,
     setDefaultAddress,
     loadChangePassword, 
-    changePassword 
+    changePassword,
+    handleGoogleAuth,
+    handleGoogleCallback
 };
