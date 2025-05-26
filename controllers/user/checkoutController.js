@@ -533,7 +533,6 @@ exports.createRazorpayOrder = async (req, res) => {
       return res.json({ success: false, message: "Please select a valid address." });
     }
 
-    // Get cart details
     const cart = await Cart.findOne({ user: userId }).populate({
       path: "items.product",
       populate: {
@@ -546,10 +545,8 @@ exports.createRazorpayOrder = async (req, res) => {
       return res.json({ success: false, message: "Your cart is empty." });
     }
 
-    // Calculate totals
     const { subtotal, totalSavings, discount, cartTotal: total, appliedCoupon } = await calculateCartTotals(cart, userId);
     
-    // Generate unique order ID
     let unique = false;
     let attempt = 0;
     const maxAttempts = 10;

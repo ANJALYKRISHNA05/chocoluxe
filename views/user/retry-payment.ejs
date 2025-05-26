@@ -64,7 +64,7 @@
       background: linear-gradient(90deg, #8b5a2b, transparent);
     }
     
-    /* Order Details Styling */
+   
     .order-details {
       margin-bottom: 2rem;
     }
@@ -89,7 +89,7 @@
       font-weight: 600;
     }
     
-    /* Button Styling */
+    
     .btn-primary {
       background-color: #8b5a2b;
       border-color: #8b5a2b;
@@ -124,7 +124,7 @@
       box-shadow: 0 8px 15px rgba(139, 90, 43, 0.15);
     }
     
-    /* Action Buttons Container */
+    
     .action-buttons {
       margin-top: 2rem;
       display: flex;
@@ -132,7 +132,6 @@
       gap: 1rem;
     }
     
-    /* Responsive Adjustments */
     @media (max-width: 768px) {
       .payment-section {
         padding: 2rem 0;
@@ -206,7 +205,7 @@
         image: '/assets/images/logo.png',
         order_id: '<%= razorpayOrder.id %>',
         handler: function (response) {
-          // Handle successful payment
+       
           verifyPayment(response);
         },
         prefill: {
@@ -219,7 +218,7 @@
         },
         modal: {
           ondismiss: function() {
-            // Handle dismissal
+          
             Swal.fire({
               title: 'Payment Cancelled',
               text: 'You cancelled the payment process.',
@@ -248,7 +247,7 @@
     });
 
     function verifyPayment(payment) {
-      // Show loading
+     
       Swal.fire({
         title: 'Processing',
         text: 'Verifying payment...',

@@ -172,7 +172,7 @@
                     return pass === confirm;
                 },
                 validateReferralCode: function (value) {
-                    if (!value) return true; // Referral code is optional
+                    if (!value) return true; 
                     return value.match(this.referralCodePattern) !== null;
                 }
             };
@@ -275,13 +275,13 @@
                 updateGoogleSignInUrl();
             });
             
-            // Update Google sign-in URL with referral code
+       
             function updateGoogleSignInUrl() {
                 const googleSignInBtn = document.getElementById('googleSignInBtn');
                 const referralCodeValue = referralCode.value.trim();
                 
                 if (referralCodeValue) {
-                    // Don't validate with regex here - let the server handle validation
+                    
                     googleSignInBtn.href = `/user/auth/google?referralCode=${encodeURIComponent(referralCodeValue)}`;
                     console.log('Updated Google sign-in URL with referral code:', referralCodeValue);
                 } else {
@@ -289,7 +289,7 @@
                 }
             }
             
-            // Initialize the Google sign-in URL on page load
+            
             updateGoogleSignInUrl();
         });
     </script>

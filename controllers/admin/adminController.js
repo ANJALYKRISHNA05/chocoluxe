@@ -128,28 +128,7 @@ const loadDashboard = async (req, res) => {
                 }
             ]);
      
-            const recentOrders = await Order.find()
-                .sort({ createdAt: -1 })
-                .limit(5)
-                .populate({
-                    path: 'items.product',
-                    select: 'productName'
-                });
-                
-     
-            const formattedRecentOrders = recentOrders.map(order => {
-                const firstItem = order.items[0];
-                const productName = firstItem?.product?.productName || 'Product Unavailable';
-                const additionalItems = order.items.length > 1 ? ` + ${order.items.length - 1} more` : '';
-                
-                return {
-                    orderId: order.orderId,
-                    date: order.createdAt,
-                    item: `${productName}${additionalItems}`,
-                    total: order.total,
-                    status: order.status
-                };
-            });
+           
             
             res.render('admin/dashboard', {
                 totalProducts,
@@ -158,7 +137,7 @@ const loadDashboard = async (req, res) => {
                 totalRevenue,
                 orderStatusCounts,
                 topProducts,
-                recentOrders: formattedRecentOrders
+              
             });
         } catch (error) {
             console.error('Dashboard error:', error);

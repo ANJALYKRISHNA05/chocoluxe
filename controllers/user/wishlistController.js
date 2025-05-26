@@ -128,10 +128,10 @@ exports.loadWishlist = async (req, res) => {
             ? variant.salePrice
             : variant.regularPrice;
 
-          // Calculate the offer price after applying the effective offer
+         
           offerPrice = effectiveOffer > 0 ? basePrice * (1 - effectiveOffer / 100) : basePrice;
 
-          // Calculate the savings (difference between base price and offer price)
+        
           itemSavings = basePrice - offerPrice;
         }
 
@@ -166,6 +166,7 @@ exports.removeFromWishlist = async (req, res) => {
   try {
     const { itemId } = req.body;
     const userId = req.session.user;
+    console.log(itemId);
 
     if (!userId) {
       return res.status(401).json({ success: false, message: "Please log in" });

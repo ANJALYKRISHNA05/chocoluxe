@@ -181,11 +181,11 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
     <script>
-        // Initialize order status chart
+      
         document.addEventListener('DOMContentLoaded', function() {
             const orderStatusCtx = document.getElementById('orderStatusChart').getContext('2d');
             
-            // Prepare data for chart
+     
             const statusLabels = [];
             const statusCounts = [];
             const statusColors = [];
@@ -198,7 +198,7 @@
                 <% }); %>
             <% } %>
             
-            // Create pie chart
+       
             new Chart(orderStatusCtx, {
                 type: 'doughnut',
                 data: {

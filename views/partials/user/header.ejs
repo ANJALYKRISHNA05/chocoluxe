@@ -32,7 +32,7 @@
             flex-direction: column; 
         }
         
-        /* Header Styles */
+        
         .navbar { 
             background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
             padding: 0;
@@ -427,7 +427,7 @@
             </div>
             <div class="nav-icons">
                 <% if (user) { %>
-                <!-- If user is logged in, show wishlist, cart and user menu -->
+              
                 <a href="/wishlist" class="position-relative">
                     <i class="fas fa-heart"></i>
                     <span class="wishlist-badge"></span>
@@ -447,7 +447,7 @@
                     </div>
                 </div>
                 <% } else { %>
-                <!-- If user is not logged in, show login button -->
+            
                 <a href="/user/login" class="login-btn"><i class="fas fa-sign-in-alt"></i> Login</a>
                 <% } %>
             </div>
@@ -502,7 +502,7 @@
       
 function fetchCartItemCount() {
 <% if (typeof user !== 'undefined' && user) { %>
-    // Only fetch cart count if user is logged in
+
     fetch('/cart/item-count', {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' }
@@ -525,7 +525,7 @@ function fetchCartItemCount() {
 
 function fetchWishlistItemCount() {
 <% if (typeof user !== 'undefined' && user) { %>
-    // Only fetch wishlist count if user is logged in
+  
     fetch('/wishlist/item-count', {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' }
@@ -550,18 +550,18 @@ function fetchWishlistItemCount() {
             fetchCartItemCount();
             fetchWishlistItemCount();
         });
-        // Function to handle actions that require login
+       
         function requireLogin(event, action) {
             <% if (typeof user === 'undefined' || !user) { %>
             event.preventDefault();
-            // Store the URL they were trying to access
+         
             const returnUrl = event.currentTarget.getAttribute('href');
             if (returnUrl) {
-                // Store the return URL in localStorage
+              
                 localStorage.setItem('returnTo', returnUrl);
             }
             
-            // Show message using SweetAlert
+          
             Swal.fire({
                 title: 'Login Required',
                 text: `Please login to ${action}`,
@@ -578,11 +578,10 @@ function fetchWishlistItemCount() {
             });
             <% } %>
         }
-        
-        // Add event listeners to elements that require login
+      
         document.addEventListener('DOMContentLoaded', function() {
             <% if (typeof user === 'undefined' || !user) { %>
-            // Add event listeners to cart and wishlist links
+       
             const cartLinks = document.querySelectorAll('a[href="/cart"]');
             cartLinks.forEach(link => {
                 link.addEventListener('click', (e) => requireLogin(e, 'access your cart'));

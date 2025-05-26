@@ -201,7 +201,7 @@
 
   <script>
     document.addEventListener('DOMContentLoaded', function() {
-      // Get product variants data
+     
       const productVariants = <%- JSON.stringify(product.variants) %>;
       let currentVariant = productVariants[0];
 
@@ -385,7 +385,7 @@
             badge.textContent = data.itemCount;
             badge.style.display = 'inline-block';
           } else if (data.requireLogin) {
-            // Store the current URL to redirect back after login
+       
             localStorage.setItem('returnToUrl', window.location.href);
             
             Swal.fire({
@@ -434,7 +434,7 @@
             wishlistBadge.textContent = data.itemCount;
             wishlistBadge.style.display = 'inline-block';
           } else if (data.requireLogin) {
-            // Store the current URL to redirect back after login
+       
             localStorage.setItem('returnToUrl', window.location.href);
             
             Swal.fire({
@@ -488,16 +488,16 @@
   </script>
 
   <style>
-    /* Import Playfair Display font for elegant typography */
+   
     @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&display=swap');
     
-    /* Global Styles */
+   
     .product-details-section {
       background-color: #fcf9f7;
       padding: 3rem 0;
     }
     
-    /* Product Image Styling */
+    
     .product-image-container {
       position: relative;
       margin-bottom: 1.5rem;
@@ -652,12 +652,12 @@
     }
     
     .discount-badge, .offer-badge {
-      font-size: 0.75rem; /* Reduced from 0.9rem */
-      padding: 0.3rem 0.6rem; /* Reduced from 0.5rem 1rem */
+      font-size: 0.75rem; 
+      padding: 0.3rem 0.6rem; 
       background-color: #c1ceae;
-      border-radius: 20px; /* Adjusted proportionally from 50px */
+      border-radius: 20px;
       letter-spacing: 0.5px;
-      line-height: 1; /* Ensure text aligns properly */
+      line-height: 1; 
     }
     
     .product-description {
@@ -682,7 +682,7 @@
       font-size: 1.05rem;
     }
     
-    /* Variant Cards Styling */
+    
     .product-variants h5 {
       font-family: 'Playfair Display', serif;
       color: #33261d;
@@ -757,10 +757,10 @@
     }
     
     .variant-card .offer-badge {
-      font-size: 0.65rem; /* Reduced from 0.75rem for variant cards */
-      padding: 0.25rem 0.5rem; /* Reduced from 0.4rem 0.8rem */
+      font-size: 0.65rem; 
+      padding: 0.25rem 0.5rem;
       background-color: #c1ceae;
-      border-radius: 15px; /* Adjusted proportionally from 50px */
+      border-radius: 15px; 
       letter-spacing: 0.5px;
       line-height: 1;
     }
@@ -772,7 +772,7 @@
       margin-top: 0.8rem;
     }
     
-    /* Quantity and Button Styling */
+
     .quantity-selector {
       width: 180px !important;
       margin-bottom: 1.5rem;
@@ -840,8 +840,7 @@
       transform: translateY(-3px);
       box-shadow: 0 8px 15px rgba(220, 53, 69, 0.25);
     }
-    
-    /* Related Products Styling */
+  
     .related-products {
       margin-top: 4rem;
       padding-top: 2rem;
@@ -929,7 +928,7 @@
       gap: 0.5rem;
     }
     
-    /* Breadcrumb Styling */
+
     .breadcrumb {
       padding: 1rem 1.5rem;
       background-color: #fff;
@@ -1013,13 +1012,13 @@
       }
       
       .discount-badge, .offer-badge {
-        font-size: 0.65rem; /* Further reduced for mobile */
-        padding: 0.25rem 0.5rem; /* Further reduced padding */
+        font-size: 0.65rem; 
+        padding: 0.25rem 0.5rem; 
         border-radius: 15px;
       }
       
       .variant-card .offer-badge {
-        font-size: 0.6rem; /* Further reduced for variant cards on mobile */
+        font-size: 0.6rem; 
         padding: 0.2rem 0.4rem;
         border-radius: 12px;
       }

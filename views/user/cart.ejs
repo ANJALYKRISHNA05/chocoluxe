@@ -631,7 +631,7 @@
       document.querySelector('.coupon-discount').textContent = `₹${data.discount.toFixed(2)}`;
       updateCartBadge(data.itemCount);
 
-      // Update coupon UI
+      
       const couponInput = document.querySelector('#couponCode');
       const applyButton = document.querySelector('.apply-coupon-btn');
       const appliedCouponDiv = document.querySelector('.applied-coupon');
@@ -761,7 +761,9 @@
           }
 
           if (!response.ok) {
-            throw new Error('Network response was not ok');
+            // Get the error message from the response
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'Network response was not ok');
           }
 
           const data = await response.json();
@@ -795,7 +797,9 @@
           }
         } catch (error) {
           console.error('Error updating quantity:', error);
-          Swal.fire('Error', 'An error occurred while updating quantity', 'error');
+          // Display the specific error message from the server if available
+          const errorMessage = error.message || 'An error occurred while updating quantity';
+          Swal.fire('Error', errorMessage, 'error');
         } finally {
           this.disabled = false;
         }

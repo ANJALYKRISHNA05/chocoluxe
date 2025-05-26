@@ -1,7 +1,7 @@
 const User = require("../models/userSchema");
 
 const userAuth = (req, res, next) => {
-    // Public routes that don't require authentication
+ 
     const publicRoutes = [
         '/',
         '/products',
@@ -11,7 +11,7 @@ const userAuth = (req, res, next) => {
         '/search'
     ];
     
-    // Check if the current route is a public route
+
     const isPublicRoute = publicRoutes.some(route => req.originalUrl.startsWith(route));
     
     if (req.session.user) {
@@ -21,7 +21,7 @@ const userAuth = (req, res, next) => {
                     req.session.user.profileImage = data.profileImage || '/Images/default-profile.jpg';
                     next();
                 } else {
-                    // Redirect to login page with message if user is blocked
+                  
                     req.session.message = 'Your account has been blocked. Please contact support.';
                     res.redirect('/user/login');
                 }
@@ -32,10 +32,10 @@ const userAuth = (req, res, next) => {
                 res.redirect('/user/login');
             });
     } else if (isPublicRoute) {
-        // Allow access to public routes without login
+       
         next();
     } else {
-        // Store the URL they were trying to access
+      
         req.session.returnTo = req.originalUrl;
         req.session.message = 'Please log in to continue';
         res.redirect('/user/login');

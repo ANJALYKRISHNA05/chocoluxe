@@ -53,7 +53,7 @@ router.patch('/coupons/toggle-status/:id', adminAuth, couponController.toggleCou
 router.delete('/coupons/delete/:id', adminAuth, couponController.deleteCoupon);
 router.get('/coupons/usage/:id', adminAuth, couponController.getCouponUsage);
 
-// Sales Report Routes
+
 router.get('/sales-report', adminAuth, salesController.loadSalesReport);
 router.get('/sales-report/download/pdf', adminAuth, salesController.downloadPdfReport);
 router.get('/sales-report/download/excel', adminAuth, salesController.downloadExcelReport);

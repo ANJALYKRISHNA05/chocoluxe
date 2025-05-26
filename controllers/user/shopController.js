@@ -13,23 +13,21 @@ exports.loadShopHomepage = async (req, res) => {
       .sort({ createdAt: -1 })
       .limit(4);
 
-    // Process products to include offer details
+  
     const processedProducts = products.map(product => {
-      const processedProduct = JSON.parse(JSON.stringify(product));
+    const processedProduct = JSON.parse(JSON.stringify(product));
       
-      // Get productOffer and categoryOffer
+  
       const productOffer = processedProduct.variants[0].productOffer || 0;
       const categoryOffer = processedProduct.category.categoryOffer || 0;
       
-      // Determine the effective (best) offer
+  
       const effectiveOffer = Math.max(productOffer, categoryOffer);
-      
-      // Determine original price (salePrice if > 0, else regularPrice)
+ 
       const originalPrice = processedProduct.variants[0].salePrice > 0 
         ? processedProduct.variants[0].salePrice 
         : processedProduct.variants[0].regularPrice;
-      
-      // Calculate offer price
+  
       const offerPrice = originalPrice * (1 - effectiveOffer / 100);
       
       processedProduct.originalPrice = originalPrice;
@@ -131,7 +129,7 @@ exports.loadProductListing = async (req, res) => {
         }
       }
     
-      // Calculate offer details for the display variant
+     
       const displayVariant = matchingVariants[0];
       const productOffer = displayVariant.productOffer || 0;
       const categoryOffer = processedProduct.category.categoryOffer || 0;
@@ -234,7 +232,7 @@ exports.loadProductDetails = async (req, res) => {
       category: { $in: await Category.find({ isListed: true }).distinct('_id') }
     }).populate('category').limit(4);
 
-    // Process product variants to include offer details
+    
     const processedProduct = JSON.parse(JSON.stringify(product));
     processedProduct.variants = processedProduct.variants.map(variant => {
       const productOffer = variant.productOffer || 0;
@@ -251,7 +249,7 @@ exports.loadProductDetails = async (req, res) => {
       };
     });
 
-    // Process related products to include offer details
+   
     const processedRelatedProducts = relatedProducts.map(relProduct => {
       const processedRelProduct = JSON.parse(JSON.stringify(relProduct));
       processedRelProduct.variants = processedRelProduct.variants.map(variant => {

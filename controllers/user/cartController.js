@@ -138,157 +138,6 @@ exports.addToCart = async (req, res) => {
 
 
 
-exports.validateCoupon = async (req, res) => {
-  try {
-    const userId = req.session.user;
-    if (!userId) {
-      return res.status(401).json({ success: false, message: "Please log in" });
-    }
-
-    const cart = await Cart.findOne({ user: userId }).populate("coupon");
-    if (!cart || !cart.coupon) {
-      return res.json({ success: true, message: "No coupon applied" });
-    }
-
-    
-    const coupon = await Coupon.findById(cart.coupon._id);
-    if (!coupon) {
-      cart.coupon = null;
-      cart.discount = 0;
-      await cart.save();
-      
-      const { cartTotal, totalSavings, itemCount, subtotal, discount, appliedCoupon } = await calculateCartTotals(cart, userId);
-      
-      return res.json({
-        success: false,
-        message: "The coupon you applied is no longer available.",
-        couponRemoved: true,
-        cartTotal,
-        totalSavings,
-        itemCount,
-        subtotal,
-        discount,
-        appliedCoupon
-      });
-    }
-
-  
-    if (!coupon.isActive) {
-      cart.coupon = null;
-      cart.discount = 0;
-      await cart.save();
-      
-      const { cartTotal, totalSavings, itemCount, subtotal, discount, appliedCoupon } = await calculateCartTotals(cart, userId);
-      
-      return res.json({
-        success: false,
-        message: "The coupon has been deactivated by the admin.",
-        couponRemoved: true,
-        cartTotal,
-        totalSavings,
-        itemCount,
-        subtotal,
-        discount,
-        appliedCoupon
-      });
-    }
-
-    const now = new Date();
-    if (now < coupon.startDate || now > coupon.endDate) {
-      cart.coupon = null;
-      cart.discount = 0;
-      await cart.save();
-      
-      const { cartTotal, totalSavings, itemCount, subtotal, discount, appliedCoupon } = await calculateCartTotals(cart, userId);
-      
-      return res.json({
-        success: false,
-        message: "The coupon has expired.",
-        couponRemoved: true,
-        cartTotal,
-        totalSavings,
-        itemCount,
-        subtotal,
-        discount,
-        appliedCoupon
-      });
-    }
-
-    
-    if (coupon.usedCount >= coupon.usageLimit) {
-      cart.coupon = null;
-      cart.discount = 0;
-      await cart.save();
-      
-      const { cartTotal, totalSavings, itemCount, subtotal, discount, appliedCoupon } = await calculateCartTotals(cart, userId);
-      
-      return res.json({
-        success: false,
-        message: "This coupon has reached its usage limit.",
-        couponRemoved: true,
-        cartTotal,
-        totalSavings,
-        itemCount,
-        subtotal,
-        discount,
-        appliedCoupon
-      });
-    }
-
-   
-    const userUsed = coupon.usedBy.some((entry) => entry.user.toString() === userId);
-    if (userUsed) {
-      cart.coupon = null;
-      cart.discount = 0;
-      await cart.save();
-      
-      const { cartTotal, totalSavings, itemCount, subtotal, discount, appliedCoupon } = await calculateCartTotals(cart, userId);
-      
-      return res.json({
-        success: false,
-        message: "You have already used this coupon before.",
-        couponRemoved: true,
-        cartTotal,
-        totalSavings,
-        itemCount,
-        subtotal,
-        discount,
-        appliedCoupon
-      });
-    }
-
-    
-    const { subtotal } = await calculateCartTotals(cart, userId);
-    if (subtotal < coupon.minPurchase) {
-      cart.coupon = null;
-      cart.discount = 0;
-      await cart.save();
-      
-      const { cartTotal, totalSavings, itemCount, subtotal: newSubtotal, discount, appliedCoupon } = await calculateCartTotals(cart, userId);
-      
-      return res.json({
-        success: false,
-        message: `This coupon requires a minimum purchase of ₹${coupon.minPurchase.toFixed(2)}. Your current subtotal is ₹${subtotal.toFixed(2)}.`,
-        couponRemoved: true,
-        cartTotal,
-        totalSavings,
-        itemCount,
-        subtotal: newSubtotal,
-        discount,
-        appliedCoupon
-      });
-    }
-
-   
-    return res.json({
-      success: true,
-      message: "Coupon is valid"
-    });
-  } catch (error) {
-    console.error("Error validating coupon:", error);
-    res.status(500).json({ success: false, message: "Server error" });
-  }
-};
 
 
 
@@ -597,18 +446,18 @@ exports.removeFromCart = async (req, res) => {
           cart.coupon = null;
           cart.discount = 0;
         } else {
-          // Try to revalidate the coupon
+        
           try {
             const newDiscount = await validateAndApplyCoupon(coupon, userId, subtotal, cart);
             if (newDiscount === null) {
-              // Coupon is no longer valid
+             
               cart.coupon = null;
               cart.discount = 0;
             } else {
               cart.discount = newDiscount;
             }
           } catch (error) {
-            // Error in validation, remove coupon
+           
             cart.coupon = null;
             cart.discount = 0;
           }
@@ -659,6 +508,9 @@ exports.getCartItemCount = async (req, res) => {
   }
 };
 
+
+
+
 exports.applyCoupon = async (req, res) => {
   try {
     const { couponCode } = req.body;
@@ -702,15 +554,14 @@ exports.applyCoupon = async (req, res) => {
       const userIdString = userId._id ? userId._id.toString() : userId.toString();
     
       
-      // Make sure we're using a proper ObjectId reference
+     
       coupon.usedBy.push({ user: new mongoose.Types.ObjectId(userIdString) });
       coupon.usedCount += 1;
       
-      // Save the coupon with updated usage information
+      
       await coupon.save();
 
-      
-      // Update cart with coupon and discount
+  
       cart.coupon = coupon._id;
       cart.discount = discount;
       await cart.save();
@@ -735,6 +586,166 @@ exports.applyCoupon = async (req, res) => {
     res.status(500).json({ success: false, message: "Server error" });
   }
 };
+
+
+
+
+
+exports.validateCoupon = async (req, res) => {
+  try {
+    const userId = req.session.user;
+    if (!userId) {
+      return res.status(401).json({ success: false, message: "Please log in" });
+    }
+
+    const cart = await Cart.findOne({ user: userId }).populate("coupon");
+    if (!cart || !cart.coupon) {
+      return res.json({ success: true, message: "No coupon applied" });
+    }
+
+    
+    const coupon = await Coupon.findById(cart.coupon._id);
+    if (!coupon) {
+      cart.coupon = null;
+      cart.discount = 0;
+      await cart.save();
+      
+      const { cartTotal, totalSavings, itemCount, subtotal, discount, appliedCoupon } = await calculateCartTotals(cart, userId);
+      
+      return res.json({
+        success: false,
+        message: "The coupon you applied is no longer available.",
+        couponRemoved: true,
+        cartTotal,
+        totalSavings,
+        itemCount,
+        subtotal,
+        discount,
+        appliedCoupon
+      });
+    }
+
+  
+    if (!coupon.isActive) {
+      cart.coupon = null;
+      cart.discount = 0;
+      await cart.save();
+      
+      const { cartTotal, totalSavings, itemCount, subtotal, discount, appliedCoupon } = await calculateCartTotals(cart, userId);
+      
+      return res.json({
+        success: false,
+        message: "The coupon is not currently available.",
+        couponRemoved: true,
+        cartTotal,
+        totalSavings,
+        itemCount,
+        subtotal,
+        discount,
+        appliedCoupon
+      });
+    }
+
+    const now = new Date();
+    if (now < coupon.startDate || now > coupon.endDate) {
+      cart.coupon = null;
+      cart.discount = 0;
+      await cart.save();
+      
+      const { cartTotal, totalSavings, itemCount, subtotal, discount, appliedCoupon } = await calculateCartTotals(cart, userId);
+      
+      return res.json({
+        success: false,
+        message: "The coupon has expired.",
+        couponRemoved: true,
+        cartTotal,
+        totalSavings,
+        itemCount,
+        subtotal,
+        discount,
+        appliedCoupon
+      });
+    }
+
+    
+    if (coupon.usedCount >= coupon.usageLimit) {
+      cart.coupon = null;
+      cart.discount = 0;
+      await cart.save();
+      
+      const { cartTotal, totalSavings, itemCount, subtotal, discount, appliedCoupon } = await calculateCartTotals(cart, userId);
+      
+      return res.json({
+        success: false,
+        message: "This coupon has reached its usage limit.",
+        couponRemoved: true,
+        cartTotal,
+        totalSavings,
+        itemCount,
+        subtotal,
+        discount,
+        appliedCoupon
+      });
+    }
+
+   
+    const userUsed = coupon.usedBy.some((entry) => entry.user.toString() === userId);
+    if (userUsed) {
+      cart.coupon = null;
+      cart.discount = 0;
+      await cart.save();
+      
+      const { cartTotal, totalSavings, itemCount, subtotal, discount, appliedCoupon } = await calculateCartTotals(cart, userId);
+      
+      return res.json({
+        success: false,
+        message: "You have already used this coupon before.",
+        couponRemoved: true,
+        cartTotal,
+        totalSavings,
+        itemCount,
+        subtotal,
+        discount,
+        appliedCoupon
+      });
+    }
+
+    
+    const { subtotal } = await calculateCartTotals(cart, userId);
+    if (subtotal < coupon.minPurchase) {
+      cart.coupon = null;
+      cart.discount = 0;
+      await cart.save();
+      
+      const { cartTotal, totalSavings, itemCount, subtotal: newSubtotal, discount, appliedCoupon } = await calculateCartTotals(cart, userId);
+      
+      return res.json({
+        success: false,
+        message: `This coupon requires a minimum purchase of ₹${coupon.minPurchase.toFixed(2)}. Your current subtotal is ₹${subtotal.toFixed(2)}.`,
+        couponRemoved: true,
+        cartTotal,
+        totalSavings,
+        itemCount,
+        subtotal: newSubtotal,
+        discount,
+        appliedCoupon
+      });
+    }
+
+   
+    return res.json({
+      success: true,
+      message: "Coupon is valid"
+    });
+  } catch (error) {
+    console.error("Error validating coupon:", error);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+
+
+
+
 
 exports.removeCoupon = async (req, res) => {
   try {
@@ -778,7 +789,6 @@ exports.removeCoupon = async (req, res) => {
   }
 };
 
-// Helper function to calculate cart totals
 const calculateCartTotals = async (cart, userId) => {
   let cartTotal = 0;
   let totalSavings = 0;
@@ -832,9 +842,9 @@ const calculateCartTotals = async (cart, userId) => {
 
 
 
-// Helper function to validate and apply coupon
+
 const validateAndApplyCoupon = async (coupon, userId, subtotal, cart) => {
-  // Check if coupon is active
+
   if (!coupon.isActive) {
     cart.coupon = null;
     cart.discount = 0;
@@ -842,7 +852,6 @@ const validateAndApplyCoupon = async (coupon, userId, subtotal, cart) => {
     return null;
   }
 
-  // Check if coupon is within valid dates
   const now = new Date();
   if (now < coupon.startDate || now > coupon.endDate) {
     cart.coupon = null;
@@ -851,12 +860,12 @@ const validateAndApplyCoupon = async (coupon, userId, subtotal, cart) => {
     return null;
   }
 
-  // Check minimum purchase requirement
+  
   if (subtotal < coupon.minPurchase) {
     return null;
   }
 
-  // Check usage limit
+
   if (coupon.usedCount >= coupon.usageLimit) {
     cart.coupon = null;
     cart.discount = 0;
@@ -885,7 +894,7 @@ const validateAndApplyCoupon = async (coupon, userId, subtotal, cart) => {
     console.log('User has not used this coupon before');
   }
 
-  // Calculate discount
+ 
   let discount = 0;
   if (coupon.discountType === "percentage") {
     discount = (coupon.discountAmount / 100) * subtotal;

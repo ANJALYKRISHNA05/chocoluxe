@@ -10,7 +10,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <style>
-    /* Global Styles */
+   
     body {
       font-family: 'Nunito Sans', sans-serif;
       background-color: #fcf9f7;
@@ -24,7 +24,7 @@
       padding: 3rem 0;
     }
     
-    /* Page Title Styling */
+    
     .page-title {
       font-family: 'Playfair Display', serif;
       color: #33261d;
@@ -44,8 +44,7 @@
       height: 3px;
       background: linear-gradient(90deg, #8b5a2b, transparent);
     }
-    
-    /* Card Styling */
+
     .card {
       border: none;
       border-radius: 12px;
@@ -62,7 +61,7 @@
       padding: 2rem;
     }
     
-    /* Section Headings */
+  
     h4 {
       font-family: 'Playfair Display', serif;
       color: #33261d;
@@ -71,7 +70,7 @@
       margin-bottom: 1.25rem;
     }
     
-    /* Address Card Styling */
+  
     .address-card {
       border: 1px solid #e9e2dc;
       border-radius: 12px;
@@ -141,7 +140,7 @@
       transform: translateY(-2px);
     }
     
-    /* Payment Method Styling */
+   
     .form-check {
       margin-bottom: 1rem;
     }
@@ -160,7 +159,7 @@
       font-weight: 500;
     }
     
-    /* Order Items Styling */
+    
     .cart-item {
       border: none;
       border-radius: 12px;
@@ -223,7 +222,7 @@
       margin-left: 0.5rem;
     }
     
-    /* Order Summary Styling */
+   
     .order-summary {
       border: none;
       border-radius: 12px;
@@ -260,7 +259,7 @@
       font-family: 'Playfair Display', serif;
     }
     
-    /* Button Styling */
+  
     .btn-primary, .btn-dark {
       background-color: #8b5a2b;
       border-color: #8b5a2b;
@@ -288,7 +287,7 @@
       color: #fff;
     }
     
-    /* Modal Styling */
+  
     .modal-content {
       border: none;
       border-radius: 12px;
@@ -338,7 +337,7 @@
       box-shadow: 0 0 0 0.25rem rgba(139, 90, 43, 0.25);
     }
     
-    /* Empty State Styling */
+    
     .text-center.py-5 {
       padding: 3rem 0;
     }
@@ -361,7 +360,7 @@
       margin-bottom: 1.5rem;
     }
     
-    /* Responsive Adjustments */
+    
     @media (max-width: 991px) {
       .order-summary {
         margin-top: 2rem;
@@ -708,7 +707,7 @@
         return;
       }
       
-      // If Razorpay is selected, handle it differently
+  
       if (selectedPaymentMethod.value === 'Razorpay') {
         initiateRazorpayPayment(selectedAddress.value);
         return;
@@ -727,9 +726,8 @@
       });
     }
 
-    // Razorpay payment handling
     function initiateRazorpayPayment(addressId) {
-      // Show loading
+     
       Swal.fire({
         title: 'Processing',
         text: 'Initiating payment...',
@@ -739,7 +737,6 @@
         }
       });
 
-      // Create order on server
       fetch('/checkout/create-razorpay-order', {
         method: 'POST',
         headers: {
@@ -767,7 +764,7 @@
 
     function openRazorpayCheckout(orderData) {
       const options = {
-        key: '<%= process.env.RAZORPAY_KEY_ID %>', // Replace with your actual key ID
+        key: '<%= process.env.RAZORPAY_KEY_ID %>', 
         amount: orderData.amount,
         currency: orderData.currency,
         name: 'Choco Luxe',
@@ -775,7 +772,7 @@
         image: '/assets/images/logo.png',
         order_id: orderData.id,
         handler: function (response) {
-          // Handle successful payment
+          
           verifyPayment(response, orderData);
         },
         prefill: {
@@ -788,7 +785,7 @@
         },
         modal: {
           ondismiss: function() {
-            // Handle dismissal
+            
             Swal.fire({
               title: 'Payment Cancelled',
               text: 'You cancelled the payment process. Would you like to try again?',

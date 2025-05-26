@@ -5,7 +5,7 @@ exports.loadWallet = async (req, res) => {
   try {
     const userId = req.session.user._id;
 
-    const wallet = await Wallet.findOne({ userId }).populate("userId", "name");
+    const wallet = await Wallet.findOne({ userId }).populate("userId", "username");
     const user = await User.findById(userId).select("referralCode");
    
     

@@ -78,7 +78,7 @@ const getEditCoupon = async (req, res) => {
     const couponId = req.params.id;
     const coupon = await Coupon.findById(couponId).populate({
       path: "usedBy.user",
-      select: "name email",
+      select: "username email",
     });
 
     console.log(coupon)
@@ -204,7 +204,7 @@ const getCouponUsage = async (req, res) => {
     const couponId = req.params.id;
     const coupon = await Coupon.findById(couponId).populate({
       path: "usedBy.user",
-      select: "name email",
+      select: "username email",
     });
 
     if (!coupon) {

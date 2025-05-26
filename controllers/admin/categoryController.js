@@ -30,7 +30,7 @@ const categoryController = {
         totalPages: Math.ceil(totalCategories / limit),
         limit,
         searchQuery,
-        totalCategories // Added to fix the ReferenceError
+        totalCategories 
       });
     } catch (error) {
       console.error('Error loading categories:', error);

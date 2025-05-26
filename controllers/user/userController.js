@@ -143,7 +143,7 @@ const verifyOtp = async (req, res) => {
 
         await newUser.save();
 
-        // Create wallet for the new user
+        
         const newWallet = new Wallet({
             userId: newUser._id,
             balance: userData.referredBy ? 50 : 0,
@@ -155,7 +155,6 @@ const verifyOtp = async (req, res) => {
         });
         await newWallet.save();
 
-        // If referred, credit the referrer's wallet
         if (userData.referredBy) {
             const referrerWallet = await Wallet.findOne({ userId: userData.referredBy });
             if (referrerWallet) {
@@ -239,15 +238,14 @@ const login = async (req, res) => {
         };
         console.log('Login successful - Session:', req.session);
         
-        // Determine where to redirect the user
-        // Priority: 1. Form returnTo (from localStorage), 2. Session returnTo, 3. Homepage
+       
         let redirectUrl = '/';
         
         if (returnTo) {
             redirectUrl = returnTo;
         } else if (req.session.returnTo) {
             redirectUrl = req.session.returnTo;
-            delete req.session.returnTo; // Clear the returnTo after using it
+            delete req.session.returnTo; 
         }
         
         res.redirect(redirectUrl);
@@ -724,8 +722,7 @@ const addAddress = async (req, res) => {
     try {
         const userId = req.session.user._id;
         let { name, addressType, address, city, state, pincode, phone, isDefault } = req.body;
-        
-        // Trim inputs
+ 
         name = name ? name.trim() : '';
         addressType = addressType ? addressType.trim() : '';
         address = address ? address.trim() : '';
@@ -734,26 +731,25 @@ const addAddress = async (req, res) => {
         pincode = pincode ? pincode.trim() : '';
         phone = phone ? phone.trim() : '';
         
-        // Required fields check
+       
         if (!name || !addressType || !address || !city || !state || !pincode || !phone) {
             req.session.message = 'All fields are required.';
             return res.redirect('/user/address/add');
         }
         
-        // Name validation
+     
         const namePattern = /^[A-Za-z][A-Za-z\s\.\-']{1,49}$/;
         if (!namePattern.test(name)) {
             req.session.message = 'Name must start with a letter, contain only letters, spaces, periods, hyphens, or apostrophes (2-50 characters).';
             return res.redirect('/user/address/add');
         }
         
-        // Address validation
+        
         if (address.length < 5 || address.length > 100) {
             req.session.message = 'Address must be between 5 and 100 characters.';
             return res.redirect('/user/address/add');
         }
-        
-        // City and State validation
+      
         const locationPattern = /^[A-Za-z][A-Za-z\s\-']{1,29}$/;
         if (!locationPattern.test(city)) {
             req.session.message = 'City must start with a letter, contain only letters, spaces, hyphens, or apostrophes (2-30 characters).';
@@ -765,28 +761,27 @@ const addAddress = async (req, res) => {
             return res.redirect('/user/address/add');
         }
         
-        // Pincode validation
+        
         const pincodePattern = /^\d{6}$/;
         if (!pincodePattern.test(pincode)) {
             req.session.message = 'Pincode must be exactly 6 digits.';
             return res.redirect('/user/address/add');
         }
         
-        // Phone validation
+     
         const phonePattern = /^[6-9]\d{9}$/;
         if (!phonePattern.test(phone)) {
             req.session.message = 'Phone number must be 10 digits and start with 6, 7, 8, or 9.';
             return res.redirect('/user/address/add');
         }
         
-        // Address type validation
+
         const validAddressTypes = ['home', 'work', 'office', 'other'];
         if (!validAddressTypes.includes(addressType.toLowerCase())) {
             req.session.message = 'Invalid address type. Choose from Home, Work, Office, or Other.';
             return res.redirect('/user/address/add');
         }
-        
-        // Handle default address
+       
         if (isDefault === 'true') {
             await Address.updateMany(
                 { userId },
@@ -828,7 +823,7 @@ const updateAddress = async (req, res) => {
         const addressId = req.body.addressId;
         let { name, addressType, address, city, state, pincode, phone, isDefault } = req.body;
         
-        // Trim inputs
+     
         name = name ? name.trim() : '';
         addressType = addressType ? addressType.trim() : '';
         address = address ? address.trim() : '';
@@ -836,27 +831,24 @@ const updateAddress = async (req, res) => {
         state = state ? state.trim() : '';
         pincode = pincode ? pincode.trim() : '';
         phone = phone ? phone.trim() : '';
-        
-        // Required fields check
+      
         if (!name || !addressType || !address || !city || !state || !pincode || !phone) {
             req.session.message = 'All fields are required.';
             return res.redirect(`/user/address/edit/${addressId}`);
         }
-        
-        // Name validation
+       
         const namePattern = /^[A-Za-z][A-Za-z\s\.\-']{1,49}$/;
         if (!namePattern.test(name)) {
             req.session.message = 'Name must start with a letter, contain only letters, spaces, periods, hyphens, or apostrophes (2-50 characters).';
             return res.redirect(`/user/address/edit/${addressId}`);
         }
         
-        // Address validation
         if (address.length < 5 || address.length > 100) {
             req.session.message = 'Address must be between 5 and 100 characters.';
             return res.redirect(`/user/address/edit/${addressId}`);
         }
         
-        // City and State validation
+       
         const locationPattern = /^[A-Za-z][A-Za-z\s\-']{1,29}$/;
         if (!locationPattern.test(city)) {
             req.session.message = 'City must start with a letter, contain only letters, spaces, hyphens, or apostrophes (2-30 characters).';
@@ -867,36 +859,34 @@ const updateAddress = async (req, res) => {
             req.session.message = 'State must start with a letter, contain only letters, spaces, hyphens, or apostrophes (2-30 characters).';
             return res.redirect(`/user/address/edit/${addressId}`);
         }
-        
-        // Pincode validation
+ 
         const pincodePattern = /^\d{6}$/;
         if (!pincodePattern.test(pincode)) {
             req.session.message = 'Pincode must be exactly 6 digits.';
             return res.redirect(`/user/address/edit/${addressId}`);
         }
         
-        // Phone validation
+  
         const phonePattern = /^[6-9]\d{9}$/;
         if (!phonePattern.test(phone)) {
             req.session.message = 'Phone number must be 10 digits and start with 6, 7, 8, or 9.';
             return res.redirect(`/user/address/edit/${addressId}`);
         }
-        
-        // Address type validation
+ 
         const validAddressTypes = ['home', 'work', 'office', 'other'];
         if (!validAddressTypes.includes(addressType.toLowerCase())) {
             req.session.message = 'Invalid address type. Choose from Home, Work, Office, or Other.';
             return res.redirect(`/user/address/edit/${addressId}`);
         }
         
-        // Verify address exists
+     
         const existingAddress = await Address.findOne({ _id: addressId, userId });
         if (!existingAddress) {
             req.session.message = 'Address not found.';
             return res.redirect('/user/address');
         }
         
-        // Handle default address
+   
         if (isDefault === 'true') {
             await Address.updateMany(
                 { userId, _id: { $ne: addressId } },
@@ -1042,7 +1032,7 @@ const changePassword = async (req, res) => {
             return res.redirect('/user/change-password');
         }
         
-        // Check for spaces in newPassword
+      
         if (/\s/.test(newPassword)) {
             req.session.message = 'Password cannot contain spaces.';
             return res.redirect('/user/change-password');
@@ -1102,32 +1092,32 @@ const handleGoogleCallback = async (req, res) => {
     
     console.log('Google Callback - Session data:', req.session);
     
-    // Check if this is a new user with a referral
+  
     const isNewUser = await Wallet.findOne({ userId: user._id }) ? false : true;
     console.log('Google Callback - Is new user:', isNewUser);
     console.log('Google Callback - User object:', user);
     
     if (isNewUser) {
-        // Check for referral info in the session
+      
         console.log('Google Callback - Google Referral data:', req.session.googleReferral);
         
-        // Get referrer info from either the user object or the session
+      
         let referredBy = user.referredBy;
         let referrerUsername = '';
         
-        // If we have referral info in the session but not in the user object, update the user
+      
         if (!referredBy && req.session.googleReferral && req.session.googleReferral.referrerId) {
             referredBy = req.session.googleReferral.referrerId;
             referrerUsername = req.session.googleReferral.referrerUsername;
             
-            // Update the user with the referral info
+            
             console.log('Google Callback - Updating user with referral info:', referredBy);
             await User.findByIdAndUpdate(user._id, { referredBy: referredBy });
         }
         
         console.log('Google Callback - Final referredBy value:', referredBy);
         
-        // Create wallet for the new user with referral bonus if applicable
+        
         const userId = user._id;
         const existingWallet = await Wallet.findOne({ userId });
         if (!existingWallet) {
@@ -1173,9 +1163,9 @@ const handleGoogleCallback = async (req, res) => {
         delete req.session.referralCode;
     }
     
-    // Redirect to the stored returnTo URL if it exists, otherwise to homepage
+
     const returnTo = req.session.returnTo || '/';
-    delete req.session.returnTo; // Clear the returnTo after using it
+    delete req.session.returnTo; 
     res.redirect(returnTo);
 };
 

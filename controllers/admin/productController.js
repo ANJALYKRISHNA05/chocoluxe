@@ -9,7 +9,7 @@ exports.loadProducts = async (req, res) => {
     const skip = (page - 1) * limit;
     const searchQuery = req.query.search || '';
 
-    // Create filter object for search
+    
     const filter = {};
     if (searchQuery) {
       filter.productName = { $regex: searchQuery, $options: 'i' };
