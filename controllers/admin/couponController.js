@@ -46,6 +46,17 @@ const addCoupon = async (req, res) => {
       });
     }
 
+    // Validate dates
+    const startDateTime = new Date(startDate);
+    const endDateTime = new Date(endDate);
+
+    if (endDateTime < startDateTime) {
+      return res.status(400).json({
+        success: false,
+        message: "End date cannot be earlier than start date",
+      });
+    }
+
     const newCoupon = new Coupon({
       code: code.trim().toUpperCase(),
       description,
@@ -101,6 +112,7 @@ const updateCoupon = async (req, res) => {
   try {
     const couponId = req.params.id;
     const {
+      code,
       description,
       discountType,
       discountAmount,
@@ -111,9 +123,35 @@ const updateCoupon = async (req, res) => {
       usageLimit,
     } = req.body;
 
+    // Validate dates
+    const startDateTime = new Date(startDate);
+    const endDateTime = new Date(endDate);
+
+    if (endDateTime < startDateTime) {
+      return res.status(400).json({
+        success: false,
+        message: "End date cannot be earlier than start date",
+      });
+    }
+
+    // If code is being updated, check for duplicates
+    if (code) {
+      const existingCoupon = await Coupon.findOne({
+        code: code.trim().toUpperCase(),
+        _id: { $ne: couponId }, // Exclude current coupon
+      });
+      if (existingCoupon) {
+        return res.status(400).json({
+          success: false,
+          message: "Coupon code already exists",
+        });
+      }
+    }
+
     const updatedCoupon = await Coupon.findByIdAndUpdate(
       couponId,
       {
+        ...(code && { code: code.trim().toUpperCase() }),
         description,
         discountType,
         discountAmount,

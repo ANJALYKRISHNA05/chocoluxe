@@ -635,16 +635,25 @@
       const couponInput = document.querySelector('#couponCode');
       const applyButton = document.querySelector('.apply-coupon-btn');
       const appliedCouponDiv = document.querySelector('.applied-coupon');
+      
       if (data.appliedCoupon) {
         couponInput.disabled = true;
         applyButton.disabled = true;
-        if (!appliedCouponDiv) {
+        
+        // Create the coupon HTML content
+        const couponHtml = `
+          <span>Applied: ${data.appliedCoupon.code} (${data.appliedCoupon.discountType === 'percentage' ? data.appliedCoupon.discountAmount + '%' : '₹' + data.appliedCoupon.discountAmount} off)</span>
+          <button class="remove-coupon" onclick="removeCoupon()"><i class="fas fa-times"></i></button>
+        `;
+        
+        if (appliedCouponDiv) {
+          // Update existing coupon div if it exists
+          appliedCouponDiv.innerHTML = couponHtml;
+        } else {
+          // Create new coupon div if it doesn't exist
           const newCouponDiv = document.createElement('div');
           newCouponDiv.className = 'applied-coupon';
-          newCouponDiv.innerHTML = `
-            <span>Applied: ${data.appliedCoupon.code} (${data.appliedCoupon.discountType === 'percentage' ? data.appliedCoupon.discountAmount + '%' : '₹' + data.appliedCoupon.discountAmount} off)</span>
-            <button class="remove-coupon" onclick="removeCoupon()"><i class="fas fa-times"></i></button>
-          `;
+          newCouponDiv.innerHTML = couponHtml;
           document.querySelector('.coupon-section').appendChild(newCouponDiv);
         }
       } else {
@@ -788,7 +797,6 @@
                 <span class="quantity-label">× <span class="quantity-display">${quantity}</span></span>
               `;
               updateCartSummary(data);
-              Swal.fire('Success', 'Quantity updated', 'success');
             } else {
               console.error(`Cart item not found for itemId: ${itemId}`);
             }

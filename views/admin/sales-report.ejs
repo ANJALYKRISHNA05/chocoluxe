@@ -132,13 +132,11 @@
                 </div>
                 <div class="col-md-3 custom-date-field" style="<%= filterType !== 'custom' ? 'display: none;' : '' %>">
                     <label for="startDate" class="form-label">Start Date</label>
-                    <input type="date" name="startDate" id="startDate" class="form-control date-range-picker" 
-                           value="<%= filterType === 'custom' ? dateRange.startDate.toISOString().split('T')[0] : '' %>">
+                    <input type="date" name="startDate" id="startDate" class="form-control date-range-picker" value="<%= filterType === 'custom' ? dateRange.startDate.toISOString().split('T')[0] : '' %>" />
                 </div>
                 <div class="col-md-3 custom-date-field" style="<%= filterType !== 'custom' ? 'display: none;' : '' %>">
                     <label for="endDate" class="form-label">End Date</label>
-                    <input type="date" name="endDate" id="endDate" class="form-control date-range-picker" 
-                           value="<%= filterType === 'custom' ? dateRange.endDate.toISOString().split('T')[0] : '' %>">
+                    <input type="date" name="endDate" id="endDate" class="form-control date-range-picker" value="<%= filterType === 'custom' ? dateRange.endDate.toISOString().split('T')[0] : '' %>" />
                 </div>
                 <div class="col-md-3">
                     <button type="submit" class="btn btn-chocolate w-100">Apply Filter</button>
@@ -239,13 +237,86 @@
         <div class="card mb-4">
             <h5 class="card-title">Download Report</h5>
             <div class="d-flex justify-content-center gap-4 py-4">
-                <a href="/admin/sales-report/download/pdf?filter=<%= filterType %><%= filterType === 'custom' ? `&startDate=${dateRange.startDate.toISOString().split('T')[0]}&endDate=${dateRange.endDate.toISOString().split('T')[0]}` : '' %>" class="btn btn-lg btn-danger">
+                <a href="/admin/sales-report/download/pdf?filter=<%= filterType %>&startDate=<%= dateRange.startDate.toISOString().split('T')[0] %>&endDate=<%= dateRange.endDate.toISOString().split('T')[0] %>" class="btn btn-danger download-btn">
                     <i class="fas fa-file-pdf me-2"></i> Download as PDF
                 </a>
-                <a href="/admin/sales-report/download/excel?filter=<%= filterType %><%= filterType === 'custom' ? `&startDate=${dateRange.startDate.toISOString().split('T')[0]}&endDate=${dateRange.endDate.toISOString().split('T')[0]}` : '' %>" class="btn btn-lg btn-success">
+                <a href="/admin/sales-report/download/excel?filter=<%= filterType %>&startDate=<%= dateRange.startDate.toISOString().split('T')[0] %>&endDate=<%= dateRange.endDate.toISOString().split('T')[0] %>" class="btn btn-success download-btn">
                     <i class="fas fa-file-excel me-2"></i> Download as Excel
                 </a>
             </div>
+        </div>
+
+        <!-- Transactions Table with Pagination -->
+        <div class="card mb-4">
+            <h5 class="card-title">Transaction Details</h5>
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Date</th>
+                            <th>Customer</th>
+                            <th>Payment Method</th>
+                            <th>Status</th>
+                            <th>Discount</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% if (orders && orders.length > 0) { %>
+                            <% orders.slice(pagination.skip, pagination.skip + pagination.limit).forEach(order => { %>
+                                <tr>
+                                    <td><%= order.orderId %></td>
+                                    <td><%= new Date(order.createdAt).toLocaleDateString() %></td>
+                                    <td><%= order.shippingAddress.name %></td>
+                                    <td><%= order.paymentMethod %></td>
+                                    <td>
+                                        <span class="badge <%= order.status === 'Delivered' ? 'bg-success' : 
+                                                          order.status === 'Cancelled' ? 'bg-danger' : 
+                                                          order.status === 'Returned' ? 'bg-warning' : 'bg-info' %>">
+                                            <%= order.status %>
+                                        </span>
+                                    </td>
+                                    <td>₹<%= order.discount.toFixed(2) %></td>
+                                    <td>₹<%= order.total.toFixed(2) %></td>
+                                </tr>
+                            <% }); %>
+                        <% } else { %>
+                            <tr>
+                                <td colspan="7" class="text-center">No transactions found for this period</td>
+                            </tr>
+                        <% } %>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination Controls -->
+            <% if (orders && orders.length > 0) { %>
+                <div class="d-flex justify-content-between align-items-center px-3 py-2">
+                    <div>
+                        Showing <%= Math.min(orders.length, pagination.skip + 1) %> to <%= Math.min(orders.length, pagination.skip + pagination.limit) %> of <%= orders.length %> transactions
+                    </div>
+                    <nav aria-label="Transaction pagination">
+                        <ul class="pagination mb-0">
+                            <li class="page-item <%= pagination.page <= 1 ? 'disabled' : '' %>">
+                                <a class="page-link" href="/admin/sales-report?filter=<%= filterType %>&startDate=<%= dateRange.startDate.toISOString().split('T')[0] %>&endDate=<%= dateRange.endDate.toISOString().split('T')[0] %>&page=<%= pagination.page - 1 %>" aria-label="Previous">
+                                    <span aria-hidden="true">&laquo;</span>
+                                </a>
+                            </li>
+                            <% for(let i = 1; i <= pagination.totalPages; i++) { %>
+                                <li class="page-item <%= pagination.page === i ? 'active' : '' %>">
+                                    <a class="page-link" href="/admin/sales-report?filter=<%= filterType %>&startDate=<%= dateRange.startDate.toISOString().split('T')[0] %>&endDate=<%= dateRange.endDate.toISOString().split('T')[0] %>&page=<%= i %>"><%= i %></a>
+                                </li>
+                            <% } %>
+                            <li class="page-item <%= pagination.page >= pagination.totalPages ? 'disabled' : '' %>">
+                                <a class="page-link" href="/admin/sales-report?filter=<%= filterType %>&startDate=<%= dateRange.startDate.toISOString().split('T')[0] %>&endDate=<%= dateRange.endDate.toISOString().split('T')[0] %>&page=<%= pagination.page + 1 %>" aria-label="Next">
+                                    <span aria-hidden="true">&raquo;</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+            <% } %>
         </div>
     </div>
 
@@ -278,11 +349,7 @@
                     labels: ['Revenue', 'Discount', 'Savings'],
                     datasets: [{
                         label: 'Amount (₹)',
-                        data: [
-                            <%- salesMetrics.totalSales %>,
-                            <%- salesMetrics.totalDiscount %>,
-                            <%- salesMetrics.totalSavings %>
-                        ],
+                        data: [<%= salesMetrics.totalSales %>, <%= salesMetrics.totalDiscount %>, <%= salesMetrics.totalSavings %>],
                         backgroundColor: [
                             'rgba(75, 192, 192, 0.6)',
                             'rgba(255, 99, 132, 0.6)',

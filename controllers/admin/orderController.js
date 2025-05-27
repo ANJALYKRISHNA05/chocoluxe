@@ -167,7 +167,7 @@ exports.acceptReturn = async (req, res) => {
     
     if (order.paymentMethod === 'Razorpay' && order.paymentDetails && order.paymentDetails.razorpayPaymentId) {
       try {
-       
+        // Process the refund through Razorpay
         const refund = await razorpay.payments.refund(order.paymentDetails.razorpayPaymentId, {
           amount: Math.round(order.total * 100), 
           notes: {
@@ -176,7 +176,7 @@ exports.acceptReturn = async (req, res) => {
           }
         });
         
-       
+        // Save refund details to the order
         order.refundDetails = {
           refundId: refund.id,
           amount: refund.amount / 100, 
@@ -184,7 +184,27 @@ exports.acceptReturn = async (req, res) => {
           processedAt: new Date()
         };
         
-        refundMessage = 'Return request approved and amount refunded to original payment method.';
+        // Also add the refund amount to the user's wallet
+        let wallet = await Wallet.findOne({ userId: order.user });
+        if (!wallet) {
+          wallet = new Wallet({
+            userId: order.user,
+            balance: 0,
+            transactions: [],
+          });
+        }
+
+        wallet.balance += order.total;
+        wallet.transactions.push({
+          transactionType: 'credit',
+          transactionAmount: order.total,
+          description: `Refund for returned order ${order.orderId} - Razorpay refund ID: ${refund.id}`,
+          createdAt: new Date(),
+        });
+
+        await wallet.save();
+        
+        refundMessage = 'Return request approved and amount refunded to both original payment method and wallet.';
       } catch (refundError) {
         console.error('Razorpay refund failed, refunding to wallet instead:', refundError);
         

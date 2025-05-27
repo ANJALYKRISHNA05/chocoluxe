@@ -62,6 +62,15 @@ const couponSchema = new mongoose.Schema(
           type: Date,
           default: Date.now,
         },
+        orderCompleted: {
+          type: Boolean,
+          default: false,
+        },
+        orderId: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Order",
+          default: null,
+        },
       },
     ],
   },

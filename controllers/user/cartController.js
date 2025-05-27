@@ -540,6 +540,29 @@ exports.applyCoupon = async (req, res) => {
     if (!coupon) {
       return res.status(400).json({ success: false, message: "Invalid coupon code" });
     }
+    
+    // If there's already a coupon applied to the cart, remove its pending entry
+    if (cart.coupon) {
+      const existingCouponId = cart.coupon;
+      const userIdString = userId._id ? userId._id.toString() : userId.toString();
+      
+      // Only process if the existing coupon is different from the new one
+      if (existingCouponId.toString() !== coupon._id.toString()) {
+        const existingCoupon = await Coupon.findById(existingCouponId);
+        
+        if (existingCoupon) {
+          // Find and remove any pending entries for this user
+          const pendingEntryIndex = existingCoupon.usedBy.findIndex(entry => 
+            entry.user.toString() === userIdString && entry.orderCompleted === false
+          );
+          
+          if (pendingEntryIndex !== -1) {
+            existingCoupon.usedBy.splice(pendingEntryIndex, 1);
+            await existingCoupon.save();
+          }
+        }
+      }
+    }
 
     const { subtotal } = await calculateCartTotals(cart, userId);
     
@@ -550,18 +573,8 @@ exports.applyCoupon = async (req, res) => {
         return res.status(400).json({ success: false, message: "Coupon is not applicable" });
       }
 
-      
-      const userIdString = userId._id ? userId._id.toString() : userId.toString();
-    
-      
-     
-      coupon.usedBy.push({ user: new mongoose.Types.ObjectId(userIdString) });
-      coupon.usedCount += 1;
-      
-      
-      await coupon.save();
-
-  
+      // Store the coupon in the cart but don't mark it as used yet
+      // The coupon will be marked as used only when the order is completed
       cart.coupon = coupon._id;
       cart.discount = discount;
       await cart.save();
@@ -767,9 +780,31 @@ exports.removeCoupon = async (req, res) => {
       return res.status(404).json({ success: false, message: "Cart not found" });
     }
 
+    // Get the coupon ID before removing it from the cart
+    const couponId = cart.coupon;
+    
+    // Remove the coupon from the cart
     cart.coupon = null;
     cart.discount = 0;
     await cart.save();
+    
+    // If there was a coupon applied, remove the pending entry from the coupon's usedBy array
+    if (couponId) {
+      const userIdString = userId._id ? userId._id.toString() : userId.toString();
+      const coupon = await Coupon.findById(couponId);
+      
+      if (coupon) {
+        // Find and remove any pending (not completed) entries for this user
+        const pendingEntryIndex = coupon.usedBy.findIndex(entry => 
+          entry.user.toString() === userIdString && entry.orderCompleted === false
+        );
+        
+        if (pendingEntryIndex !== -1) {
+          coupon.usedBy.splice(pendingEntryIndex, 1);
+          await coupon.save();
+        }
+      }
+    }
 
     const { cartTotal, totalSavings, itemCount, subtotal, discount, appliedCoupon } = await calculateCartTotals(cart, userId);
 
@@ -873,25 +908,37 @@ const validateAndApplyCoupon = async (coupon, userId, subtotal, cart) => {
     return null;
   }
 
-  
   const userIdString = userId._id ? userId._id.toString() : userId.toString();
-
-  
   
   const userUsed = coupon.usedBy.some((entry) => {
     const entryUserId = entry.user.toString();
-   
-    return entryUserId === userIdString;
+    return entryUserId === userIdString && entry.orderCompleted === true;
   });
   
   if (userUsed) {
-    console.log('User has already used this coupon');
+    console.log('User has already used this coupon in a completed order');
     cart.coupon = null;
     cart.discount = 0;
     await cart.save();
-    throw new Error('You have already used this coupon');
+    throw new Error('You have already used this coupon on a previous order');
   } else {
-    console.log('User has not used this coupon before');
+    
+    const pendingEntry = coupon.usedBy.find((entry) => {
+      const entryUserId = entry.user.toString();
+      return entryUserId === userIdString && entry.orderCompleted === false;
+    });
+    
+   
+    if (!pendingEntry) {
+      
+      coupon.usedBy.push({ 
+        user: new mongoose.Types.ObjectId(userIdString),
+        orderCompleted: false
+      });
+      await coupon.save();
+    }
+    
+    console.log('User can use this coupon');
   }
 
  
