@@ -162,7 +162,7 @@ const getTopProducts = async (startDate, endDate) => {
                 totalRevenue: { $sum: '$items.subtotal' }
             }
         },
-        { $sort: { totalRevenue: -1 } },
+        { $sort: { totalQuantity: -1 } },
         { $limit: 5 },
         {
             $lookup: {
@@ -211,10 +211,16 @@ const getTopCategories = async (startDate, endDate) => {
                 _id: '$categoryDetails._id',
                 categoryName: { $first: '$categoryDetails.name' },
                 totalQuantity: { $sum: '$items.quantity' },
-                totalRevenue: { $sum: '$items.subtotal' }
+                totalRevenue: { $sum: '$items.subtotal' },
+                orderCount: { $addToSet: '$_id' }
             }
         },
-        { $sort: { totalRevenue: -1 } },
+        {
+            $addFields: {
+                orderCount: { $size: '$orderCount' }
+            }
+        },
+        { $sort: { totalQuantity: -1 } },
         { $limit: 5 }
     ]);
     
