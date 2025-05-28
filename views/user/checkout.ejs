@@ -475,9 +475,13 @@
                   <h4 class="mt-4 mb-3">Payment Method</h4>
                   <div class="form-check mb-3">
                     <input class="form-check-input" type="radio" name="paymentMethod" 
-                           id="payment-cod" value="Cash on Delivery" checked required>
-                    <label class="form-check-label" for="payment-cod">
+                           id="payment-cod" value="Cash on Delivery" 
+                           <%= !isCodAvailable ? 'disabled' : 'checked' %> required>
+                    <label class="form-check-label <%= !isCodAvailable ? 'text-muted' : '' %>" for="payment-cod">
                       Cash on Delivery
+                      <% if (!isCodAvailable) { %>
+                        <small class="d-block text-danger">Not available for orders above ₹1000</small>
+                      <% } %>
                     </label>
                   </div>
                   <div class="form-check mb-3">

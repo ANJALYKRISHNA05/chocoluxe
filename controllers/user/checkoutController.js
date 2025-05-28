@@ -302,6 +302,9 @@ exports.loadCheckout = async (req, res) => {
     const message = req.session.message || '';
     req.session.message = null;
 
+    // Check if COD is available (not available for orders above Rs 1000)
+    const isCodAvailable = total <= 1000;
+
     res.render("user/checkout", {
       cartItems,
       subtotal,
@@ -314,6 +317,7 @@ exports.loadCheckout = async (req, res) => {
       user: req.session.user,
       title: "Checkout",
       message,
+      isCodAvailable
     });
   } catch (error) {
     console.error("Error loading checkout:", error);
@@ -338,6 +342,7 @@ exports.placeOrder = async (req, res) => {
       return res.redirect("/checkout");
     }
 
+    // Get cart to validate payment method against total
     const cart = await Cart.findOne({ user: userId }).populate({
       path: "items.product",
       populate: {
@@ -352,6 +357,12 @@ exports.placeOrder = async (req, res) => {
 
     const { subtotal, totalSavings, discount, appliedCoupon } = await calculateCartTotals(cart, userId);
     const total = subtotal - discount;
+
+    // Validate COD is not used for orders above Rs 1000
+    if (paymentMethod === "Cash on Delivery" && total > 1000) {
+      req.session.message = "Cash on Delivery is not available for orders above ₹1000. Please choose another payment method.";
+      return res.redirect("/checkout");
+    }
 
     
     if (paymentMethod === "Wallet") {
