@@ -173,6 +173,18 @@ exports.loadCart = async (req, res) => {
     });
 
     if (cart && cart.items.length > 0) {
+      // First, check and adjust quantities if needed
+      for (const item of cart.items) {
+        const product = item.product;
+        if (product && !product.isBlocked && product.category?.isListed) {
+          const variant = product.variants.find((v) => v.sku === item.sku);
+          if (variant && variant.stock_quantity < item.quantity) {
+            item.quantity = variant.stock_quantity;
+            await cart.save();
+          }
+        }
+      }
+
       cartItems = cart.items.map((item) => {
         const product = item.product;
         let errorMessage = null;
@@ -198,8 +210,7 @@ exports.loadCart = async (req, res) => {
         let isOutOfStock = false;
 
         if (variant && !errorMessage) {
-         
-          if (variant.stock_quantity < item.quantity) {
+          if (variant.stock_quantity === 0) {
             isOutOfStock = true;
             hasOutOfStockItems = true;
           }

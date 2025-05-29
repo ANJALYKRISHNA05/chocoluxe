@@ -559,7 +559,7 @@
               </div>
               <div class="summary-item d-flex justify-content-between mb-3">
                 <span>Coupon Discount:</span>
-                <span class="coupon-discount">₹<%= discount.toFixed(2) %></span>
+                <span class="coupon-discount">₹<%= (discount || 0).toFixed(2) %></span>
               </div>
               <div class="summary-item d-flex justify-content-between mb-3">
                 <span>Delivery Charge:</span>
