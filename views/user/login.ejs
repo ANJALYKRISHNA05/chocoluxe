@@ -90,9 +90,9 @@
                         <div class="form-group">
                             <a href="/user/forgot-password" class="forgot-password-link">Forgot Password?</a>
                         </div>
-                        <% if (typeof message !== 'undefined' && message.length > 0) { %>
+                        <% if (typeof loginMessage !== 'undefined' && loginMessage.length > 0) { %>
                             <div class="alert alert-danger">
-                                <%= message %>
+                                <%= loginMessage %>
                             </div>
                         <% } %>
                         <button type="submit" class="btn btn-custom">Login</button>

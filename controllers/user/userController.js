@@ -201,9 +201,9 @@ const loadLogin = async (req, res) => {
         if (req.session.user) {
             return res.redirect('/');
         }
-        res.render('user/login', { message: req.session.message || '' });
-        if (req.session.message) {
-            delete req.session.message;
+        res.render('user/login', { loginMessage: req.session.loginMessage || '' });
+        if (req.session.loginMessage) {
+            delete req.session.loginMessage;
         }
     } catch (error) {
         console.error('Login page error:', error);
@@ -217,13 +217,13 @@ const login = async (req, res) => {
         const user = await User.findOne({ isAdmin: 0, email });
         
         if (!user || !(await bcrypt.compare(password, user.password))) {
-            req.session.message = 'Invalid email or password';
+            req.session.loginMessage = 'Invalid email or password';
             console.log('Login failed - Invalid credentials');
             return res.redirect('/user/login');
         }
 
         if (user.isBlocked) {
-            req.session.message = 'User is blocked by admin';
+            req.session.loginMessage = 'User is blocked by admin';
             console.log('Login failed - User is blocked');
             return res.redirect('/user/login');
         }
@@ -251,7 +251,7 @@ const login = async (req, res) => {
         res.redirect(redirectUrl);
     } catch (error) {
         console.error('Login error:', error);
-        req.session.message = 'An error occurred during login. Please try again.';
+        req.session.loginMessage = 'An error occurred during login. Please try again.';
         res.redirect('/user/login');
     }
 };

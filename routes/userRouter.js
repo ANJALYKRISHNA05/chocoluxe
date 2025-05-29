@@ -61,6 +61,7 @@ router.post('/cart/apply-coupon', userAuth, cartController.applyCoupon);
 router.post('/cart/remove-coupon', userAuth, cartController.removeCoupon);
 router.get('/cart/validate-coupon', userAuth, cartController.validateCoupon);
 
+
 router.post('/add-to-wishlist', userAuth, wishlistController.addToWishlist);
 router.get('/wishlist', userAuth, wishlistController.loadWishlist);
 router.post('/wishlist/remove', userAuth, wishlistController.removeFromWishlist);
