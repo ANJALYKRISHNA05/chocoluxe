@@ -511,8 +511,32 @@ exports.placeOrder = async (req, res) => {
     if (cart.coupon && appliedCoupon) {
       const coupon = await Coupon.findById(cart.coupon);
       if (coupon) {
-        coupon.usedCount += 1;
-        coupon.usedBy.push({ user: userId, usedAt: new Date() });
+        // Find any existing pending entry for this user
+        const existingEntry = coupon.usedBy.find(entry => 
+          entry.user.toString() === userId.toString() && !entry.orderCompleted
+        );
+
+        if (existingEntry) {
+          // Update the existing entry
+          existingEntry.orderCompleted = true;
+          existingEntry.orderId = orderId; // orderId is already a string
+          coupon.usedCount += 1;
+        } else {
+          // Add a new completed entry
+          coupon.usedBy.push({
+            user: userId,
+            usedAt: new Date(),
+            orderCompleted: true,
+            orderId: orderId // orderId is already a string
+          });
+          coupon.usedCount += 1;
+        }
+        
+        // Mark coupon as inactive if usage limit is reached
+        if (coupon.usedCount >= coupon.usageLimit) {
+          coupon.isActive = false;
+        }
+        
         await coupon.save();
         couponId = coupon._id;
       }
