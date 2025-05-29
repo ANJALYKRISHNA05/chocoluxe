@@ -112,7 +112,7 @@
       margin-bottom: 1.5rem;
       background: linear-gradient(145deg, #fff, #f8f3ef);
       box-shadow: 0 5px 15px rgba(0, 0, 0, 0.03);
-      transition: all: 0.4s ease;
+      transition: all 0.4s ease;
       display: flex;
       align-items: center;
     }
@@ -351,7 +351,13 @@
             <% } %>
             <div class="d-flex justify-content-between mb-2">
               <span>Shipping</span>
-              <span>Free</span>
+              <span>
+                <% if (typeof order.deliveryCharge === 'undefined' || order.deliveryCharge === null || order.deliveryCharge === 0) { %>
+                  Free
+                <% } else { %>
+                  ₹<%= order.deliveryCharge.toFixed(2) %>
+                <% } %>
+              </span>
             </div>
             <hr>
             <div class="d-flex justify-content-between mb-2">

@@ -562,6 +562,10 @@
                 <span class="coupon-discount">₹<%= discount.toFixed(2) %></span>
               </div>
               <div class="summary-item d-flex justify-content-between mb-3">
+                <span>Delivery Charge:</span>
+                <span class="delivery-charge"><% if (deliveryCharge === 0) { %>Free<% } else { %>₹<%= deliveryCharge.toFixed(2) %><% } %></span>
+              </div>
+              <div class="summary-item d-flex justify-content-between mb-3">
                 <span>Total Amount:</span>
                 <span class="fw-bold cart-total">₹<%= total.toFixed(2) %></span>
               </div>
@@ -624,18 +628,55 @@
       .catch(error => console.error('Error fetching cart count:', error));
     }
 
-    function updateCartSummary(data) {
-      document.querySelector('.cart-total').textContent = `₹${data.cartTotal.toFixed(2)}`;
-      document.querySelector('.total-savings').textContent = `₹${data.totalSavings.toFixed(2)}`;
-      document.querySelector('.subtotal-amount').textContent = `₹${data.subtotal.toFixed(2)}`;
-      document.querySelector('.coupon-discount').textContent = `₹${data.discount.toFixed(2)}`;
-      updateCartBadge(data.itemCount);
+    function calculateDeliveryCharge(subtotal) {
+      if (subtotal >= 1000) {
+        return 0; // Free delivery for orders ₹1000 and above
+      } else if (subtotal >= 750) {
+        return 30; // ₹30 for orders between ₹750 - ₹999
+      } else if (subtotal >= 500) {
+        return 40; // ₹40 for orders between ₹500 - ₹749
+      } else if (subtotal >= 250) {
+        return 50; // ₹50 for orders between ₹250 - ₹499
+      } else {
+        return 60; // ₹60 for orders below ₹250
+      }
+    }
 
-      
+    function updateCartSummary(data) {
+      const subtotalElement = document.querySelector('.subtotal-amount');
+      const totalSavingsElement = document.querySelector('.total-savings');
+      const couponDiscountElement = document.querySelector('.coupon-discount');
+      const deliveryChargeElement = document.querySelector('.delivery-charge');
+      const cartTotalElement = document.querySelector('.cart-total');
       const couponInput = document.querySelector('#couponCode');
       const applyButton = document.querySelector('.apply-coupon-btn');
       const appliedCouponDiv = document.querySelector('.applied-coupon');
       
+      if (subtotalElement) subtotalElement.textContent = `₹${data.subtotal.toFixed(2)}`;
+      if (totalSavingsElement) totalSavingsElement.textContent = `₹${data.totalSavings.toFixed(2)}`;
+      if (couponDiscountElement) couponDiscountElement.textContent = `₹${data.discount.toFixed(2)}`;
+      
+      // Calculate discounted subtotal
+      const discountedSubtotal = data.subtotal - data.discount;
+      
+      // Calculate and update delivery charge
+      const deliveryCharge = calculateDeliveryCharge(discountedSubtotal);
+      if (deliveryChargeElement) {
+        if (deliveryCharge === 0) {
+          deliveryChargeElement.textContent = 'Free';
+        } else {
+          deliveryChargeElement.textContent = `₹${deliveryCharge.toFixed(2)}`;
+        }
+      }
+      
+      // Update total with delivery charge
+      const total = discountedSubtotal + deliveryCharge;
+      if (cartTotalElement) cartTotalElement.textContent = `₹${total.toFixed(2)}`;
+      
+      // Update cart badge
+      updateCartBadge(data.itemCount);
+      
+      // Update coupon section
       if (data.appliedCoupon) {
         couponInput.disabled = true;
         applyButton.disabled = true;

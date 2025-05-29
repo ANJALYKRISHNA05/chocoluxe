@@ -551,7 +551,7 @@
             <% } %>
             <div class="d-flex justify-content-between mb-2">
               <span>Shipping</span>
-              <span>Free</span>
+              <span id="delivery-charge"><% if (deliveryCharge === 0) { %>Free<% } else { %>₹<%= deliveryCharge.toFixed(2) %><% } %></span>
             </div>
             <hr>
             <div class="d-flex justify-content-between mb-2">
@@ -696,38 +696,85 @@
       form.submit();
     }
 
-    function placeOrder() {
-      const form = document.getElementById('checkoutForm');
-      const selectedAddress = document.querySelector('input[name="addressId"]:checked');
-      const selectedPaymentMethod = document.querySelector('input[name="paymentMethod"]:checked');
-
-      if (!selectedAddress) {
-        Swal.fire('Error', 'Please select a shipping address.', 'error');
-        return;
+    function calculateDeliveryCharge(subtotal) {
+      if (subtotal >= 1000) {
+        return 0; // Free delivery for orders ₹1000 and above
+      } else if (subtotal >= 750) {
+        return 30; // ₹30 for orders between ₹750 - ₹999
+      } else if (subtotal >= 500) {
+        return 40; // ₹40 for orders between ₹500 - ₹749
+      } else if (subtotal >= 250) {
+        return 50; // ₹50 for orders between ₹250 - ₹499
+      } else {
+        return 60; // ₹60 for orders below ₹250
       }
+    }
 
-      if (!selectedPaymentMethod) {
-        Swal.fire('Error', 'Please select a payment method.', 'error');
-        return;
-      }
+    function updateDeliveryCharge() {
+      const subtotalElement = document.querySelector('.d-flex.justify-content-between.mb-2:first-child span:last-child');
+      const discountElement = document.querySelector('.d-flex.justify-content-between.mb-2 span:contains("Coupon")');
+      const deliveryChargeElement = document.getElementById('delivery-charge');
+      const totalElement = document.querySelector('.d-flex.justify-content-between.mb-2 .fw-bold:last-child');
       
-  
-      if (selectedPaymentMethod.value === 'Razorpay') {
-        initiateRazorpayPayment(selectedAddress.value);
+      if (subtotalElement && deliveryChargeElement && totalElement) {
+        // Get subtotal value
+        const subtotalText = subtotalElement.textContent;
+        const subtotal = parseFloat(subtotalText.replace(/[^\d.]/g, ''));
+        
+        // Get discount if any
+        let discount = 0;
+        if (discountElement) {
+          const discountText = discountElement.nextElementSibling.textContent;
+          discount = parseFloat(discountText.replace(/[^\d.]/g, ''));
+        }
+        
+        // Calculate discounted subtotal
+        const discountedSubtotal = subtotal - discount;
+        
+        // Calculate delivery charge
+        const deliveryCharge = calculateDeliveryCharge(discountedSubtotal);
+        
+        // Update delivery charge display
+        if (deliveryCharge === 0) {
+          deliveryChargeElement.textContent = 'Free';
+        } else {
+          deliveryChargeElement.textContent = `₹${deliveryCharge.toFixed(2)}`;
+        }
+        
+        // Update total
+        const total = discountedSubtotal + deliveryCharge;
+        totalElement.textContent = `₹${total.toFixed(2)}`;
+      }
+    }
+
+    function placeOrder() {
+      const addressId = document.querySelector('input[name="addressId"]:checked')?.value;
+      if (!addressId) {
+        Swal.fire('Error', 'Please select a shipping address', 'error');
         return;
       }
 
-      Swal.fire({
-        title: 'Confirm Order',
-        text: `Are you sure you want to place this order with ${selectedPaymentMethod.value}?`,
-        icon: 'question',
-        showCancelButton: true,
-        confirmButtonText: 'Yes, place order'
-      }).then((result) => {
-        if (result.isConfirmed) {
-          form.submit();
-        }
-      });
+      const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked')?.value;
+      if (!paymentMethod) {
+        Swal.fire('Error', 'Please select a payment method', 'error');
+        return;
+      }
+
+      if (paymentMethod === 'Razorpay') {
+        initiateRazorpayPayment(addressId);
+      } else {
+        Swal.fire({
+          title: 'Confirm Order',
+          text: `Are you sure you want to place this order with ${paymentMethod}?`,
+          icon: 'question',
+          showCancelButton: true,
+          confirmButtonText: 'Yes, place order'
+        }).then((result) => {
+          if (result.isConfirmed) {
+            document.getElementById('checkoutForm').submit();
+          }
+        });
+      }
     }
 
     function initiateRazorpayPayment(addressId) {
@@ -850,6 +897,11 @@
         Swal.fire('Error', 'Payment verification failed. Please contact support.', 'error');
       });
     }
+    
+    // Call updateDeliveryCharge when the page loads
+    document.addEventListener('DOMContentLoaded', function() {
+      updateDeliveryCharge();
+    });
   </script>
 
   <% if (typeof message !== 'undefined' && message) { %>

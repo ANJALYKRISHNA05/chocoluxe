@@ -19,6 +19,21 @@ const razorpay = new Razorpay({
 });
 
 
+const calculateDeliveryCharge = (subtotal) => {
+  // Delivery charge structure
+  if (subtotal >= 1000) {
+    return 0; // Free delivery for orders ₹1000 and above
+  } else if (subtotal >= 750) {
+    return 30; // ₹30 for orders between ₹750 - ₹999
+  } else if (subtotal >= 500) {
+    return 40; // ₹40 for orders between ₹500 - ₹749
+  } else if (subtotal >= 250) {
+    return 50; // ₹50 for orders between ₹250 - ₹499
+  } else {
+    return 60; // ₹60 for orders below ₹250
+  }
+};
+
 const calculateCartTotals = async (cart, userId) => {
   let cartTotal = 0;
   let totalSavings = 0;
@@ -63,10 +78,25 @@ const calculateCartTotals = async (cart, userId) => {
       }
     }
 
-    cartTotal = subtotal - discount;
+    // Calculate the discounted subtotal
+    const discountedSubtotal = subtotal - discount;
+    
+    // Calculate delivery charge based on discounted subtotal
+    const deliveryCharge = calculateDeliveryCharge(discountedSubtotal);
+    
+    // Calculate final total including delivery charge
+    cartTotal = discountedSubtotal + deliveryCharge;
   }
 
-  return { cartTotal, totalSavings, itemCount, subtotal, discount, appliedCoupon };
+  return { 
+    cartTotal, 
+    totalSavings, 
+    itemCount, 
+    subtotal, 
+    discount, 
+    appliedCoupon,
+    deliveryCharge: cart && cart.items.length > 0 ? calculateDeliveryCharge(subtotal - discount) : 0
+  };
 };
 
 const validateAndApplyCoupon = async (coupon, userId, subtotal, cart) => {
@@ -296,6 +326,11 @@ exports.loadCheckout = async (req, res) => {
     }
 
     const { subtotal, totalSavings, discount, cartTotal: total, appliedCoupon } = await calculateCartTotals(cart, userId);
+    
+    // Calculate delivery charge based on discounted subtotal
+    const discountedSubtotal = subtotal - discount;
+    const deliveryCharge = calculateDeliveryCharge(discountedSubtotal);
+    
     const addresses = await Address.find({ userId }).sort({ isDefault: -1, createdAt: -1 });
     const wallet = await Wallet.findOne({ userId }) || { balance: 0 }; 
 
@@ -310,6 +345,7 @@ exports.loadCheckout = async (req, res) => {
       subtotal,
       totalSavings,
       discount,
+      deliveryCharge,
       total,
       appliedCoupon,
       addresses,
@@ -355,8 +391,7 @@ exports.placeOrder = async (req, res) => {
       return res.redirect("/cart");
     }
 
-    const { subtotal, totalSavings, discount, appliedCoupon } = await calculateCartTotals(cart, userId);
-    const total = subtotal - discount;
+    const { subtotal, totalSavings, discount, appliedCoupon, deliveryCharge, cartTotal: total } = await calculateCartTotals(cart, userId);
 
     // Validate COD is not used for orders above Rs 1000
     if (paymentMethod === "Cash on Delivery" && total > 1000) {
@@ -513,6 +548,7 @@ exports.placeOrder = async (req, res) => {
       coupon: couponId,
       subtotal,
       discount,
+      deliveryCharge,
       totalSavings,
       total,
       paymentMethod,
