@@ -167,7 +167,7 @@ exports.acceptReturn = async (req, res) => {
     
     if (order.paymentMethod === 'Razorpay' && order.paymentDetails && order.paymentDetails.razorpayPaymentId) {
       try {
-        // Process the refund through Razorpay
+        
         const refund = await razorpay.payments.refund(order.paymentDetails.razorpayPaymentId, {
           amount: Math.round(order.total * 100), 
           notes: {
@@ -176,7 +176,7 @@ exports.acceptReturn = async (req, res) => {
           }
         });
         
-        // Save refund details to the order
+        
         order.refundDetails = {
           refundId: refund.id,
           amount: refund.amount / 100, 
@@ -184,7 +184,7 @@ exports.acceptReturn = async (req, res) => {
           processedAt: new Date()
         };
         
-        // Also add the refund amount to the user's wallet
+        
         let wallet = await Wallet.findOne({ userId: order.user });
         if (!wallet) {
           wallet = new Wallet({

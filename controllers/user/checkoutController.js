@@ -20,17 +20,17 @@ const razorpay = new Razorpay({
 
 
 const calculateDeliveryCharge = (subtotal) => {
-  // Delivery charge structure
+ 
   if (subtotal >= 1000) {
-    return 0; // Free delivery for orders ₹1000 and above
+    return 0; 
   } else if (subtotal >= 750) {
-    return 30; // ₹30 for orders between ₹750 - ₹999
+    return 30; 
   } else if (subtotal >= 500) {
-    return 40; // ₹40 for orders between ₹500 - ₹749
+    return 40; 
   } else if (subtotal >= 250) {
-    return 50; // ₹50 for orders between ₹250 - ₹499
+    return 50; 
   } else {
-    return 60; // ₹60 for orders below ₹250
+    return 60;
   }
 };
 
@@ -78,13 +78,11 @@ const calculateCartTotals = async (cart, userId) => {
       }
     }
 
-    // Calculate the discounted subtotal
     const discountedSubtotal = subtotal - discount;
     
-    // Calculate delivery charge based on discounted subtotal
-    const deliveryCharge = calculateDeliveryCharge(discountedSubtotal);
     
-    // Calculate final total including delivery charge
+    const deliveryCharge = calculateDeliveryCharge(discountedSubtotal);
+
     cartTotal = discountedSubtotal + deliveryCharge;
   }
 
@@ -327,7 +325,7 @@ exports.loadCheckout = async (req, res) => {
 
     const { subtotal, totalSavings, discount, cartTotal: total, appliedCoupon } = await calculateCartTotals(cart, userId);
     
-    // Calculate delivery charge based on discounted subtotal
+    
     const discountedSubtotal = subtotal - discount;
     const deliveryCharge = calculateDeliveryCharge(discountedSubtotal);
     
@@ -337,7 +335,7 @@ exports.loadCheckout = async (req, res) => {
     const message = req.session.message || '';
     req.session.message = null;
 
-    // Check if COD is available (not available for orders above Rs 1000)
+   
     const isCodAvailable = total <= 1000;
 
     res.render("user/checkout", {
@@ -378,7 +376,7 @@ exports.placeOrder = async (req, res) => {
       return res.redirect("/checkout");
     }
 
-    // Get cart to validate payment method against total
+ 
     const cart = await Cart.findOne({ user: userId }).populate({
       path: "items.product",
       populate: {
@@ -393,7 +391,7 @@ exports.placeOrder = async (req, res) => {
 
     const { subtotal, totalSavings, discount, appliedCoupon, deliveryCharge, cartTotal: total } = await calculateCartTotals(cart, userId);
 
-    // Validate COD is not used for orders above Rs 1000
+    
     if (paymentMethod === "Cash on Delivery" && total > 1000) {
       req.session.message = "Cash on Delivery is not available for orders above ₹1000. Please choose another payment method.";
       return res.redirect("/checkout");
@@ -511,28 +509,28 @@ exports.placeOrder = async (req, res) => {
     if (cart.coupon && appliedCoupon) {
       const coupon = await Coupon.findById(cart.coupon);
       if (coupon) {
-        // Find any existing pending entry for this user
+      
         const existingEntry = coupon.usedBy.find(entry => 
           entry.user.toString() === userId.toString() && !entry.orderCompleted
         );
 
         if (existingEntry) {
-          // Update the existing entry
+       
           existingEntry.orderCompleted = true;
-          existingEntry.orderId = orderId; // orderId is already a string
+          existingEntry.orderId = orderId; 
           coupon.usedCount += 1;
         } else {
-          // Add a new completed entry
+    
           coupon.usedBy.push({
             user: userId,
             usedAt: new Date(),
             orderCompleted: true,
-            orderId: orderId // orderId is already a string
+            orderId: orderId 
           });
           coupon.usedCount += 1;
         }
         
-        // Mark coupon as inactive if usage limit is reached
+     
         if (coupon.usedCount >= coupon.usageLimit) {
           coupon.isActive = false;
         }

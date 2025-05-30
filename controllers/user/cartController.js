@@ -792,21 +792,21 @@ exports.removeCoupon = async (req, res) => {
       return res.status(404).json({ success: false, message: "Cart not found" });
     }
 
-    // Get the coupon ID before removing it from the cart
+    
     const couponId = cart.coupon;
     
-    // Remove the coupon from the cart
+   
     cart.coupon = null;
     cart.discount = 0;
     await cart.save();
     
-    // If there was a coupon applied, remove the pending entry from the coupon's usedBy array
+   
     if (couponId) {
       const userIdString = userId._id ? userId._id.toString() : userId.toString();
       const coupon = await Coupon.findById(couponId);
       
       if (coupon) {
-        // Find and remove any pending (not completed) entries for this user
+       
         const pendingEntryIndex = coupon.usedBy.findIndex(entry => 
           entry.user.toString() === userIdString && entry.orderCompleted === false
         );
@@ -837,17 +837,17 @@ exports.removeCoupon = async (req, res) => {
 };
 
 const calculateDeliveryCharge = (subtotal) => {
-  // Delivery charge structure
+
   if (subtotal >= 1000) {
-    return 0; // Free delivery for orders ₹1000 and above
+    return 0;
   } else if (subtotal >= 750) {
-    return 30; // ₹30 for orders between ₹750 - ₹999
+    return 30; 
   } else if (subtotal >= 500) {
-    return 40; // ₹40 for orders between ₹500 - ₹749
+    return 40; 
   } else if (subtotal >= 250) {
-    return 50; // ₹50 for orders between ₹250 - ₹499
+    return 50; 
   } else {
-    return 60; // ₹60 for orders below ₹250
+    return 60; 
   }
 };
 
@@ -895,11 +895,11 @@ const calculateCartTotals = async (cart, userId) => {
       }
     }
 
-    // Calculate delivery charge based on subtotal after discount
+    
     const discountedSubtotal = subtotal - discount;
     const deliveryCharge = calculateDeliveryCharge(discountedSubtotal);
     
-    // Calculate final total including delivery charge
+    
     cartTotal = discountedSubtotal + deliveryCharge;
   }
 
