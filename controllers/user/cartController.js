@@ -714,7 +714,7 @@ exports.validateCoupon = async (req, res) => {
     }
 
    
-    const userUsed = coupon.usedBy.some((entry) => entry.user.toString() === userId);
+    const userUsed = coupon.usedBy.some((entry) => entry.user.toString() === userId && entry.orderCompleted === true);
     if (userUsed) {
       cart.coupon = null;
       cart.discount = 0;
@@ -724,7 +724,7 @@ exports.validateCoupon = async (req, res) => {
       
       return res.json({
         success: false,
-        message: "You have already used this coupon before.",
+        message: "You have already used this coupon in a completed order. Please try another coupon.",
         couponRemoved: true,
         cartTotal,
         totalSavings,

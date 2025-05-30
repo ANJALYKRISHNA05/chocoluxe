@@ -124,7 +124,9 @@ const validateAndApplyCoupon = async (coupon, userId, subtotal, cart) => {
     return null;
   }
 
-  const userUsed = coupon.usedBy.some((entry) => entry.user.toString() === userId);
+  const userUsed = coupon.usedBy.some((entry) => 
+    entry.user.toString() === userId && entry.orderCompleted === true
+  );
   if (userUsed) {
     return null;
   }
@@ -509,33 +511,32 @@ exports.placeOrder = async (req, res) => {
     if (cart.coupon && appliedCoupon) {
       const coupon = await Coupon.findById(cart.coupon);
       if (coupon) {
-      
-        const existingEntry = coupon.usedBy.find(entry => 
-          entry.user.toString() === userId.toString() && !entry.orderCompleted
-        );
+        // For COD and Wallet payments, mark coupon as used immediately
+        if (paymentMethod === "Cash on Delivery" || paymentMethod === "Wallet") {
+          const existingEntry = coupon.usedBy.find(entry => 
+            entry.user.toString() === userId.toString() && !entry.orderCompleted
+          );
 
-        if (existingEntry) {
-       
-          existingEntry.orderCompleted = true;
-          existingEntry.orderId = orderId; 
-          coupon.usedCount += 1;
-        } else {
-    
-          coupon.usedBy.push({
-            user: userId,
-            usedAt: new Date(),
-            orderCompleted: true,
-            orderId: orderId 
-          });
-          coupon.usedCount += 1;
+          if (existingEntry) {
+            existingEntry.orderCompleted = true;
+            existingEntry.orderId = orderId;
+            coupon.usedCount += 1;
+          } else {
+            coupon.usedBy.push({
+              user: userId,
+              usedAt: new Date(),
+              orderCompleted: true,
+              orderId: orderId
+            });
+            coupon.usedCount += 1;
+          }
+
+          if (coupon.usedCount >= coupon.usageLimit) {
+            coupon.isActive = false;
+          }
+
+          await coupon.save();
         }
-        
-     
-        if (coupon.usedCount >= coupon.usageLimit) {
-          coupon.isActive = false;
-        }
-        
-        await coupon.save();
         couponId = coupon._id;
       }
     }
@@ -570,7 +571,6 @@ exports.placeOrder = async (req, res) => {
       coupon: couponId,
       subtotal,
       discount,
-      deliveryCharge,
       totalSavings,
       total,
       paymentMethod,
@@ -1032,9 +1032,39 @@ exports.cancelOrder = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Cancellation reason is required.' });
     }
 
-    const order = await Order.findOne({ orderId, user: userId }).populate("coupon");
+    const order = await Order.findOne({ orderId }).populate("items.product").populate("coupon");
     if (!order) {
       return res.status(404).json({ success: false, message: 'Order not found.' });
+    }
+
+    // Update coupon usage for Razorpay payment
+    if (order.coupon) {
+      const coupon = await Coupon.findById(order.coupon);
+      if (coupon) {
+        const existingEntry = coupon.usedBy.find(entry => 
+          entry.user.toString() === userId.toString() && !entry.orderCompleted
+        );
+
+        if (existingEntry) {
+          existingEntry.orderCompleted = true;
+          existingEntry.orderId = orderId;
+          coupon.usedCount += 1;
+        } else {
+          coupon.usedBy.push({
+            user: userId,
+            usedAt: new Date(),
+            orderCompleted: true,
+            orderId: orderId
+          });
+          coupon.usedCount += 1;
+        }
+
+        if (coupon.usedCount >= coupon.usageLimit) {
+          coupon.isActive = false;
+        }
+
+        await coupon.save();
+      }
     }
 
     if (order.status !== 'Pending' && order.status !== 'Confirmed') {
