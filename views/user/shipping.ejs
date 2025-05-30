@@ -1,0 +1,286 @@
+<%- include('../partials/user/header.ejs') %>
+
+<div class="shipping-container">
+    <div class="shipping-hero">
+        <h1>Shipping Information</h1>
+        <p>Everything you need to know about our delivery process</p>
+    </div>
+
+    <section class="shipping-section">
+        <h2>Delivery Areas</h2>
+        <div class="info-card">
+            <div class="icon">
+                <svg width="48" height="48" viewBox="0 0 24 24">
+                    <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zM7 9c0-2.76 2.24-5 5-5s5 2.24 5 5c0 2.88-2.88 7.19-5 9.88C9.92 16.21 7 11.85 7 9z" fill="currentColor"/>
+                    <circle cx="12" cy="9" r="2.5" fill="currentColor"/>
+                </svg>
+            </div>
+            <div class="content">
+                <h3>Service Areas</h3>
+                <ul>
+                    <li>Nationwide delivery available</li>
+                    <li>International shipping to select countries</li>
+                    <li>Same-day delivery in select cities</li>
+                    <li>Store pickup available at all locations</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <section class="shipping-section">
+        <h2>Delivery Times</h2>
+        <div class="shipping-grid">
+            <div class="shipping-card">
+                <h3>Standard Shipping</h3>
+                <p class="duration">2-4 Business Days</p>
+                <ul>
+                    <li>Tracking provided</li>
+                    <li>No signature required</li>
+                    <li>$8.99 flat rate</li>
+                </ul>
+            </div>
+
+            <div class="shipping-card">
+                <h3>Express Shipping</h3>
+                <p class="duration">1-2 Business Days</p>
+                <ul>
+                    <li>Priority handling</li>
+                    <li>Signature required</li>
+                    <li>$14.99 flat rate</li>
+                </ul>
+            </div>
+
+            <div class="shipping-card">
+                <h3>Same Day Delivery</h3>
+                <p class="duration">Within 4-6 Hours</p>
+                <ul>
+                    <li>Select cities only</li>
+                    <li>Order before 2 PM</li>
+                    <li>$19.99 flat rate</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <section class="shipping-section">
+        <h2>Special Handling</h2>
+        <div class="info-card">
+            <div class="icon">
+                <svg width="48" height="48" viewBox="0 0 24 24">
+                    <path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V6h16v12zM6 10h12v2H6zm0-4h12v2H6zm0 8h8v2H6z" fill="currentColor"/>
+                </svg>
+            </div>
+            <div class="content">
+                <h3>Temperature Control</h3>
+                <p>Our chocolates are carefully packaged to maintain optimal temperature during transit:</p>
+                <ul>
+                    <li>Insulated packaging with ice packs</li>
+                    <li>Temperature-controlled vehicles</li>
+                    <li>Special summer shipping protocols</li>
+                    <li>Guaranteed fresh arrival or full refund</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <section class="shipping-section">
+        <h2>Tracking & Support</h2>
+        <div class="support-grid">
+            <div class="info-card">
+                <div class="icon">
+                    <svg width="48" height="48" viewBox="0 0 24 24">
+                        <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z" fill="currentColor"/>
+                    </svg>
+                </div>
+                <div class="content">
+                    <h3>Customer Support</h3>
+                    <p>Our team is available to help:</p>
+                    <ul>
+                        <li>24/7 email support</li>
+                        <li>Live chat during business hours</li>
+                        <li>Dedicated shipping hotline</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="info-card">
+                <div class="icon">
+                    <svg width="48" height="48" viewBox="0 0 24 24">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" fill="currentColor"/>
+                    </svg>
+                </div>
+                <div class="content">
+                    <h3>Order Updates</h3>
+                    <p>Stay informed about your delivery:</p>
+                    <ul>
+                        <li>Real-time tracking updates</li>
+                        <li>SMS notifications</li>
+                        <li>Delivery confirmation</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<style>
+.shipping-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+}
+
+.shipping-hero {
+    text-align: center;
+    margin-bottom: 4rem;
+    padding: 4rem 2rem;
+    background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
+    color: white;
+    border-radius: 8px;
+}
+
+.shipping-hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+.shipping-hero p {
+    font-size: 1.2rem;
+    opacity: 0.9;
+}
+
+.shipping-section {
+    margin-bottom: 4rem;
+}
+
+.shipping-section h2 {
+    color: var(--primary);
+    font-family: 'Playfair Display', serif;
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.info-card {
+    display: flex;
+    gap: 2rem;
+    padding: 2rem;
+    background: var(--background);
+    border-radius: 8px;
+    align-items: flex-start;
+}
+
+.info-card .icon {
+    color: var(--accent);
+    flex-shrink: 0;
+}
+
+.info-card .content h3 {
+    color: var(--primary);
+    margin-bottom: 1rem;
+}
+
+.info-card .content ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.info-card .content ul li {
+    margin-bottom: 0.5rem;
+    padding-left: 1.5rem;
+    position: relative;
+}
+
+.info-card .content ul li::before {
+    content: "•";
+    color: var(--accent);
+    position: absolute;
+    left: 0;
+}
+
+.shipping-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+}
+
+.shipping-card {
+    padding: 2rem;
+    background: var(--background);
+    border-radius: 8px;
+    text-align: center;
+}
+
+.shipping-card h3 {
+    color: var(--primary);
+    margin-bottom: 0.5rem;
+}
+
+.shipping-card .duration {
+    color: var(--accent);
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+.shipping-card ul {
+    list-style-type: none;
+    padding: 0;
+    text-align: left;
+    margin-top: 1rem;
+}
+
+.shipping-card ul li {
+    margin-bottom: 0.5rem;
+    padding-left: 1.5rem;
+    position: relative;
+}
+
+.shipping-card ul li::before {
+    content: "✓";
+    color: var(--accent);
+    position: absolute;
+    left: 0;
+}
+
+.support-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2rem;
+}
+
+@media (max-width: 992px) {
+    .shipping-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .shipping-hero {
+        padding: 3rem 1rem;
+    }
+
+    .shipping-hero h1 {
+        font-size: 2.5rem;
+    }
+
+    .shipping-grid,
+    .support-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .info-card {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .info-card .icon {
+        margin: 0 auto;
+    }
+
+    .info-card .content ul {
+        text-align: left;
+    }
+}
+</style>
+
+<%- include('../partials/user/footer.ejs') %>

@@ -70,7 +70,7 @@ exports.loadProductListing = async (req, res) => {
     }
     
     const page = parseInt(req.query.page) || 1;
-    const limit = 4;
+    const limit = 6;
     const skip = (page - 1) * limit;
 
     const totalProducts = await Product.countDocuments(query);
@@ -101,11 +101,18 @@ exports.loadProductListing = async (req, res) => {
           return false;
         }
 
-        if (req.query.minPrice && variant.salePrice < parseFloat(req.query.minPrice)) {
+        // Calculate effective price considering offers
+        const productOffer = variant.productOffer || 0;
+        const categoryOffer = processedProduct.category.categoryOffer || 0;
+        const effectiveOffer = Math.max(productOffer, categoryOffer);
+        const originalPrice = variant.salePrice > 0 ? variant.salePrice : variant.regularPrice;
+        const effectivePrice = originalPrice * (1 - effectiveOffer / 100);
+
+        if (req.query.minPrice && effectivePrice < parseFloat(req.query.minPrice)) {
           return false;
         }
         
-        if (req.query.maxPrice && variant.salePrice > parseFloat(req.query.maxPrice)) {
+        if (req.query.maxPrice && effectivePrice > parseFloat(req.query.maxPrice)) {
           return false;
         }
         
@@ -119,10 +126,22 @@ exports.loadProductListing = async (req, res) => {
       if (req.query.sort) {
         switch (req.query.sort) {
           case 'price_low_high':
-            matchingVariants.sort((a, b) => a.salePrice - b.salePrice);
+            matchingVariants.sort((a, b) => {
+              const aOffer = Math.max(a.productOffer || 0, processedProduct.category.categoryOffer || 0);
+              const bOffer = Math.max(b.productOffer || 0, processedProduct.category.categoryOffer || 0);
+              const aPrice = (a.salePrice > 0 ? a.salePrice : a.regularPrice) * (1 - aOffer / 100);
+              const bPrice = (b.salePrice > 0 ? b.salePrice : b.regularPrice) * (1 - bOffer / 100);
+              return aPrice - bPrice;
+            });
             break;
           case 'price_high_low':
-            matchingVariants.sort((a, b) => b.salePrice - b.salePrice);
+            matchingVariants.sort((a, b) => {
+              const aOffer = Math.max(a.productOffer || 0, processedProduct.category.categoryOffer || 0);
+              const bOffer = Math.max(b.productOffer || 0, processedProduct.category.categoryOffer || 0);
+              const aPrice = (a.salePrice > 0 ? a.salePrice : a.regularPrice) * (1 - aOffer / 100);
+              const bPrice = (b.salePrice > 0 ? b.salePrice : b.regularPrice) * (1 - bOffer / 100);
+              return bPrice - aPrice;
+            });
             break;
           default:
             break;

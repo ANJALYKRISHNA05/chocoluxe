@@ -94,7 +94,29 @@
                         <h2>Crafted With Passion</h2>
                         <p>At CHOCOLUXE, we believe chocolate is an art form. Our master chocolatiers carefully select the finest ingredients from around the world to create exquisite chocolate creations that delight the senses.</p>
                         <p>Each piece is handcrafted with meticulous attention to detail, ensuring a perfect balance of flavor, texture, and visual appeal.</p>
-                        <a href="/about" class="btn btn-secondary">Learn More</a>
+                        <a href="/about" class="btn btn-secondary learn-more-btn" onclick="handleLearnMore(event)">
+                            <span>Learn More</span>
+                            <i class="fas fa-arrow-right"></i>
+                        </a>
+
+                        <script>
+                        function handleLearnMore(event) {
+                            event.preventDefault();
+                            const btn = event.currentTarget;
+                            const span = btn.querySelector('span');
+                            const icon = btn.querySelector('i');
+
+                            // Add loading animation
+                            btn.classList.add('loading');
+                            span.textContent = 'Loading...';
+                            icon.className = 'fas fa-spinner fa-spin';
+
+                            // Redirect after a short delay for animation
+                            setTimeout(() => {
+                                window.location.href = '/about';
+                            }, 500);
+                        }
+                        </script>
                     </div>
                 </div>
             </div>
@@ -127,14 +149,58 @@
         <div class="container text-center">
             <h2>Join Our Sweet Community</h2>
             <p>Subscribe to receive exclusive offers, recipes, and chocolate inspiration</p>
-            <form class="newsletter-form">
+            <form class="newsletter-form" id="subscriptionForm">
                 <div class="input-group">
-                    <input type="email" class="form-control" placeholder="Your email address" required>
+                    <input type="email" class="form-control" name="email" placeholder="Your email address" required>
                     <button type="submit" class="btn btn-primary">Subscribe</button>
                 </div>
+                <div class="subscription-message mt-3" style="display: none;"></div>
             </form>
         </div>
     </section>
+
+    <script>
+    document.getElementById('subscriptionForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const messageDiv = this.querySelector('.subscription-message');
+        const submitButton = this.querySelector('button[type="submit"]');
+        const emailInput = this.querySelector('input[name="email"]');
+
+        try {
+            submitButton.disabled = true;
+            submitButton.innerHTML = 'Subscribing...';
+
+            const response = await fetch('/subscribe', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    email: emailInput.value
+                })
+            });
+
+            const data = await response.json();
+            messageDiv.style.display = 'block';
+            
+            if (data.success) {
+                messageDiv.className = 'subscription-message mt-3 text-success';
+                messageDiv.innerHTML = '<i class="fas fa-check-circle"></i> ' + data.message;
+                emailInput.value = '';
+            } else {
+                messageDiv.className = 'subscription-message mt-3 text-danger';
+                messageDiv.innerHTML = '<i class="fas fa-exclamation-circle"></i> ' + data.message;
+            }
+        } catch (error) {
+            messageDiv.style.display = 'block';
+            messageDiv.className = 'subscription-message mt-3 text-danger';
+            messageDiv.innerHTML = '<i class="fas fa-exclamation-circle"></i> An error occurred. Please try again.';
+        } finally {
+            submitButton.disabled = false;
+            submitButton.innerHTML = 'Subscribe';
+        }
+    });
+    </script>
 </main>
 
 <style>
@@ -179,6 +245,28 @@
     .btn-secondary:hover {
         background-color: #c09866;
         border-color: #c09866;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    .learn-more-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.3s ease;
+    }
+
+    .learn-more-btn i {
+        transition: transform 0.3s ease;
+    }
+
+    .learn-more-btn:hover i {
+        transform: translateX(5px);
+    }
+
+    .learn-more-btn.loading {
+        pointer-events: none;
+        opacity: 0.8;
     }
     
     .btn-outline-primary {

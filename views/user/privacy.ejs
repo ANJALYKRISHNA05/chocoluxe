@@ -1,0 +1,145 @@
+<%- include('../partials/user/header.ejs') %>
+
+<div class="privacy-container">
+    <h1>Privacy Policy</h1>
+    
+    <section class="policy-section">
+        <h2>Your Privacy Matters</h2>
+        <p>At Chocoluxe, we take your privacy seriously. This policy outlines how we collect, use, and protect your personal information.</p>
+    </section>
+
+    <section class="policy-section">
+        <h2>Information We Collect</h2>
+        <ul>
+            <li>Name and contact information</li>
+            <li>Delivery addresses</li>
+            <li>Payment information</li>
+            <li>Order history</li>
+            <li>Website usage data</li>
+        </ul>
+    </section>
+
+    <section class="policy-section">
+        <h2>How We Use Your Information</h2>
+        <ul>
+            <li>Processing your orders</li>
+            <li>Communicating about your purchases</li>
+            <li>Sending promotional offers (with consent)</li>
+            <li>Improving our services</li>
+            <li>Legal compliance</li>
+        </ul>
+    </section>
+
+    <section class="policy-section" id="cookies">
+        <h2>Cookie Policy</h2>
+        <p>We use cookies to enhance your browsing experience and analyze website traffic. Cookies help us:</p>
+        <ul>
+            <li>Remember your preferences</li>
+            <li>Keep track of your shopping cart</li>
+            <li>Understand how you use our website</li>
+            <li>Improve our services</li>
+        </ul>
+    </section>
+
+    <section class="policy-section">
+        <h2>Data Security</h2>
+        <p>We implement various security measures to protect your personal information, including:</p>
+        <ul>
+            <li>Encryption of sensitive data</li>
+            <li>Secure payment processing</li>
+            <li>Regular security assessments</li>
+            <li>Limited access to personal information</li>
+        </ul>
+    </section>
+
+    <section class="policy-section">
+        <h2>Your Rights</h2>
+        <p>You have the right to:</p>
+        <ul>
+            <li>Access your personal data</li>
+            <li>Correct inaccurate information</li>
+            <li>Request deletion of your data</li>
+            <li>Opt-out of marketing communications</li>
+            <li>Lodge a complaint with authorities</li>
+        </ul>
+    </section>
+
+    <section class="policy-section">
+        <h2>Contact Us</h2>
+        <p>If you have any questions about our privacy policy, please <a href="/contact">contact us</a>.</p>
+    </section>
+</div>
+
+<style>
+.privacy-container {
+    max-width: 800px;
+    margin: 3rem auto;
+    padding: 0 1rem;
+}
+
+.privacy-container h1 {
+    color: var(--primary);
+    text-align: center;
+    font-family: 'Playfair Display', serif;
+    margin-bottom: 2rem;
+}
+
+.policy-section {
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background: var(--background);
+    border-radius: 8px;
+}
+
+.policy-section h2 {
+    color: var(--primary);
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    font-family: 'Playfair Display', serif;
+}
+
+.policy-section p {
+    margin-bottom: 1rem;
+    line-height: 1.6;
+}
+
+.policy-section ul {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+.policy-section ul li {
+    margin-bottom: 0.5rem;
+    padding-left: 1.5rem;
+    position: relative;
+}
+
+.policy-section ul li::before {
+    content: "•";
+    color: var(--accent);
+    position: absolute;
+    left: 0;
+}
+
+.policy-section a {
+    color: var(--accent);
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.policy-section a:hover {
+    color: var(--accent-dark);
+}
+
+@media (max-width: 768px) {
+    .privacy-container {
+        margin: 2rem auto;
+    }
+
+    .policy-section {
+        padding: 1rem;
+    }
+}
+</style>
+
+<%- include('../partials/user/footer.ejs') %>

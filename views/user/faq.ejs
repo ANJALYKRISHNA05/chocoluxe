@@ -1,0 +1,129 @@
+<%- include('../partials/user/header.ejs') %>
+
+<div class="faq-container">
+    <h1>Frequently Asked Questions</h1>
+    <div class="faq-list">
+        <div class="faq-item">
+            <div class="faq-question">
+                <span>How long does shipping take?</span>
+                <svg class="faq-arrow" width="24" height="24" viewBox="0 0 24 24">
+                    <path d="M7 10l5 5 5-5" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+            </div>
+            <div class="faq-answer">
+                Shipping typically takes 2-4 business days within the country. International shipping may take 7-14 business days.
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-question">
+                <span>What's your return policy?</span>
+                <svg class="faq-arrow" width="24" height="24" viewBox="0 0 24 24">
+                    <path d="M7 10l5 5 5-5" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+            </div>
+            <div class="faq-answer">
+                Due to the perishable nature of our products, we cannot accept returns. However, if you receive damaged products, please contact us within 24 hours of delivery.
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-question">
+                <span>Are your chocolates suitable for vegetarians?</span>
+                <svg class="faq-arrow" width="24" height="24" viewBox="0 0 24 24">
+                    <path d="M7 10l5 5 5-5" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+            </div>
+            <div class="faq-answer">
+                Yes, most of our chocolates are suitable for vegetarians. Each product page clearly indicates dietary information.
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-question">
+                <span>How should I store my chocolates?</span>
+                <svg class="faq-arrow" width="24" height="24" viewBox="0 0 24 24">
+                    <path d="M7 10l5 5 5-5" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+            </div>
+            <div class="faq-answer">
+                Store your chocolates in a cool, dry place between 65-70°F (18-21°C). Avoid direct sunlight and refrigeration unless ambient temperature exceeds 75°F (24°C).
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.faq-container {
+    max-width: 800px;
+    margin: 3rem auto;
+    padding: 0 1rem;
+}
+
+.faq-container h1 {
+    color: var(--primary);
+    text-align: center;
+    margin-bottom: 2rem;
+    font-family: 'Playfair Display', serif;
+}
+
+.faq-item {
+    margin-bottom: 1rem;
+    border: 1px solid var(--accent);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.faq-question {
+    padding: 1rem;
+    background: var(--background);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    font-weight: 600;
+    color: var(--primary);
+}
+
+.faq-arrow {
+    transition: transform 0.3s ease;
+}
+
+.faq-item.active .faq-arrow {
+    transform: rotate(180deg);
+}
+
+.faq-answer {
+    padding: 0;
+    max-height: 0;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    background: white;
+}
+
+.faq-item.active .faq-answer {
+    padding: 1rem;
+    max-height: 500px;
+}
+</style>
+
+<script>
+document.querySelectorAll('.faq-question').forEach(question => {
+    question.addEventListener('click', () => {
+        const item = question.parentElement;
+        const isActive = item.classList.contains('active');
+        
+        // Close all items
+        document.querySelectorAll('.faq-item').forEach(faqItem => {
+            faqItem.classList.remove('active');
+        });
+
+        // Open clicked item if it wasn't active
+        if (!isActive) {
+            item.classList.add('active');
+        }
+    });
+});
+</script>
+
+<%- include('../partials/user/footer.ejs') %>

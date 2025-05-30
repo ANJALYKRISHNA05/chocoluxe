@@ -776,9 +776,9 @@ const addAddress = async (req, res) => {
         }
         
 
-        const validAddressTypes = ['home', 'work', 'office', 'other'];
-        if (!validAddressTypes.includes(addressType.toLowerCase())) {
-            req.session.message = 'Invalid address type. Choose from Home, Work, Office, or Other.';
+        const validAddressTypes = ['HOME', 'WORK', 'OTHER'];
+        if (!validAddressTypes.includes(addressType.toUpperCase())) {
+            req.session.message = 'Invalid address type. Choose from Home, Work, or Other.';
             return res.redirect('/user/address/add');
         }
        
@@ -792,7 +792,7 @@ const addAddress = async (req, res) => {
         const newAddress = new Address({
             userId,
             name,
-            addressType: addressType.toLowerCase(),
+            addressType: addressType.toUpperCase(),
             address,
             city,
             state,
@@ -873,9 +873,9 @@ const updateAddress = async (req, res) => {
             return res.redirect(`/user/address/edit/${addressId}`);
         }
  
-        const validAddressTypes = ['home', 'work', 'office', 'other'];
-        if (!validAddressTypes.includes(addressType.toLowerCase())) {
-            req.session.message = 'Invalid address type. Choose from Home, Work, Office, or Other.';
+        const validAddressTypes = ['HOME', 'WORK', 'OTHER'];
+        if (!validAddressTypes.includes(addressType.toUpperCase())) {
+            req.session.message = 'Invalid address type. Choose from Home, Work, or Other.';
             return res.redirect(`/user/address/edit/${addressId}`);
         }
         
@@ -898,7 +898,7 @@ const updateAddress = async (req, res) => {
             addressId,
             {
                 name,
-                addressType: addressType.toLowerCase(),
+                addressType: addressType.toUpperCase(),
                 address,
                 city,
                 state,
@@ -1169,10 +1169,157 @@ const handleGoogleCallback = async (req, res) => {
     res.redirect(returnTo);
 };
 
+const loadFaq = async (req, res) => {
+    try {
+        res.render('user/faq', {
+            user: req.session.user || null
+        });
+    } catch (error) {
+        console.error('Error loading FAQ page:', error);
+        res.status(500).send('Internal Server Error');
+    }
+};
+
+const loadAbout = async (req, res) => {
+    try {
+        res.render('user/about', {
+            user: req.session.user || null
+        });
+    } catch (error) {
+        console.error('Error loading About page:', error);
+        res.status(500).send('Internal Server Error');
+    }
+};
+
+const loadContact = async (req, res) => {
+    try {
+        res.render('user/contact', { 
+            message: '',
+            user: req.session.user || null
+        });
+    } catch (error) {
+        console.error('Error loading Contact page:', error);
+        res.status(500).send('Internal Server Error');
+    }
+};
+
+const loadTerms = async (req, res) => {
+    try {
+        res.render('user/terms', {
+            user: req.session.user || null
+        });
+    } catch (error) {
+        console.error('Error loading Terms page:', error);
+        res.status(500).send('Internal Server Error');
+    }
+};
+
+const loadShipping = async (req, res) => {
+    try {
+        res.render('user/shipping', {
+            user: req.session.user || null
+        });
+    } catch (error) {
+        console.error('Error loading Shipping page:', error);
+        res.status(500).send('Internal Server Error');
+    }
+};
+
+const loadCareers = async (req, res) => {
+    try {
+        res.render('user/careers', {
+            user: req.session.user || null
+        });
+    } catch (error) {
+        console.error('Error loading Careers page:', error);
+        res.status(500).send('Internal Server Error');
+    }
+};
+
+const loadPrivacy = async (req, res) => {
+    try {
+        res.render('user/privacy', {
+            user: req.session.user || null
+        });
+    } catch (error) {
+        console.error('Error loading Privacy page:', error);
+        res.status(500).send('Internal Server Error');
+    }
+};
+
+const handleContact = async (req, res) => {
+    try {
+        const { name, email, subject, message } = req.body;
+
+        // Create transporter
+        const transporter = nodemailer.createTransport({ 
+            service: 'gmail',
+            port: 587,
+            secure: false,
+            requireTLS: true,
+            auth: {
+                user: process.env.NODEMAILER_EMAIL,
+                pass: process.env.NODEMAILER_PASSWORD
+            }
+        });
+
+        // Send confirmation email to user
+        await transporter.sendMail({
+            from: process.env.NODEMAILER_EMAIL,
+            to: email,
+            subject: 'Thank you for contacting Chocoluxe',
+            html: `
+                <h2>Thank you for reaching out!</h2>
+                <p>Dear ${name},</p>
+                <p>We have received your message and will get back to you shortly.</p>
+                <p>Your message details:</p>
+                <p><strong>Subject:</strong> ${subject}</p>
+                <p><strong>Message:</strong> ${message}</p>
+                <br>
+                <p>Best regards,</p>
+                <p>The Chocoluxe Team</p>
+            `
+        });
+
+        // Forward message to admin
+        await transporter.sendMail({
+            from: process.env.NODEMAILER_EMAIL,
+            to: process.env.NODEMAILER_EMAIL,
+            subject: `New Contact Form Submission: ${subject}`,
+            html: `
+                <h2>New Contact Form Submission</h2>
+                <p><strong>Name:</strong> ${name}</p>
+                <p><strong>Email:</strong> ${email}</p>
+                <p><strong>Subject:</strong> ${subject}</p>
+                <p><strong>Message:</strong> ${message}</p>
+            `
+        });
+
+        res.render('user/contact', { 
+            message: 'Thank you for your message. We will get back to you soon!',
+            user: req.session.user || null
+        });
+    } catch (error) {
+        console.error('Error handling contact form:', error);
+        res.render('user/contact', { 
+            message: 'Sorry, there was an error sending your message. Please try again.',
+            user: req.session.user || null
+        });
+    }
+};
+
 module.exports = {
     pageNotfound,
     loadSignup,
     signup,
+    loadFaq,
+    loadAbout,
+    loadContact,
+    handleContact,
+    loadTerms,
+    loadPrivacy,
+    loadCareers,
+    loadShipping,
     loadLogin,
     login,
     logout,
