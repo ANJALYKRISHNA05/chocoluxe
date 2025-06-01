@@ -33,7 +33,7 @@ router.get('/user/reset-password', userController.loadResetPassword);
 router.post('/user/reset-password', userController.resetPassword);
 router.get('/', shopController.loadShopHomepage);
 
-// Footer pages
+
 router.get('/faq', userController.loadFaq);
 router.get('/about', userController.loadAbout);
 router.get('/contact', userController.loadContact);
@@ -43,7 +43,7 @@ router.get('/privacy', userController.loadPrivacy);
 router.get('/careers', userController.loadCareers);
 router.get('/shipping', userController.loadShipping);
 
-// Newsletter subscription
+
 router.post('/subscribe', subscriptionController.handleSubscription);
 
 router.get('/product/:id', shopController.loadProductDetails);

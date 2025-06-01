@@ -1037,7 +1037,6 @@ exports.cancelOrder = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Order not found.' });
     }
 
-    // Update coupon usage for Razorpay payment
     if (order.coupon) {
       const coupon = await Coupon.findById(order.coupon);
       if (coupon) {

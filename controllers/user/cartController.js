@@ -173,7 +173,7 @@ exports.loadCart = async (req, res) => {
     });
 
     if (cart && cart.items.length > 0) {
-      // First, check and adjust quantities if needed
+     
       for (const item of cart.items) {
         const product = item.product;
         if (product && !product.isBlocked && product.category?.isListed) {
@@ -553,17 +553,17 @@ exports.applyCoupon = async (req, res) => {
       return res.status(400).json({ success: false, message: "Invalid coupon code" });
     }
     
-    // If there's already a coupon applied to the cart, remove its pending entry
+  
     if (cart.coupon) {
       const existingCouponId = cart.coupon;
       const userIdString = userId._id ? userId._id.toString() : userId.toString();
       
-      // Only process if the existing coupon is different from the new one
+     
       if (existingCouponId.toString() !== coupon._id.toString()) {
         const existingCoupon = await Coupon.findById(existingCouponId);
         
         if (existingCoupon) {
-          // Find and remove any pending entries for this user
+         
           const pendingEntryIndex = existingCoupon.usedBy.findIndex(entry => 
             entry.user.toString() === userIdString && entry.orderCompleted === false
           );
@@ -585,8 +585,7 @@ exports.applyCoupon = async (req, res) => {
         return res.status(400).json({ success: false, message: "Coupon is not applicable" });
       }
 
-      // Store the coupon in the cart but don't mark it as used yet
-      // The coupon will be marked as used only when the order is completed
+
       cart.coupon = coupon._id;
       cart.discount = discount;
       await cart.save();
