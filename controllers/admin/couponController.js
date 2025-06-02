@@ -123,7 +123,7 @@ const updateCoupon = async (req, res) => {
       usageLimit,
     } = req.body;
 
-    // Validate dates
+   
     const startDateTime = new Date(startDate);
     const endDateTime = new Date(endDate);
 
@@ -134,11 +134,11 @@ const updateCoupon = async (req, res) => {
       });
     }
 
-    // If code is being updated, check for duplicates
+   
     if (code) {
       const existingCoupon = await Coupon.findOne({
         code: code.trim().toUpperCase(),
-        _id: { $ne: couponId }, // Exclude current coupon
+        _id: { $ne: couponId },
       });
       if (existingCoupon) {
         return res.status(400).json({
