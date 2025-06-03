@@ -511,7 +511,7 @@ exports.placeOrder = async (req, res) => {
     if (cart.coupon && appliedCoupon) {
       const coupon = await Coupon.findById(cart.coupon);
       if (coupon) {
-        // For COD and Wallet payments, mark coupon as used immediately
+       
         if (paymentMethod === "Cash on Delivery" || paymentMethod === "Wallet") {
           const existingEntry = coupon.usedBy.find(entry => 
             entry.user.toString() === userId.toString() && !entry.orderCompleted
@@ -572,6 +572,7 @@ exports.placeOrder = async (req, res) => {
       subtotal,
       discount,
       totalSavings,
+      deliveryCharge,
       total,
       paymentMethod,
       status: paymentMethod === "Wallet" ? "Confirmed" : 

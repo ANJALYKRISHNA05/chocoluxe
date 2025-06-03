@@ -101,7 +101,7 @@ exports.loadProductListing = async (req, res) => {
           return false;
         }
 
-        // Calculate effective price considering offers
+     
         const productOffer = variant.productOffer || 0;
         const categoryOffer = processedProduct.category.categoryOffer || 0;
         const effectiveOffer = Math.max(productOffer, categoryOffer);

@@ -166,7 +166,7 @@ exports.removeFromWishlist = async (req, res) => {
   try {
     const { itemId } = req.body;
     const userId = req.session.user;
-    console.log(itemId);
+    
 
     if (!userId) {
       return res.status(401).json({ success: false, message: "Please log in" });

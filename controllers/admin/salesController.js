@@ -326,7 +326,7 @@ exports.downloadPdfReport = async (req, res) => {
             endDate.setHours(23, 59, 59, 999);
         }
         
-        console.log(`Generating PDF report for period: ${startDate.toISOString()} to ${endDate.toISOString()}`);
+
         
       
         const orders = await Order.find({

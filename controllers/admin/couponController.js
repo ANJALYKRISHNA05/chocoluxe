@@ -46,7 +46,7 @@ const addCoupon = async (req, res) => {
       });
     }
 
-    // Validate dates
+   
     const startDateTime = new Date(startDate);
     const endDateTime = new Date(endDate);
 
@@ -92,7 +92,7 @@ const getEditCoupon = async (req, res) => {
       select: "username email",
     });
 
-    console.log(coupon)
+   
 
     if (!coupon) {
       return res.redirect("/admin/coupons");

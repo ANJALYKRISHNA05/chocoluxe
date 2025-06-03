@@ -1251,7 +1251,7 @@ const handleContact = async (req, res) => {
     try {
         const { name, email, subject, message } = req.body;
 
-        // Create transporter
+       
         const transporter = nodemailer.createTransport({ 
             service: 'gmail',
             port: 587,
@@ -1263,7 +1263,7 @@ const handleContact = async (req, res) => {
             }
         });
 
-        // Send confirmation email to user
+       
         await transporter.sendMail({
             from: process.env.NODEMAILER_EMAIL,
             to: email,
@@ -1281,7 +1281,7 @@ const handleContact = async (req, res) => {
             `
         });
 
-        // Forward message to admin
+        
         await transporter.sendMail({
             from: process.env.NODEMAILER_EMAIL,
             to: process.env.NODEMAILER_EMAIL,

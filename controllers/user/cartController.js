@@ -835,6 +835,10 @@ exports.removeCoupon = async (req, res) => {
   }
 };
 
+
+
+
+
 const calculateDeliveryCharge = (subtotal) => {
 
   if (subtotal >= 1000) {

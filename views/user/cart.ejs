@@ -113,7 +113,7 @@
       margin-left: 0.5rem;
     }
 
-    /* Quantity Selector Styling */
+ 
     .quantity-selector {
       width: 120px;
       border-radius: 8px;
@@ -324,7 +324,7 @@
       color: #6d4621;
     }
 
-    /* Empty Cart Styling */
+ 
     .empty-cart {
       text-align: center;
       padding: 4rem 0;
@@ -385,7 +385,7 @@
       box-shadow: 0 8px 15px rgba(139, 90, 43, 0.25);
     }
 
-    /* Error Message Styling */
+   
     .error-message {
       color: #dc3545;
       font-weight: 600;
@@ -396,7 +396,7 @@
       font-size: 0.9rem;
     }
 
-    /* Responsive Adjustments */
+  
     @media (max-width: 991px) {
       .cart-summary {
         margin-top: 2rem;
@@ -630,15 +630,15 @@
 
     function calculateDeliveryCharge(subtotal) {
       if (subtotal >= 1000) {
-        return 0; // Free delivery for orders ₹1000 and above
+        return 0; 
       } else if (subtotal >= 750) {
-        return 30; // ₹30 for orders between ₹750 - ₹999
+        return 30; 
       } else if (subtotal >= 500) {
-        return 40; // ₹40 for orders between ₹500 - ₹749
+        return 40; 
       } else if (subtotal >= 250) {
-        return 50; // ₹50 for orders between ₹250 - ₹499
+        return 50; 
       } else {
-        return 60; // ₹60 for orders below ₹250
+        return 60; 
       }
     }
 
@@ -656,10 +656,10 @@
       if (totalSavingsElement) totalSavingsElement.textContent = `₹${data.totalSavings.toFixed(2)}`;
       if (couponDiscountElement) couponDiscountElement.textContent = `₹${data.discount.toFixed(2)}`;
       
-      // Calculate discounted subtotal
+    
       const discountedSubtotal = data.subtotal - data.discount;
       
-      // Calculate and update delivery charge
+
       const deliveryCharge = calculateDeliveryCharge(discountedSubtotal);
       if (deliveryChargeElement) {
         if (deliveryCharge === 0) {
@@ -669,29 +669,29 @@
         }
       }
       
-      // Update total with delivery charge
+      
       const total = discountedSubtotal + deliveryCharge;
       if (cartTotalElement) cartTotalElement.textContent = `₹${total.toFixed(2)}`;
       
-      // Update cart badge
+     
       updateCartBadge(data.itemCount);
       
-      // Update coupon section
+
       if (data.appliedCoupon) {
         couponInput.disabled = true;
         applyButton.disabled = true;
         
-        // Create the coupon HTML content
+     
         const couponHtml = `
           <span>Applied: ${data.appliedCoupon.code} (${data.appliedCoupon.discountType === 'percentage' ? data.appliedCoupon.discountAmount + '%' : '₹' + data.appliedCoupon.discountAmount} off)</span>
           <button class="remove-coupon" onclick="removeCoupon()"><i class="fas fa-times"></i></button>
         `;
         
         if (appliedCouponDiv) {
-          // Update existing coupon div if it exists
+         
           appliedCouponDiv.innerHTML = couponHtml;
         } else {
-          // Create new coupon div if it doesn't exist
+         
           const newCouponDiv = document.createElement('div');
           newCouponDiv.className = 'applied-coupon';
           newCouponDiv.innerHTML = couponHtml;
@@ -811,7 +811,7 @@
           }
 
           if (!response.ok) {
-            // Get the error message from the response
+          
             const errorData = await response.json();
             throw new Error(errorData.message || 'Network response was not ok');
           }
@@ -846,7 +846,7 @@
           }
         } catch (error) {
           console.error('Error updating quantity:', error);
-          // Display the specific error message from the server if available
+        
           const errorMessage = error.message || 'An error occurred while updating quantity';
           Swal.fire('Error', errorMessage, 'error');
         } finally {

@@ -39,7 +39,7 @@
         </div>
     </section>
 
-    <!-- Products Section -->
+
     <section class="products-section">
         <div class="container">
             <div class="section-heading-wrapper">
@@ -106,12 +106,12 @@
                             const span = btn.querySelector('span');
                             const icon = btn.querySelector('i');
 
-                            // Add loading animation
+                           
                             btn.classList.add('loading');
                             span.textContent = 'Loading...';
                             icon.className = 'fas fa-spinner fa-spin';
 
-                            // Redirect after a short delay for animation
+                           
                             setTimeout(() => {
                                 window.location.href = '/about';
                             }, 500);

@@ -698,15 +698,15 @@
 
     function calculateDeliveryCharge(subtotal) {
       if (subtotal >= 1000) {
-        return 0; // Free delivery for orders ₹1000 and above
+        return 0; 
       } else if (subtotal >= 750) {
-        return 30; // ₹30 for orders between ₹750 - ₹999
+        return 30; 
       } else if (subtotal >= 500) {
-        return 40; // ₹40 for orders between ₹500 - ₹749
+        return 40; 
       } else if (subtotal >= 250) {
-        return 50; // ₹50 for orders between ₹250 - ₹499
+        return 50; 
       } else {
-        return 60; // ₹60 for orders below ₹250
+        return 60; 
       }
     }
 
@@ -717,31 +717,30 @@
       const totalElement = document.querySelector('.d-flex.justify-content-between.mb-2 .fw-bold:last-child');
       
       if (subtotalElement && deliveryChargeElement && totalElement) {
-        // Get subtotal value
+     
         const subtotalText = subtotalElement.textContent;
         const subtotal = parseFloat(subtotalText.replace(/[^\d.]/g, ''));
         
-        // Get discount if any
+      
         let discount = 0;
         if (discountElement) {
           const discountText = discountElement.nextElementSibling.textContent;
           discount = parseFloat(discountText.replace(/[^\d.]/g, ''));
         }
         
-        // Calculate discounted subtotal
+     
         const discountedSubtotal = subtotal - discount;
         
-        // Calculate delivery charge
+       
         const deliveryCharge = calculateDeliveryCharge(discountedSubtotal);
         
-        // Update delivery charge display
+       
         if (deliveryCharge === 0) {
           deliveryChargeElement.textContent = 'Free';
         } else {
           deliveryChargeElement.textContent = `₹${deliveryCharge.toFixed(2)}`;
         }
-        
-        // Update total
+     
         const total = discountedSubtotal + deliveryCharge;
         totalElement.textContent = `₹${total.toFixed(2)}`;
       }
@@ -898,7 +897,7 @@
       });
     }
     
-    // Call updateDeliveryCharge when the page loads
+   
     document.addEventListener('DOMContentLoaded', function() {
       updateDeliveryCharge();
     });
