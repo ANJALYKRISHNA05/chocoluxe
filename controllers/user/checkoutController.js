@@ -615,7 +615,8 @@ exports.createRazorpayOrder = async (req, res) => {
       return res.json({ success: false, message: "Your cart is empty." });
     }
 
-    const { subtotal, totalSavings, discount, cartTotal: total, appliedCoupon } = await calculateCartTotals(cart, userId);
+    const { subtotal, totalSavings, discount, cartTotal: total, appliedCoupon, deliveryCharge } = await calculateCartTotals(cart, userId);
+    const finalTotal = total + (deliveryCharge || 0);
     
     let unique = false;
     let attempt = 0;
@@ -641,7 +642,7 @@ exports.createRazorpayOrder = async (req, res) => {
 
     
     const razorpayOrder = await razorpay.orders.create({
-      amount: Math.round(total * 100), 
+      amount: Math.round(finalTotal * 100), 
       currency: 'INR',
       receipt: orderId,
       payment_capture: 1, 
@@ -652,7 +653,8 @@ exports.createRazorpayOrder = async (req, res) => {
       orderId,
       addressId,
       razorpayOrderId: razorpayOrder.id,
-      amount: total,
+      amount: finalTotal,
+      deliveryCharge,
       userId
     };
 
@@ -709,8 +711,8 @@ exports.verifyPayment = async (req, res) => {
       },
     }).populate("coupon");
 
-    const { subtotal, totalSavings, discount, appliedCoupon } = await calculateCartTotals(cart, userId);
-    const total = subtotal - discount;
+    const { subtotal, totalSavings, discount, deliveryCharge, appliedCoupon } = await calculateCartTotals(cart, userId);
+    const total = subtotal - discount + deliveryCharge;
 
     
     const orderItems = [];
@@ -756,18 +758,18 @@ exports.verifyPayment = async (req, res) => {
     if (cart.coupon && appliedCoupon) {
       const coupon = await Coupon.findById(cart.coupon);
       if (coupon) {
-        // Find if user already has a pending entry for this coupon
+    
         const existingEntry = coupon.usedBy.find(entry => 
           entry.user.toString() === userId.toString() && !entry.orderCompleted
         );
 
         if (existingEntry) {
-          // Update the existing entry
+     
           existingEntry.orderCompleted = true;
           existingEntry.orderId = orderId;
           coupon.usedCount += 1;
         } else {
-          // Create a new entry
+        
           coupon.usedBy.push({
             user: userId,
             usedAt: new Date(),
@@ -804,6 +806,7 @@ exports.verifyPayment = async (req, res) => {
       subtotal,
       discount,
       totalSavings,
+      deliveryCharge,
       total,
       paymentMethod: "Razorpay",
       status: "Confirmed", 

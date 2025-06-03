@@ -191,7 +191,7 @@
           <strong>Return Approved</strong>
           <p>Your order has been returned.</p>
           <p>Return Reason: <%= order.return.reason %></p>
-          <p>Processed At: <%= new Date(order.return.processedAt).toLocaleDateString() %></p>
+          <p>Processed At: <%= new Date(order.return.requestedAt).toLocaleDateString() %></p>
           <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
       <% } else if (order.return.requested && order.return.status === 'rejected') { %>
@@ -199,7 +199,7 @@
           <strong>Return Rejected</strong>
           <p>Return Reason: <%= order.return.reason %></p>
           <p>Rejection Reason: <%= order.return.rejectionReason %></p>
-          <p>Processed At: <%= new Date(order.return.processedAt).toLocaleDateString() %></p>
+          <p>Processed At: <%= new Date(order.return.requestedAt).toLocaleDateString() %></p>
           <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
       <% } %>

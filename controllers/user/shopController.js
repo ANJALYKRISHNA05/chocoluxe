@@ -185,7 +185,7 @@ exports.loadProductListing = async (req, res) => {
       processedProducts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
     }
     
-    // Apply pagination after sorting
+   
     const skip = (page - 1) * limit;
     processedProducts = processedProducts.slice(skip, skip + limit);
     
