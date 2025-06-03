@@ -953,6 +953,7 @@ const validateAndApplyCoupon = async (coupon, userId, subtotal, cart) => {
 
   const userIdString = userId._id ? userId._id.toString() : userId.toString();
   
+  // Check if the user has already used this coupon in any completed order
   const userUsed = coupon.usedBy.some((entry) => {
     const entryUserId = entry.user.toString();
     return entryUserId === userIdString && entry.orderCompleted === true;
@@ -965,15 +966,14 @@ const validateAndApplyCoupon = async (coupon, userId, subtotal, cart) => {
     await cart.save();
     throw new Error('You have already used this coupon on a previous order');
   } else {
-    
+    // Check for pending entry (coupon applied but order not completed)
     const pendingEntry = coupon.usedBy.find((entry) => {
       const entryUserId = entry.user.toString();
       return entryUserId === userIdString && entry.orderCompleted === false;
     });
     
-   
+    // If no pending entry exists, create one
     if (!pendingEntry) {
-      
       coupon.usedBy.push({ 
         user: new mongoose.Types.ObjectId(userIdString),
         orderCompleted: false

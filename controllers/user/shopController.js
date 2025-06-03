@@ -69,21 +69,17 @@ exports.loadProductListing = async (req, res) => {
       query.category = req.query.category;
     }
     
+    
+    let allProducts = await Product.find(query).populate('category');
+    
+    const totalProducts = allProducts.length;
     const page = parseInt(req.query.page) || 1;
     const limit = 6;
-    const skip = (page - 1) * limit;
-
-    const totalProducts = await Product.countDocuments(query);
     const totalPages = Math.ceil(totalProducts / limit);
-
-    let products = await Product.find(query)
-      .populate('category')
-      .skip(skip)
-      .limit(limit);
    
     const variantFiltersApplied = !!(req.query.flavor || req.query.sugarLevel || req.query.weight || req.query.minPrice || req.query.maxPrice);
     
-    let processedProducts = products.map(product => {
+    let processedProducts = allProducts.map(product => {
       const processedProduct = JSON.parse(JSON.stringify(product));
       
       let matchingVariants = processedProduct.variants.filter(variant => {
@@ -171,10 +167,10 @@ exports.loadProductListing = async (req, res) => {
     if (req.query.sort) {
       switch (req.query.sort) {
         case 'price_low_high':
-          processedProducts.sort((a, b) => a.displayVariant.salePrice - b.displayVariant.salePrice);
+          processedProducts.sort((a, b) => a.displayVariant.offerPrice - b.displayVariant.offerPrice);
           break;
         case 'price_high_low':
-          processedProducts.sort((a, b) => b.displayVariant.salePrice - b.displayVariant.salePrice);
+          processedProducts.sort((a, b) => b.displayVariant.offerPrice - a.displayVariant.offerPrice);
           break;
         case 'name_asc':
           processedProducts.sort((a, b) => a.productName.localeCompare(b.productName));
@@ -188,6 +184,10 @@ exports.loadProductListing = async (req, res) => {
     } else {
       processedProducts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
     }
+    
+    // Apply pagination after sorting
+    const skip = (page - 1) * limit;
+    processedProducts = processedProducts.slice(skip, skip + limit);
     
     const flavors = ["Almond", "Caramel", "Peanut"];
     const sugarLevels = ["Low", "Medium", "Sugar-Free"];

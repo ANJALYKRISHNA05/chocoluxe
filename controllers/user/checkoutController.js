@@ -756,8 +756,31 @@ exports.verifyPayment = async (req, res) => {
     if (cart.coupon && appliedCoupon) {
       const coupon = await Coupon.findById(cart.coupon);
       if (coupon) {
-        coupon.usedCount += 1;
-        coupon.usedBy.push({ user: userId, usedAt: new Date() });
+        // Find if user already has a pending entry for this coupon
+        const existingEntry = coupon.usedBy.find(entry => 
+          entry.user.toString() === userId.toString() && !entry.orderCompleted
+        );
+
+        if (existingEntry) {
+          // Update the existing entry
+          existingEntry.orderCompleted = true;
+          existingEntry.orderId = orderId;
+          coupon.usedCount += 1;
+        } else {
+          // Create a new entry
+          coupon.usedBy.push({
+            user: userId,
+            usedAt: new Date(),
+            orderCompleted: true,
+            orderId: orderId
+          });
+          coupon.usedCount += 1;
+        }
+
+        if (coupon.usedCount >= coupon.usageLimit) {
+          coupon.isActive = false;
+        }
+
         await coupon.save();
         couponId = coupon._id;
       }
