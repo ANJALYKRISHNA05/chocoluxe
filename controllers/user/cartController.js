@@ -997,3 +997,4 @@ const validateAndApplyCoupon = async (coupon, userId, subtotal, cart) => {
 
   return discount;
 };
+

@@ -204,7 +204,7 @@ exports.acceptReturn = async (req, res) => {
 
         await wallet.save();
         
-        refundMessage = 'Return request approved and amount refunded to both original payment method and wallet.';
+        refundMessage = 'Return request approved.';
       } catch (refundError) {
         console.error('Razorpay refund failed, refunding to wallet instead:', refundError);
         
