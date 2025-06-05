@@ -1,6 +1,5 @@
+</div>
 
-</div> 
-    
 <footer class="footer">
     <div class="footer-content">
         <p>&copy; <%= new Date().getFullYear() %> CHOCOLUXE Admin Panel. All rights reserved.</p>
@@ -8,28 +7,48 @@
 </footer>
 
 <style>
+    :root {
+        --primary-color: #4a2c2a;
+        --accent-color: #d1a876;
+        --text-color: #fff9e6;
+    }
+
     .footer {
         background-color: var(--primary-color);
         color: var(--text-color);
         text-align: center;
         padding: 15px;
         margin-top: 20px;
-        margin-left: 250px; 
         font-size: 14px;
+        position: relative;
+        z-index: 100;
+    }
+
+    .footer-content {
+        position: relative;
+        z-index: 100;
+    }
+
+    @media (max-width: 768px) {
+        .footer {
+            margin-left: 70px;
+            padding: 12px;
+            font-size: 13px;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .footer {
+            margin-left: 50px;
+            padding: 10px;
+            font-size: 12px;
+        }
     }
 </style>
 
 <script>
-    
     document.addEventListener('DOMContentLoaded', function() {
-       
-        const logoutBtn = document.querySelector('.logout-btn');
-        if (logoutBtn) {
-            logoutBtn.addEventListener('click', function() {
-              
-                window.location.href = '/admin/logout';
-            });
-        }
+        // Add any footer specific scripts here if needed
     });
 </script>
 </body>
