@@ -67,7 +67,6 @@
         --transition: all 0.3s ease;
     }
     
-
     .footer {
         background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
         color: var(--text-light);
@@ -140,7 +139,8 @@
     }
     
     /* Links Sections */
-    .footer-links h4 {
+    .footer-links h4,
+    .footer-links h5 {
         font-size: 1rem;
         font-weight: 700;
         margin-bottom: 1.2rem;
@@ -148,7 +148,8 @@
         display: inline-block;
     }
     
-    .footer-links h4::after {
+    .footer-links h4::after,
+    .footer-links h5::after {
         content: '';
         position: absolute;
         bottom: -8px;
@@ -188,63 +189,245 @@
     }
     
     /* Responsive Styles */
-    @media (max-width: 992px) {
+    
+    /* Large Desktop (1200px and up) */
+    @media (min-width: 1200px) {
         .footer-top {
-            padding: 2.5rem 0 1.5rem;
+            padding: 3.5rem 0 2.5rem;
+        }
+        
+        .footer-brand h3 {
+            font-size: 2rem;
+        }
+        
+        .footer-brand .description {
+            font-size: 1rem;
+            max-width: 85%;
+        }
+    }
+    
+    /* Desktop (992px to 1199px) */
+    @media (max-width: 1199px) and (min-width: 992px) {
+        .footer-top {
+            padding: 3rem 0 2rem;
+        }
+        
+        .footer-brand .description {
+            max-width: 95%;
+        }
+    }
+    
+    /* Tablet (768px to 991px) */
+    @media (max-width: 991px) and (min-width: 768px) {
+        .footer-top {
+            padding: 1.5rem 0 0.5rem;
+        }
+        
+        .footer-brand {
+            margin-bottom: 1rem;
         }
         
         .footer-brand .description {
             max-width: 100%;
-        }
-    }
-    
-    @media (max-width: 768px) {
-        .footer-top {
-            padding: 2rem 0 1rem;
+            margin-bottom: 0.8rem;
+            font-size: 0.85rem;
         }
         
-        .footer-brand h3 {
-            font-size: 1.5rem;
+        .footer-links {
+            margin-bottom: 0.8rem;
         }
         
-        .footer-links h4 {
-            margin-bottom: 1rem;
-            font-size: 0.95rem;
-        }
-        
-        .footer-links ul li a {
+        .footer-links h4,
+        .footer-links h5 {
             font-size: 0.9rem;
+            margin-bottom: 0.6rem;
+        }
+        
+        .footer-bottom {
+            padding: 0.8rem 0;
         }
     }
     
-    @media (max-width: 576px) {
-        .footer-bottom {
-            text-align: center;
-        }
-        
-        .footer-bottom .text-md-end {
-            margin-top: 1rem;
+    /* Mobile and Small Tablet (up to 767px) - ULTRA COMPACT */
+    @media (max-width: 767px) {
+        .footer-top {
+            padding: 0.8rem 0 0.2rem;
         }
         
         .footer-brand {
             text-align: center;
+            margin-bottom: 0.5rem;
+        }
+        
+        .footer-brand h3 {
+            font-size: 1rem;
+            margin-bottom: 0.1rem;
+        }
+        
+        .footer-brand .tagline {
+            font-size: 0.6rem;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.3rem;
         }
         
         .footer-brand .description {
-            margin: 0 auto 1.5rem;
+            display: none; /* Completely hide description */
         }
         
         .social-links {
             justify-content: center;
+            gap: 0.3rem;
+            margin-bottom: 0.4rem;
         }
         
-        .footer-links h4::after {
-            left: 50%;
-            transform: translateX(-50%);
+        .social-links a {
+            width: 22px;
+            height: 22px;
+            font-size: 0.7rem;
         }
         
         .footer-links {
             text-align: center;
+            margin-bottom: 0.3rem;
+        }
+        
+        .footer-links h4,
+        .footer-links h5 {
+            font-size: 0.65rem;
+            margin-bottom: 0.2rem;
+            font-weight: 600;
+        }
+        
+        .footer-links h4::after,
+        .footer-links h5::after {
+            display: none; /* Remove underlines on mobile */
+        }
+        
+        .footer-links ul li {
+            margin-bottom: 0.1rem;
+        }
+        
+        .footer-links ul li a {
+            font-size: 0.6rem;
+            line-height: 1.2;
+        }
+        
+        .footer-links ul li a:hover {
+            padding-left: 0;
+        }
+        
+        .footer-bottom {
+            padding: 0.4rem 0;
+            font-size: 0.6rem;
+        }
+    }
+    
+    /* Extra Small Mobile (up to 400px) - MINIMAL */
+    @media (max-width: 400px) {
+        .footer-top {
+            padding: 0.6rem 0 0.1rem;
+        }
+        
+        .footer-brand h3 {
+            font-size: 0.9rem;
+        }
+        
+        .footer-brand .tagline {
+            font-size: 0.55rem;
+            margin-bottom: 0.2rem;
+        }
+        
+        .footer-brand {
+            margin-bottom: 0.3rem;
+        }
+        
+        .social-links {
+            gap: 0.2rem;
+            margin-bottom: 0.3rem;
+        }
+        
+        .social-links a {
+            width: 20px;
+            height: 20px;
+            font-size: 0.65rem;
+        }
+        
+        .footer-links {
+            margin-bottom: 0.2rem;
+        }
+        
+        .footer-links h4,
+        .footer-links h5 {
+            font-size: 0.6rem;
+            margin-bottom: 0.15rem;
+        }
+        
+        .footer-links ul li a {
+            font-size: 0.55rem;
+        }
+        
+        .footer-bottom {
+            padding: 0.3rem 0;
+            font-size: 0.55rem;
+        }
+    }
+    
+    /* Landscape Mobile - MINIMAL HEIGHT */
+    @media (max-height: 500px) and (orientation: landscape) {
+        .footer-top {
+            padding: 0.3rem 0 0.1rem;
+        }
+        
+        .footer-brand {
+            margin-bottom: 0.2rem;
+        }
+        
+        .footer-brand h3 {
+            font-size: 0.8rem;
+            margin-bottom: 0.05rem;
+        }
+        
+        .footer-brand .tagline {
+            font-size: 0.5rem;
+            margin-bottom: 0.1rem;
+        }
+        
+        .footer-brand .description {
+            display: none;
+        }
+        
+        .social-links {
+            margin-bottom: 0.2rem;
+            gap: 0.15rem;
+        }
+        
+        .social-links a {
+            width: 18px;
+            height: 18px;
+            font-size: 0.6rem;
+        }
+        
+        .footer-links {
+            margin-bottom: 0.15rem;
+        }
+        
+        .footer-links h4,
+        .footer-links h5 {
+            font-size: 0.55rem;
+            margin-bottom: 0.1rem;
+        }
+        
+        .footer-links ul li {
+            margin-bottom: 0.05rem;
+        }
+        
+        .footer-links ul li a {
+            font-size: 0.5rem;
+        }
+        
+        .footer-bottom {
+            padding: 0.2rem 0;
+            font-size: 0.5rem;
         }
     }
 </style>

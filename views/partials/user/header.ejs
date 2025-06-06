@@ -6,7 +6,7 @@
     <title>CHOCOLUXE</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800&family=Nunito+Sans:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         :root {
@@ -20,7 +20,16 @@
             --text-light: #ffffff;
             --text-dark: #333333;
             --danger: #dc3545;
-            --transition: all 0.3s ease;
+            --success: #28a745;
+            --warning: #ffc107;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --shadow-sm: 0 2px 4px rgba(0,0,0,0.1);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.15);
+            --shadow-lg: 0 8px 25px rgba(0,0,0,0.2);
+        }
+        
+        * {
+            box-sizing: border-box;
         }
         
         body, html { 
@@ -30,564 +39,1089 @@
             font-family: 'Nunito Sans', sans-serif; 
             display: flex; 
             flex-direction: column; 
+            line-height: 1.6;
         }
         
-        .navbar { 
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
-            padding: 0;
-            color: var(--text-light);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        /* Header Styles - FIXED FOR CONSISTENT APPEARANCE */
+        .header {
+            position: sticky !important;
+            top: 0 !important;
+            z-index: 1000 !important;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%) !important;
+            box-shadow: var(--shadow-md) !important;
+            transition: var(--transition);
+            width: 100% !important;
+        }
+        
+        .header.scrolled {
+            box-shadow: var(--shadow-lg) !important;
+            backdrop-filter: blur(10px);
+        }
+        
+        .navbar {
+            padding: 0 !important;
+            background: transparent !important;
+            width: 100% !important;
         }
         
         .navbar-container {
-            width: 100%;
             max-width: 1400px;
             margin: 0 auto;
-            padding: 0.8rem 2rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .navbar .brand { 
-            font-family: 'Playfair Display', serif;
-            font-size: 1.8rem; 
-            font-weight: 700; 
-            text-align: center; 
-            letter-spacing: 1px;
-            position: relative;
-            padding: 0.3rem 0;
-        }
-        
-        .navbar .brand::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 40px;
-            height: 2px;
-            background-color: var(--accent);
-        }
-        
-        .navbar .brand small { 
-            display: block; 
-            font-family: 'Nunito Sans', sans-serif;
-            font-size: 0.8rem; 
-            font-weight: 400; 
-            color: var(--accent); 
-            letter-spacing: 2px;
-            margin-top: 0.2rem;
-        }
-        
-        .navbar .nav-links { 
-            display: flex; 
-            align-items: center; 
-            gap: 2.5rem; 
-        }
-        
-        .navbar .nav-icons { 
-            display: flex; 
-            align-items: center; 
-            gap: 1.5rem; 
-        }
-        
-        .navbar a { 
-            color: var(--text-light); 
-            text-decoration: none; 
-            font-size: 1rem; 
-            font-weight: 600;
-            transition: var(--transition);
-            position: relative;
-        }
-        
-        .navbar .nav-links a::after {
-            content: '';
-            position: absolute;
-            bottom: -5px;
-            left: 0;
-            width: 0;
-            height: 2px;
-            background-color: var(--accent);
-            transition: var(--transition);
-        }
-        
-        .navbar .nav-links a:hover::after {
-            width: 100%;
-        }
-        
-        .navbar a:hover { 
-            color: var(--accent-light); 
-        }
-        
-        .navbar .nav-icons a {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background-color: rgba(255,255,255,0.1);
-            transition: var(--transition);
-        }
-        
-        .navbar .nav-icons .login-btn {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 8px 16px;
-            border-radius: 20px;
-            background-color: var(--accent);
-            color: var(--primary-dark);
-            font-weight: 600;
-            width: auto;
-            height: auto;
-            transition: all 0.3s ease;
-        }
-        
-        .navbar .nav-icons .login-btn:hover {
-            background-color: var(--accent-light);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        }
-        
-        .navbar .nav-icons a:hover {
-            background-color: rgba(255,255,255,0.1);
-        }
-        
-        .navbar .nav-icons a i {
-            font-size: 1.2rem;
-        }
-        
-        .navbar .search-bar { 
-            width: 200px; 
-            font-size: 0.9rem; 
-            padding: 0.5rem 1rem;
-            border: none;
-            border-radius: 20px;
-            background-color: rgba(255,255,255,0.1);
-            color: var(--text-light);
-            transition: var(--transition);
-        }
-        
-        .navbar .search-bar:focus {
-            background-color: rgba(255,255,255,0.2);
-            outline: none;
-        }
-        
-        .navbar .search-bar::placeholder {
-            color: rgba(255,255,255,0.7);
-        }
-        
-        .navbar .menu-toggle { 
-            display: none; 
-            font-size: 1.5rem; 
-            cursor: pointer; 
-            color: var(--text-light);
-            background: none;
-            border: none;
-            transition: var(--transition);
-        }
-        
-        .navbar .menu-toggle:hover {
-            color: var(--accent);
-        }
-        
-        /* User Menu Styles */
-        .user-menu { 
-            position: relative; 
-            display: flex; 
-            align-items: center; 
-        }
-        
-        .user-dropdown { 
-            display: none; 
-            position: absolute; 
-            top: 45px; 
-            right: 0; 
-            background-color: white; 
-            border: 1px solid rgba(0,0,0,0.1); 
-            border-radius: 10px; 
-            padding: 8px 0; 
-            z-index: 1000; 
-            min-width: 200px; 
-            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
-            animation: fadeIn 0.3s ease;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        .user-dropdown::before {
-            content: '';
-            position: absolute;
-            top: -8px;
-            right: 15px;
-            width: 16px;
-            height: 16px;
-            background-color: white;
-            transform: rotate(45deg);
-            border-top: 1px solid rgba(0,0,0,0.1);
-            border-left: 1px solid rgba(0,0,0,0.1);
-        }
-        
-        .dropdown-item { 
-            display: flex !important; 
-            align-items: center !important; 
-            padding: 12px 16px !important; 
-            color: var(--text-dark) !important; 
-            font-size: 0.95rem !important; 
-            transition: all 0.2s ease !important;
-            text-decoration: none !important;
-            width: 100% !important;
-            box-sizing: border-box !important;
-            position: relative !important;
-            border-left: 3px solid transparent !important;
-        }
-        
-        .dropdown-item i { 
-            font-size: 1.1rem !important; 
-            color: var(--primary) !important;
-            width: 30px !important;
+            padding: 1rem 2rem;
             display: flex !important;
-            justify-content: center !important;
             align-items: center !important;
-            margin-right: 10px !important;
+            justify-content: space-between !important;
+            position: relative;
+            width: 100% !important;
         }
         
-        .dropdown-item span {
-            display: inline-block !important;
-            font-weight: 500 !important;
+        /* Brand Styles */
+        .brand-container {
+            display: flex !important;
+            align-items: center !important;
+            text-decoration: none !important;
+            color: var(--text-light) !important;
+            transition: var(--transition);
         }
         
-        .dropdown-item:hover { 
-            background-color: rgba(0,0,0,0.05) !important; 
-            color: var(--primary) !important; 
-            border-left: 3px solid var(--primary) !important;
+        .brand-container:hover {
+            color: var(--accent-light) !important;
+            transform: translateY(-1px);
         }
         
-        .user-menu.active .user-dropdown { 
-            display: block; 
+        .brand-text {
+            display: flex !important;
+            flex-direction: column !important;
+        }
+        
+        .brand-name {
+            font-family: 'Playfair Display', serif !important;
+            font-size: 2rem !important;
+            font-weight: 700 !important;
+            letter-spacing: 1px !important;
+            margin: 0 !important;
+            line-height: 1 !important;
+            position: relative;
+            color: var(--text-light) !important;
+        }
+        
+        .brand-name::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, var(--accent), var(--accent-light)) !important;
+            border-radius: 1px;
+        }
+        
+        .brand-tagline {
+            font-family: 'Nunito Sans', sans-serif !important;
+            font-size: 0.75rem !important;
+            font-weight: 400 !important;
+            color: var(--accent) !important;
+            letter-spacing: 2px !important;
+            margin: 0 !important;
+            text-transform: uppercase !important;
+            margin-top: 2px !important;
+        }
+        
+        /* Navigation Styles */
+        .nav-content {
+            display: flex !important;
+            align-items: center !important;
+            gap: 2rem !important;
+        }
+        
+        .nav-links {
+            display: flex !important;
+            align-items: center !important;
+            gap: 2rem !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            list-style: none !important;
+        }
+        
+        .nav-link {
+            color: var(--text-light) !important;
+            text-decoration: none !important;
+            font-size: 1rem !important;
+            font-weight: 600 !important;
+            padding: 0.5rem 1rem !important;
+            border-radius: 25px !important;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .nav-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            transition: var(--transition);
+        }
+        
+        .nav-link:hover {
+            color: var(--accent-light) !important;
+            background-color: rgba(255,255,255,0.1) !important;
+            transform: translateY(-2px);
+            text-decoration: none !important;
+        }
+        
+        .nav-link:hover::before {
+            left: 100%;
+        }
+        
+        .nav-link.active {
+            background-color: var(--accent) !important;
+            color: var(--primary) !important;
+        }
+        
+        /* Search Bar */
+        .search-container {
+            position: relative;
+            display: flex !important;
+            align-items: center !important;
+        }
+        
+        .search-bar {
+            width: 250px !important;
+            padding: 0.6rem 1rem 0.6rem 2.5rem !important;
+            border: none !important;
+            border-radius: 25px !important;
+            background-color: rgba(255,255,255,0.1) !important;
+            color: var(--text-light) !important;
+            font-size: 0.9rem !important;
+            transition: var(--transition);
+            backdrop-filter: blur(10px);
+        }
+        
+        .search-bar:focus {
+            outline: none !important;
+            background-color: rgba(255,255,255,0.2) !important;
+            width: 300px !important;
+            box-shadow: 0 0 0 2px var(--accent) !important;
+        }
+        
+        .search-bar::placeholder {
+            color: rgba(255,255,255,0.7) !important;
+        }
+        
+        .search-icon {
+            position: absolute !important;
+            left: 0.8rem !important;
+            color: rgba(255,255,255,0.7) !important;
+            font-size: 0.9rem !important;
+            pointer-events: none !important;
+        }
+        
+        /* Action Icons - FIXED FOR CONSISTENT COLORS */
+        .nav-actions {
+            display: flex !important;
+            align-items: center !important;
+            gap: 1rem !important;
+        }
+        
+        .action-btn {
+            position: relative !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            width: 45px !important;
+            height: 45px !important;
+            border-radius: 50% !important;
+            background-color: rgba(255,255,255,0.1) !important;
+            color: var(--text-light) !important;
+            text-decoration: none !important;
+            transition: var(--transition);
+            backdrop-filter: blur(10px);
+            border: none !important;
+        }
+        
+        .action-btn:hover {
+            background-color: rgba(255,255,255,0.2) !important;
+            transform: translateY(-2px) scale(1.05) !important;
+            box-shadow: var(--shadow-sm) !important;
+            color: var(--text-light) !important;
+            text-decoration: none !important;
+        }
+        
+        /* FORCE ICON COLORS - This fixes the white icon issue */
+        .action-btn i {
+            font-size: 1.1rem !important;
+            color: var(--text-light) !important;
+            opacity: 1 !important;
+            visibility: visible !important;
+        }
+        
+        .action-btn:hover i {
+            color: var(--accent-light) !important;
+        }
+        
+        /* Ensure icons stay consistent across all pages */
+        .action-btn .fas,
+        .action-btn .fa-heart,
+        .action-btn .fa-shopping-cart {
+            color: var(--text-light) !important;
+            font-size: 1.1rem !important;
+        }
+        
+        .action-btn:hover .fas,
+        .action-btn:hover .fa-heart,
+        .action-btn:hover .fa-shopping-cart {
+            color: var(--accent-light) !important;
+        }
+        
+        .login-btn {
+            display: flex !important;
+            align-items: center !important;
+            gap: 0.5rem !important;
+            padding: 0.6rem 1.2rem !important;
+            border-radius: 25px !important;
+            background: linear-gradient(135deg, var(--accent), var(--accent-light)) !important;
+            color: var(--primary) !important;
+            text-decoration: none !important;
+            font-weight: 600 !important;
+            font-size: 0.9rem !important;
+            transition: var(--transition);
+            box-shadow: var(--shadow-sm) !important;
+            width: auto !important;
+            height: auto !important;
+        }
+        
+        .login-btn:hover {
+            color: var(--primary) !important;
+            transform: translateY(-2px) !important;
+            box-shadow: var(--shadow-md) !important;
+            background: linear-gradient(135deg, var(--accent-light), var(--accent)) !important;
+            text-decoration: none !important;
         }
         
         /* Badge Styles */
-        .cart-badge, .wishlist-badge {
-            position: absolute;
-            top: -5px;
-            right: -5px;
-            background-color: var(--danger);
-            color: white;
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            display: none;
-            text-align: center;
-            font-size: 0.75rem;
-            line-height: 20px;
-            font-weight: 700;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        .badge {
+            position: absolute !important;
+            top: -5px !important;
+            right: -5px !important;
+            background: linear-gradient(135deg, var(--danger), #ff4757) !important;
+            color: white !important;
+            border-radius: 50% !important;
+            width: 22px !important;
+            height: 22px !important;
+            display: none !important;
+            align-items: center !important;
+            justify-content: center !important;
+            font-size: 0.75rem !important;
+            font-weight: 700 !important;
+            box-shadow: var(--shadow-sm) !important;
+            animation: pulse 2s infinite;
+            z-index: 5 !important;
+            border: 1px solid rgba(255,255,255,0.3) !important;
         }
         
-        /* Responsive Styles */
-        @media (max-width: 992px) {
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        /* User Menu - FIXED STYLES */
+        .user-menu {
+            position: relative !important;
+        }
+        
+        .user-avatar {
+            width: 45px !important;
+            height: 45px !important;
+            border-radius: 50% !important;
+            background: linear-gradient(135deg, var(--accent), var(--accent-light)) !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            color: var(--primary) !important;
+            font-weight: 700 !important;
+            cursor: pointer !important;
+            transition: var(--transition);
+            box-shadow: var(--shadow-sm) !important;
+        }
+        
+        .user-avatar:hover {
+            transform: translateY(-2px) scale(1.05) !important;
+            box-shadow: var(--shadow-md) !important;
+        }
+        
+        .user-avatar i {
+            color: var(--primary) !important;
+            font-size: 1.1rem !important;
+        }
+        
+        /* FIXED USER DROPDOWN - Ensure text is always visible */
+        .user-dropdown {
+            position: absolute !important;
+            top: 55px !important;
+            right: 0 !important;
+            background: white !important;
+            border-radius: 12px !important;
+            padding: 0.5rem 0 !important;
+            min-width: 220px !important;
+            box-shadow: var(--shadow-lg) !important;
+            opacity: 0 !important;
+            visibility: hidden !important;
+            transform: translateY(-10px) !important;
+            transition: var(--transition);
+            z-index: 9999 !important;
+            border: 1px solid rgba(0,0,0,0.1) !important;
+        }
+        
+        .user-dropdown::before {
+            content: '' !important;
+            position: absolute !important;
+            top: -8px !important;
+            right: 15px !important;
+            width: 16px !important;
+            height: 16px !important;
+            background: white !important;
+            transform: rotate(45deg) !important;
+            box-shadow: -2px -2px 5px rgba(0,0,0,0.1) !important;
+        }
+        
+        .user-menu.active .user-dropdown {
+            opacity: 1 !important;
+            visibility: visible !important;
+            transform: translateY(0) !important;
+        }
+        
+        /* FIXED DROPDOWN ITEMS - Force text visibility */
+        .dropdown-item {
+            display: flex !important;
+            align-items: center !important;
+            padding: 0.8rem 1.2rem !important;
+            color: var(--text-dark) !important;
+            text-decoration: none !important;
+            transition: var(--transition);
+            border-left: 3px solid transparent !important;
+            width: 100% !important;
+            white-space: nowrap !important;
+            font-size: 0.95rem !important;
+            font-weight: 500 !important;
+        }
+        
+        .dropdown-item:hover {
+            background-color: rgba(212, 162, 106, 0.1) !important;
+            color: var(--primary) !important;
+            border-left-color: var(--accent) !important;
+            text-decoration: none !important;
+        }
+        
+        .dropdown-item i {
+            width: 20px !important;
+            margin-right: 0.8rem !important;
+            color: var(--accent) !important;
+            font-size: 1rem !important;
+            flex-shrink: 0 !important;
+            text-align: center !important;
+        }
+        
+        /* FORCE TEXT VISIBILITY */
+        .dropdown-item span {
+            font-weight: 500 !important;
+            white-space: nowrap !important;
+            overflow: visible !important;
+            text-overflow: unset !important;
+            color: inherit !important;
+            display: inline !important;
+            opacity: 1 !important;
+            visibility: visible !important;
+        }
+        
+        /* Mobile Menu Toggle */
+        .mobile-toggle {
+            display: none !important;
+            background: none !important;
+            border: none !important;
+            color: var(--text-light) !important;
+            font-size: 1.5rem !important;
+            cursor: pointer !important;
+            padding: 0.5rem !important;
+            border-radius: 8px !important;
+            transition: var(--transition);
+            z-index: 1001 !important;
+            margin-left: 0.5rem !important;
+        }
+        
+        .mobile-toggle:hover {
+            background-color: rgba(255,255,255,0.1) !important;
+            color: var(--accent) !important;
+        }
+        
+        .mobile-toggle i {
+            color: var(--text-light) !important;
+        }
+        
+        .mobile-toggle:hover i {
+            color: var(--accent) !important;
+        }
+        
+        /* Mobile Menu */
+        .mobile-menu {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100% !important;
+            height: 100vh !important;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%) !important;
+            z-index: 9999 !important;
+            display: flex !important;
+            flex-direction: column !important;
+            padding: 2rem !important;
+            transform: translateX(-100%) !important;
+            transition: var(--transition);
+            overflow-y: auto !important;
+        }
+        
+        .mobile-menu.active {
+            transform: translateX(0) !important;
+        }
+        
+        .mobile-menu-header {
+            display: flex !important;
+            justify-content: space-between !important;
+            align-items: center !important;
+            margin-bottom: 2rem !important;
+            padding-bottom: 1rem !important;
+            border-bottom: 1px solid rgba(255,255,255,0.1) !important;
+        }
+        
+        .mobile-close {
+            background: none !important;
+            border: none !important;
+            color: var(--text-light) !important;
+            font-size: 1.5rem !important;
+            cursor: pointer !important;
+            padding: 0.5rem !important;
+            border-radius: 8px !important;
+            transition: var(--transition);
+        }
+        
+        .mobile-close:hover {
+            background-color: rgba(255,255,255,0.1) !important;
+            color: var(--accent) !important;
+        }
+        
+        .mobile-nav-links {
+            display: flex !important;
+            flex-direction: column !important;
+            gap: 1rem !important;
+            margin-bottom: 2rem !important;
+        }
+        
+        .mobile-nav-link {
+            color: var(--text-light) !important;
+            text-decoration: none !important;
+            font-size: 1.2rem !important;
+            font-weight: 600 !important;
+            padding: 1rem !important;
+            border-radius: 12px !important;
+            transition: var(--transition);
+            border-left: 4px solid transparent !important;
+        }
+        
+        .mobile-nav-link:hover {
+            background-color: rgba(255,255,255,0.1) !important;
+            color: var(--accent) !important;
+            border-left-color: var(--accent) !important;
+            text-decoration: none !important;
+        }
+        
+        .mobile-search {
+            margin-bottom: 2rem !important;
+        }
+        
+        .mobile-search .search-bar {
+            width: 100% !important;
+            padding: 1rem !important;
+            font-size: 1rem !important;
+            border-radius: 12px !important;
+        }
+        
+        .mobile-actions {
+            display: flex !important;
+            flex-direction: column !important;
+            gap: 1rem !important;
+        }
+        
+        .mobile-action-btn {
+            display: flex !important;
+            align-items: center !important;
+            gap: 1rem !important;
+            padding: 1rem !important;
+            background-color: rgba(255,255,255,0.1) !important;
+            color: var(--text-light) !important;
+            text-decoration: none !important;
+            border-radius: 12px !important;
+            transition: var(--transition);
+            font-weight: 600 !important;
+        }
+        
+        .mobile-action-btn:hover {
+            background-color: rgba(255,255,255,0.2) !important;
+            color: var(--accent) !important;
+            text-decoration: none !important;
+        }
+        
+        .mobile-action-btn i {
+            font-size: 1.2rem !important;
+            width: 24px !important;
+            color: var(--text-light) !important;
+        }
+        
+        .mobile-action-btn:hover i {
+            color: var(--accent) !important;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 1200px) {
             .navbar-container {
-                padding: 0.8rem 1.5rem;
+                padding: 1rem 1.5rem !important;
             }
             
-            .navbar .nav-links {
-                gap: 1.5rem;
+            .search-bar {
+                width: 200px !important;
+            }
+            
+            .search-bar:focus {
+                width: 250px !important;
+            }
+        }
+        
+        @media (max-width: 992px) {
+            .nav-content {
+                gap: 1.5rem !important;
+            }
+            
+            .nav-links {
+                gap: 1.5rem !important;
+            }
+            
+            .search-container {
+                display: none !important;
             }
         }
         
         @media (max-width: 768px) {
-            .navbar { 
-                padding: 0; 
-            }
-            
             .navbar-container {
-                flex-wrap: wrap;
-                padding: 0.8rem 1rem;
+                padding: 1rem !important;
             }
             
-            .navbar .brand { 
-                font-size: 1.5rem; 
-                margin-right: auto;
+            .brand-name {
+                font-size: 1.6rem !important;
             }
             
-            .navbar .nav-links, .navbar .nav-icons { 
-                display: none; 
-                width: 100%;
-                order: 3;
-                margin-top: 1rem;
+            .brand-tagline {
+                font-size: 0.7rem !important;
             }
             
-            .navbar .menu-toggle { 
-                display: block; 
-                order: 2;
+            .nav-content {
+                display: none !important;
             }
             
-            .navbar.active .nav-links, .navbar.active .nav-icons { 
-                display: flex; 
-                flex-direction: column; 
-                width: 100%; 
-                background-color: var(--primary-light); 
-                padding: 1rem 0; 
-                border-radius: 8px;
-                margin-top: 1rem;
+            .mobile-toggle {
+                display: block !important;
             }
             
-            .navbar.active .nav-links a, .navbar.active .nav-icons a { 
-                margin: 0.5rem 1.5rem; 
-                font-size: 1rem;
+            .nav-actions {
+                gap: 0.8rem !important;
+                display: flex !important;
+                align-items: center !important;
             }
             
-            .navbar.active .nav-links a::after {
-                display: none;
+            .action-btn {
+                width: 40px !important;
+                height: 40px !important;
             }
             
-            .navbar.active .search-bar { 
-                width: calc(100% - 3rem); 
-                margin: 0.8rem 1.5rem; 
-                border-radius: 4px;
+            .user-avatar {
+                width: 40px !important;
+                height: 40px !important;
             }
             
-            .navbar.active .nav-icons {
-                flex-direction: row; 
-                justify-content: flex-start; 
-                gap: 1.5rem; 
-                padding: 0 1.5rem; 
-            }
-            
-            .navbar.active .user-menu { 
-                width: auto; 
-                margin: 0; 
-            }
-            
-            .navbar.active .user-menu a {
-                margin: 0; 
-            }
-            
-            .user-dropdown { 
-                position: static; 
-                border: none; 
-                background-color: rgba(0,0,0,0.1); 
-                box-shadow: none;
-                border-radius: 4px;
-                padding: 0.5rem 0; 
-                margin-top: 0.5rem;
-                animation: none;
-            }
-            
-            .user-dropdown::before {
-                display: none;
-            }
-            
-            .user-dropdown a { 
-                padding: 0.6rem 1rem; 
-                color: var(--text-light);
-            }
-            
-            .user-dropdown a i {
-                color: var(--accent);
-            }
-            
-            .user-dropdown a:hover { 
-                background-color: rgba(255,255,255,0.1); 
-                color: var(--accent); 
+            /* Ensure dropdown is still visible on mobile */
+            .user-dropdown {
+                right: -10px !important;
+                min-width: 200px !important;
             }
         }
         
         @media (max-width: 576px) {
-            .navbar .brand { 
-                font-size: 1.3rem; 
+            .navbar-container {
+                padding: 0.8rem !important;
+                flex-wrap: nowrap !important;
             }
             
-            .navbar .brand small { 
-                font-size: 0.7rem; 
+            .brand-name {
+                font-size: 1.4rem !important;
             }
             
-            .navbar .nav-icons a {
-                width: 35px;
-                height: 35px;
+            .brand-tagline {
+                font-size: 0.65rem !important;
+                letter-spacing: 1px !important;
             }
             
-            .navbar .nav-icons a i {
-                font-size: 1rem;
+            .action-btn {
+                width: 35px !important;
+                height: 35px !important;
             }
+            
+            .action-btn i {
+                font-size: 1rem !important;
+            }
+            
+            .user-avatar {
+                width: 35px !important;
+                height: 35px !important;
+                font-size: 0.9rem !important;
+            }
+            
+            .login-btn {
+                padding: 0.5rem 1rem !important;
+                font-size: 0.85rem !important;
+            }
+            
+            .nav-actions {
+                flex-shrink: 0 !important;
+                margin-left: auto !important;
+            }
+            
+            .mobile-toggle {
+                padding: 0.4rem !important;
+                font-size: 1.3rem !important;
+            }
+            
+            /* Adjust dropdown for small screens */
+            .user-dropdown {
+                right: -20px !important;
+                min-width: 180px !important;
+            }
+            
+            .dropdown-item {
+                padding: 0.6rem 1rem !important;
+                font-size: 0.9rem !important;
+            }
+        }
+        
+        /* Extra small screens */
+        @media (max-width: 375px) {
+            .navbar-container {
+                padding: 0.6rem !important;
+            }
+            
+            .brand-name {
+                font-size: 1.2rem !important;
+            }
+            
+            .brand-tagline {
+                font-size: 0.6rem !important;
+            }
+            
+            .action-btn {
+                width: 32px !important;
+                height: 32px !important;
+            }
+            
+            .nav-actions {
+                gap: 0.5rem !important;
+            }
+            
+            .mobile-toggle {
+                padding: 0.3rem !important;
+                font-size: 1.2rem !important;
+            }
+            
+            .user-dropdown {
+                right: -30px !important;
+                min-width: 160px !important;
+            }
+        }
+        
+        /* Accessibility */
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+        
+        /* Focus styles for accessibility */
+        .nav-link:focus,
+        .action-btn:focus,
+        .login-btn:focus,
+        .mobile-toggle:focus,
+        .user-avatar:focus {
+            outline: 2px solid var(--accent) !important;
+            outline-offset: 2px !important;
         }
     </style>
 </head>
 <body>
+<header class="header" id="header">
     <nav class="navbar">
         <div class="navbar-container">
-            <div class="brand">CHOCOLUXE <small>TASTE THE LUXURY</small></div>
-            <button class="menu-toggle" onclick="toggleMenu()"><i class="fas fa-bars"></i></button>
-            <div class="nav-links">
-                <a href="/">Home</a>
-                <a href="/products">Products</a>
-            </div>
-            <div class="nav-icons">
-                <% if (user) { %>
-                <a href="/wishlist" class="position-relative">
-                    <i class="fas fa-heart"></i>
-                    <span class="wishlist-badge"></span>
-                </a>
-                <a href="/cart" class="position-relative">
-                    <i class="fas fa-shopping-cart"></i>
-                    <span class="cart-badge"></span>
-                </a>
-                <div class="user-menu">
-                    <a href="#" onclick="toggleUserMenu(event)"><i class="fas fa-user"></i></a>
-                    <div class="user-dropdown">
-                        <a href="/user/profile" class="dropdown-item"><i class="fas fa-user-circle"></i><span>Profile</span></a>
-                        <a href="/user/orders" class="dropdown-item"><i class="fas fa-box"></i><span>My Orders</span></a>
-                        <a href="/wishlist" class="dropdown-item"><i class="fas fa-heart"></i><span>Wishlist</span></a>
-                        <a href="/user/wallet" class="dropdown-item"><i class="fas fa-wallet"></i><span>Wallet</span></a>
-                        <a href="/user/logout" class="dropdown-item"><i class="fas fa-sign-out-alt"></i><span>Logout</span></a>
-                    </div>
+            <!-- Brand -->
+            <a href="/" class="brand-container">
+                <div class="brand-text">
+                    <div class="brand-name">CHOCOLUXE</div>
+                    <div class="brand-tagline">Taste The Luxury</div>
                 </div>
+            </a>
+            
+            <!-- Desktop Navigation -->
+            <div class="nav-content">
+                <ul class="nav-links">
+                    <li><a href="/" class="nav-link">Home</a></li>
+                    <li><a href="/products" class="nav-link">Products</a></li>
+                </ul>
+                
+                <!-- Search Bar -->
+                <div class="search-container">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" class="search-bar" placeholder="Search chocolates...">
+                </div>
+            </div>
+            
+            <!-- Action Buttons -->
+            <div class="nav-actions">
+                <% if (user) { %>
+                    <!-- Wishlist -->
+                    <a href="/wishlist" class="action-btn" title="Wishlist">
+                        <i class="fas fa-heart"></i>
+                        <span class="badge wishlist-badge" id="wishlistBadge"></span>
+                    </a>
+                    
+                    <!-- Cart -->
+                    <a href="/cart" class="action-btn" title="Shopping Cart">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span class="badge cart-badge" id="cartBadge"></span>
+                    </a>
+                    
+                    <!-- User Menu -->
+                    <div class="user-menu" id="userMenu">
+                        <div class="user-avatar" onclick="toggleUserMenu()" title="User Menu">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="user-dropdown">
+                            <a href="/user/profile" class="dropdown-item">
+                                <i class="fas fa-user-circle"></i>
+                                <span>My Profile</span>
+                            </a>
+                            <a href="/user/orders" class="dropdown-item">
+                                <i class="fas fa-box"></i>
+                                <span>My Orders</span>
+                            </a>
+                            <a href="/wishlist" class="dropdown-item">
+                                <i class="fas fa-heart"></i>
+                                <span>Wishlist</span>
+                            </a>
+                            <a href="/user/wallet" class="dropdown-item">
+                                <i class="fas fa-wallet"></i>
+                                <span>My Wallet</span>
+                            </a>
+                            <a href="/user/addresses" class="dropdown-item">
+                                <i class="fas fa-map-marker-alt"></i>
+                                <span>Addresses</span>
+                            </a>
+                            <a href="/user/logout" class="dropdown-item">
+                                <i class="fas fa-sign-out-alt"></i>
+                                <span>Logout</span>
+                            </a>
+                        </div>
+                    </div>
                 <% } else { %>
-                <a href="/user/login" class="login-btn"><i class="fas fa-sign-in-alt"></i> Login</a>
+                    <!-- Login Button -->
+                    <a href="/user/login" class="login-btn">
+                        <i class="fas fa-sign-in-alt"></i>
+                        <span>Login</span>
+                    </a>
                 <% } %>
+                
+                <!-- Mobile Menu Toggle -->
+                <button class="mobile-toggle" onclick="toggleMobileMenu()" aria-label="Toggle Menu">
+                    <i class="fas fa-bars"></i>
+                </button>
             </div>
         </div>
     </nav>
-    <script>
-        function toggleMenu() {
-            const navbar = document.querySelector('.navbar');
-            navbar.classList.toggle('active');
-        }
+</header>
 
-        function toggleUserMenu(event) {
-            event.preventDefault();
-            const userMenu = document.querySelector('.user-menu');
-            userMenu.classList.toggle('active');
-        }
+<!-- Mobile Menu -->
+<div class="mobile-menu" id="mobileMenu">
+    <div class="mobile-menu-header">
+        <a href="/" class="brand-container">
+            <div class="brand-text">
+                <div class="brand-name">CHOCOLUXE</div>
+                <div class="brand-tagline">Taste The Luxury</div>
+            </div>
+        </a>
+        <button class="mobile-close" onclick="toggleMobileMenu()" aria-label="Close Menu">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+    
+    <!-- Mobile Search -->
+    <div class="mobile-search">
+        <div class="search-container">
+            <i class="fas fa-search search-icon"></i>
+            <input type="text" class="search-bar" placeholder="Search chocolates...">
+        </div>
+    </div>
+    
+    <!-- Mobile Navigation Links -->
+    <div class="mobile-nav-links">
+        <a href="/" class="mobile-nav-link">
+            <i class="fas fa-home"></i> Home
+        </a>
+        <a href="/products" class="mobile-nav-link">
+            <i class="fas fa-box"></i> Products
+        </a>
+    </div>
+    
+    <!-- Mobile Actions -->
+    <div class="mobile-actions">
+        <% if (user) { %>
+            <a href="/wishlist" class="mobile-action-btn">
+                <i class="fas fa-heart"></i>
+                <span>Wishlist</span>
+                <span class="badge wishlist-badge mobile-wishlist-badge"></span>
+            </a>
+            <a href="/cart" class="mobile-action-btn">
+                <i class="fas fa-shopping-cart"></i>
+                <span>Shopping Cart</span>
+                <span class="badge cart-badge mobile-cart-badge"></span>
+            </a>
+            <a href="/user/profile" class="mobile-action-btn">
+                <i class="fas fa-user-circle"></i>
+                <span>My Profile</span>
+            </a>
+            <a href="/user/orders" class="mobile-action-btn">
+                <i class="fas fa-box"></i>
+                <span>My Orders</span>
+            </a>
+            <a href="/user/wallet" class="mobile-action-btn">
+                <i class="fas fa-wallet"></i>
+                <span>My Wallet</span>
+            </a>
+            <a href="/user/logout" class="mobile-action-btn">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Logout</span>
+            </a>
+        <% } else { %>
+            <a href="/user/login" class="mobile-action-btn">
+                <i class="fas fa-sign-in-alt"></i>
+                <span>Login</span>
+            </a>
+            <a href="/user/register" class="mobile-action-btn">
+                <i class="fas fa-user-plus"></i>
+                <span>Sign Up</span>
+            </a>
+        <% } %>
+    </div>
+</div>
 
-        document.addEventListener('click', function(event) {
-            const userMenu = document.querySelector('.user-menu');
-            const isClickInside = userMenu.contains(event.target);
-            if (!isClickInside && userMenu.classList.contains('active')) {
+<script>
+    // Mobile Menu Toggle
+    function toggleMobileMenu() {
+        const mobileMenu = document.getElementById('mobileMenu');
+        const body = document.body;
+        
+        mobileMenu.classList.toggle('active');
+        
+        if (mobileMenu.classList.contains('active')) {
+            body.style.overflow = 'hidden';
+        } else {
+            body.style.overflow = '';
+        }
+    }
+    
+    // User Menu Toggle
+    function toggleUserMenu() {
+        const userMenu = document.getElementById('userMenu');
+        userMenu.classList.toggle('active');
+    }
+    
+    // Close user menu when clicking outside
+    document.addEventListener('click', function(event) {
+        const userMenu = document.getElementById('userMenu');
+        if (userMenu && !userMenu.contains(event.target)) {
+            userMenu.classList.remove('active');
+        }
+    });
+    
+    // Close mobile menu when clicking on links
+    document.querySelectorAll('.mobile-nav-link, .mobile-action-btn').forEach(link => {
+        link.addEventListener('click', () => {
+            toggleMobileMenu();
+        });
+    });
+    
+    // Header scroll effect
+    window.addEventListener('scroll', function() {
+        const header = document.getElementById('header');
+        if (window.scrollY > 100) {
+            header.classList.add('scrolled');
+        } else {
+            header.classList.remove('scrolled');
+        }
+    });
+    
+    // Badge Update Functions
+    function updateCartBadge(count) {
+        const badges = document.querySelectorAll('.cart-badge');
+        badges.forEach(badge => {
+            if (count > 0) {
+                badge.textContent = count > 99 ? '99+' : count;
+                badge.style.display = 'flex';
+            } else {
+                badge.style.display = 'none';
+            }
+        });
+    }
+    
+    function updateWishlistBadge(count) {
+        const badges = document.querySelectorAll('.wishlist-badge');
+        badges.forEach(badge => {
+            if (count > 0) {
+                badge.textContent = count > 99 ? '99+' : count;
+                badge.style.display = 'flex';
+            } else {
+                badge.style.display = 'none';
+            }
+        });
+    }
+    
+    // Fetch Cart Item Count
+    function fetchCartItemCount() {
+        <% if (typeof user !== 'undefined' && user) { %>
+        fetch('/cart/item-count', {
+            method: 'GET',
+            headers: { 'Content-Type': 'application/json' }
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.itemCount !== undefined) {
+                updateCartBadge(data.itemCount || 0);
+            }
+        })
+        .catch(error => console.error('Error fetching cart count:', error));
+        <% } %>
+    }
+    
+    // Fetch Wishlist Item Count
+    function fetchWishlistItemCount() {
+        <% if (typeof user !== 'undefined' && user) { %>
+        fetch('/wishlist/item-count', {
+            method: 'GET',
+            headers: { 'Content-Type': 'application/json' }
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.itemCount !== undefined) {
+                updateWishlistBadge(data.itemCount || 0);
+            }
+        })
+        .catch(error => console.error('Error fetching wishlist count:', error));
+        <% } %>
+    }
+    
+    // Login Required Function
+    function requireLogin(event, action) {
+        <% if (typeof user === 'undefined' || !user) { %>
+        event.preventDefault();
+        const returnUrl = event.currentTarget.getAttribute('href');
+        if (returnUrl) {
+            localStorage.setItem('returnTo', returnUrl);
+        }
+        Swal.fire({
+            title: 'Login Required',
+            text: `Please login to ${action}`,
+            icon: 'info',
+            showCancelButton: true,
+            confirmButtonColor: '#d4a26a',
+            cancelButtonColor: '#3a1c1a',
+            confirmButtonText: 'Login Now',
+            cancelButtonText: 'Later'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = '/user/login';
+            }
+        });
+        <% } %>
+    }
+    
+    // Search Functionality
+    function initializeSearch() {
+        const searchBars = document.querySelectorAll('.search-bar');
+        searchBars.forEach(searchBar => {
+            searchBar.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    const query = this.value.trim();
+                    if (query) {
+                        window.location.href = `/products?search=${encodeURIComponent(query)}`;
+                    }
+                }
+            });
+        });
+    }
+    
+    // Initialize on DOM Load
+    document.addEventListener('DOMContentLoaded', function() {
+        fetchCartItemCount();
+        fetchWishlistItemCount();
+        initializeSearch();
+        
+        // Add login requirement for guest users
+        <% if (typeof user === 'undefined' || !user) { %>
+        const cartLinks = document.querySelectorAll('a[href="/cart"]');
+        cartLinks.forEach(link => {
+            link.addEventListener('click', (e) => requireLogin(e, 'access your cart'));
+        });
+        
+        const wishlistLinks = document.querySelectorAll('a[href="/wishlist"]');
+        wishlistLinks.forEach(link => {
+            link.addEventListener('click', (e) => requireLogin(e, 'access your wishlist'));
+        });
+        <% } %>
+    });
+    
+    // Keyboard Navigation
+    document.addEventListener('keydown', function(e) {
+        // Close mobile menu with Escape key
+        if (e.key === 'Escape') {
+            const mobileMenu = document.getElementById('mobileMenu');
+            const userMenu = document.getElementById('userMenu');
+            
+            if (mobileMenu && mobileMenu.classList.contains('active')) {
+                toggleMobileMenu();
+            }
+            
+            if (userMenu && userMenu.classList.contains('active')) {
                 userMenu.classList.remove('active');
             }
-        });
-
-        function updateCartBadge(count) {
-            const badge = document.querySelector('.cart-badge');
-            if (badge) {
-                if (count > 0) {
-                    badge.textContent = count;
-                    badge.style.display = 'inline-block';
-                } else {
-                    badge.style.display = 'none';
-                }
-            }
         }
-
-        function updateWishlistBadge(count) {
-            const badge = document.querySelector('.wishlist-badge');
-            if (badge) {
-                if (count > 0) {
-                    badge.textContent = count;
-                    badge.style.display = 'inline-block';
-                } else {
-                    badge.style.display = 'none';
-                }
-            }
-        }
-
-        function fetchCartItemCount() {
-            <% if (typeof user !== 'undefined' && user) { %>
-            fetch('/cart/item-count', {
-                method: 'GET',
-                headers: { 'Content-Type': 'application/json' }
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                return response.json();
-            })
-            .then(data => {
-                if (data.itemCount !== undefined) {
-                    updateCartBadge(data.itemCount || 0);
-                }
-            })
-            .catch(error => console.error('Error fetching cart count:', error));
-            <% } %>
-        }
-
-        function fetchWishlistItemCount() {
-            <% if (typeof user !== 'undefined' && user) { %>
-            fetch('/wishlist/item-count', {
-                method: 'GET',
-                headers: { 'Content-Type': 'application/json' }
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                return response.json();
-            })
-            .then(data => {
-                if (data.itemCount !== undefined) {
-                    updateWishlistBadge(data.itemCount || 0);
-                }
-            })
-            .catch(error => console.error('Error fetching wishlist count:', error));
-            <% } %>
-        }
-
-        document.addEventListener('DOMContentLoaded', function() {
-            fetchCartItemCount();
-            fetchWishlistItemCount();
-        });
-
-        function requireLogin(event, action) {
-            <% if (typeof user === 'undefined' || !user) { %>
-            event.preventDefault();
-            const returnUrl = event.currentTarget.getAttribute('href');
-            if (returnUrl) {
-                localStorage.setItem('returnTo', returnUrl);
-            }
-            Swal.fire({
-                title: 'Login Required',
-                text: `Please login to ${action}`,
-                icon: 'info',
-                showCancelButton: true,
-                confirmButtonColor: '#d4a26a',
-                cancelButtonColor: '#3a1c1a',
-                confirmButtonText: 'Login Now',
-                cancelButtonText: 'Later'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    window.location.href = '/user/login';
-                }
-            });
-            <% } %>
-        }
-
-        document.addEventListener('DOMContentLoaded', function() {
-            <% if (typeof user === 'undefined' || !user) { %>
-            const cartLinks = document.querySelectorAll('a[href="/cart"]');
-            cartLinks.forEach(link => {
-                link.addEventListener('click', (e) => requireLogin(e, 'access your cart'));
-            });
-            
-            const wishlistLinks = document.querySelectorAll('a[href="/wishlist"]');
-            wishlistLinks.forEach(link => {
-                link.addEventListener('click', (e) => requireLogin(e, 'access your wishlist'));
-            });
-            <% } %>
-        });
-    </script>
+    });
+</script>
 </body>
 </html>

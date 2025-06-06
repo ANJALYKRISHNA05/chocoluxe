@@ -1,506 +1,848 @@
 <%- include('../partials/admin/header') %>
 
-<body>
- 
-  <style>
-    :root {
-      --primary-color: #6a3e20;
-      --secondary-color: #c49b63;
-      --light-color: #f8f5f0;
-      --dark-color: #2c1810;
-      --success-color: #28a745;
-      --danger-color: #dc3545;
-      --info-color: #17a2b8;
-      --warning-color: #ffc107;
+<style>
+  /* CSS Variables */
+  :root {
+    --primary-color: #6a3e20;
+    --secondary-color: #c49b63;
+    --light-color: #f8f5f0;
+    --dark-color: #2c1810;
+    --success-color: #28a745;
+    --danger-color: #dc3545;
+    --info-color: #17a2b8;
+    --warning-color: #ffc107;
+  }
+
+  /* Base Layout */
+  .admin-layout {
+    display: flex;
+    min-height: 100vh;
+    background-color: #f9f9f9;
+  }
+
+  .main-content {
+    flex: 1;
+    margin-left: 250px;
+    padding: 1.5rem;
+    width: calc(100vw - 250px);
+    min-width: 0;
+    box-sizing: border-box;
+  }
+
+  /* Page Header */
+  .page-header {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    display: flex;
+    justify-content: between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  .page-title {
+    font-family: 'Playfair Display', serif;
+    color: var(--primary-color);
+    margin: 0;
+    font-weight: 600;
+    font-size: 1.75rem;
+  }
+
+  .header-actions {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  /* Search Form */
+  .search-form {
+    min-width: 280px;
+    flex: 1;
+    max-width: 400px;
+  }
+
+  .search-input-group {
+    display: flex;
+    border-radius: 5px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  }
+
+  .search-input {
+    flex: 1;
+    border: 1px solid #e9e9e9;
+    border-right: none;
+    font-size: 14px;
+    padding: 8px 12px;
+    outline: none;
+  }
+
+  .search-input:focus {
+    border-color: var(--secondary-color);
+  }
+
+  .search-btn, .clear-search-btn {
+    border: none;
+    padding: 8px 15px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .search-btn {
+    background-color: var(--secondary-color);
+    color: white;
+  }
+
+  .search-btn:hover {
+    background-color: var(--primary-color);
+  }
+
+  .clear-search-btn {
+    background-color: #f8f9fa;
+    color: #6c757d;
+    border-left: 1px solid #e9e9e9;
+  }
+
+  .clear-search-btn:hover {
+    background-color: #e9ecef;
+    color: #495057;
+  }
+
+  /* Add Product Button */
+  .add-product-btn {
+    background-color: var(--secondary-color);
+    border: none;
+    border-radius: 5px;
+    padding: 8px 16px;
+    color: white;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    white-space: nowrap;
+  }
+
+  .add-product-btn:hover {
+    background-color: var(--primary-color);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  }
+
+  /* Table Container */
+  .table-container {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 15px rgba(0,0,0,0.05);
+    overflow: hidden;
+    margin-bottom: 1.5rem;
+  }
+
+  .table-responsive {
+    overflow-x: auto;
+  }
+
+  .product-table {
+    width: 100%;
+    margin: 0;
+    border-collapse: collapse;
+  }
+
+  .product-table thead {
+    background-color: var(--light-color);
+    border-bottom: 2px solid var(--secondary-color);
+  }
+
+  .product-table th {
+    font-family: 'Playfair Display', serif;
+    color: var(--primary-color);
+    font-weight: 600;
+    padding: 15px;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+  }
+
+  .product-table td {
+    padding: 15px;
+    vertical-align: middle;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+  }
+
+  .product-table tr:hover {
+    background-color: rgba(196, 155, 99, 0.05);
+  }
+
+  /* Product Image */
+  .product-image {
+    width: 70px;
+    height: 70px;
+    object-fit: cover;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    transition: transform 0.3s ease;
+  }
+
+  .product-image:hover {
+    transform: scale(1.05);
+  }
+
+  .no-image {
+    width: 70px;
+    height: 70px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f8f9fa;
+    color: #6c757d;
+    border-radius: 8px;
+    font-size: 12px;
+    text-align: center;
+  }
+
+  /* Product Details */
+  .product-name {
+    font-weight: 600;
+    color: var(--dark-color);
+    font-family: 'Playfair Display', serif;
+    margin-bottom: 5px;
+    font-size: 1rem;
+  }
+
+  .category-badge {
+    display: inline-flex;
+    align-items: center;
+    background-color: var(--light-color);
+    color: var(--primary-color);
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+    gap: 0.25rem;
+  }
+
+  /* Variants */
+  .variant-container {
+    max-width: 300px;
+  }
+
+  .variant-card {
+    background-color: #f8f9fa;
+    border-radius: 6px;
+    padding: 10px 12px;
+    margin-bottom: 8px;
+    border-left: 3px solid var(--secondary-color);
+    font-size: 13px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  }
+
+  .variant-title {
+    font-weight: 600;
+    color: var(--primary-color);
+    margin-bottom: 6px;
+  }
+
+  .variant-detail {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .variant-item {
+    background-color: white;
+    border-radius: 4px;
+    padding: 3px 8px;
+    font-size: 11px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    white-space: nowrap;
+  }
+
+  /* Status Badge */
+  .status-badge {
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+    text-align: center;
+    min-width: 80px;
+    white-space: nowrap;
+  }
+
+  .status-active {
+    background-color: rgba(40, 167, 69, 0.15);
+    color: #28a745;
+  }
+
+  .status-blocked {
+    background-color: rgba(220, 53, 69, 0.15);
+    color: #dc3545;
+  }
+
+  /* Action Buttons */
+  .action-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 120px;
+  }
+
+  .action-btn {
+    border: none;
+    border-radius: 5px;
+    padding: 6px 12px;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.25rem;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+
+  .edit-btn {
+    background-color: var(--warning-color);
+    color: #212529;
+  }
+
+  .block-btn {
+    background-color: var(--danger-color);
+    color: white;
+  }
+
+  .unblock-btn {
+    background-color: var(--success-color);
+    color: white;
+  }
+
+  .offer-btn {
+    background-color: var(--info-color);
+    color: white;
+  }
+
+  .action-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 3px 5px rgba(0,0,0,0.1);
+  }
+
+  /* Modal Styles */
+  .modal-content {
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  }
+
+  .modal-header {
+    background-color: var(--light-color);
+    border-bottom: 2px solid var(--secondary-color);
+  }
+
+  .modal-title {
+    color: var(--primary-color);
+    font-family: 'Playfair Display', serif;
+    font-weight: 600;
+  }
+
+  .variant-offer-card {
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 15px;
+    border-left: 3px solid var(--secondary-color);
+  }
+
+  .variant-offer-label {
+    font-weight: 600;
+    color: var(--primary-color);
+    margin-bottom: 10px;
+  }
+
+  .offer-input-group {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+
+  .remove-offer-btn {
+    background-color: var(--danger-color);
+    border: none;
+    color: white;
+    border-radius: 5px;
+    padding: 8px 12px;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+  }
+
+  .remove-offer-btn:hover:not(:disabled) {
+    background-color: #bd2130;
+    transform: translateY(-2px);
+  }
+
+  .remove-offer-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  /* Pagination */
+  .pagination-wrapper {
+    display: flex;
+    justify-content: center;
+    margin: 1.5rem 0;
+  }
+
+  .pagination {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .page-item {
+    display: flex;
+  }
+
+  .page-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 2.5rem;
+    height: 2.5rem;
+    padding: 0.5rem;
+    color: var(--primary-color);
+    text-decoration: none;
+    background-color: #fff;
+    border: 1px solid var(--light-color);
+    border-radius: 0.375rem;
+    transition: all 0.2s ease;
+  }
+
+  .page-link:hover {
+    background-color: var(--secondary-color);
+    border-color: var(--secondary-color);
+    color: white;
+  }
+
+  .page-item.active .page-link {
+    background-color: var(--secondary-color);
+    border-color: var(--secondary-color);
+    color: white;
+  }
+
+  .page-item.disabled .page-link {
+    color: #6c757d;
+    pointer-events: none;
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+
+  /* Info Text */
+  .products-count {
+    text-align: center;
+    color: var(--dark-color);
+    font-style: italic;
+    font-size: 14px;
+    margin-top: 1rem;
+  }
+
+  /* Responsive Design */
+  @media (max-width: 1200px) {
+    .main-content {
+      margin-left: 200px;
+      width: calc(100vw - 200px);
+      padding: 1.25rem;
     }
-    
-    .content-wrapper {
-      background-color: #f9f9f9;
-      min-height: 100vh;
+  }
+
+  @media (max-width: 992px) {
+    .main-content {
+      margin-left: 180px;
+      width: calc(100vw - 180px);
+      padding: 1rem;
     }
-    
+
     .page-header {
-      background-color: white;
-      border-radius: 8px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-      padding: 20px;
-      margin-bottom: 25px;
+      flex-direction: column;
+      align-items: stretch;
     }
-    
-    .page-title {
-      font-family: 'Playfair Display', serif;
-      color: var(--primary-color);
-      margin: 0;
-      font-weight: 600;
+
+    .header-actions {
+      justify-content: space-between;
     }
-    
-    .add-product-btn {
-      background-color: var(--secondary-color);
-      border: none;
-      border-radius: 5px;
-      padding: 8px 16px;
-      transition: all 0.3s ease;
-      font-weight: 500;
-    }
-    
-    .add-product-btn:hover {
-      background-color: var(--primary-color);
-      transform: translateY(-2px);
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    }
-    
-    /* Search bar styles */
+
     .search-form {
-      min-width: 280px;
+      min-width: 200px;
+      max-width: none;
+      flex: 1;
     }
-    
-    .search-form .input-group {
-      border-radius: 5px;
-      overflow: hidden;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-    }
-    
-    .search-form input {
-      border: 1px solid #e9e9e9;
-      border-right: none;
-      font-size: 14px;
-      padding: 8px 12px;
-    }
-    
-    .search-form input:focus {
-      box-shadow: none;
-      border-color: var(--secondary-color);
-    }
-    
-    .search-btn {
-      background-color: var(--secondary-color);
-      color: white;
-      border: none;
-      padding: 8px 15px;
-      transition: all 0.3s ease;
-    }
-    
-    .search-btn:hover {
-      background-color: var(--primary-color);
-    }
-    
-    .clear-search-btn {
-      background-color: #f8f9fa;
-      color: #6c757d;
-      border: 1px solid #e9e9e9;
-      border-left: none;
-      transition: all 0.3s ease;
-    }
-    
-    .clear-search-btn:hover {
-      background-color: #e9ecef;
-      color: #495057;
-    }
-    
-    .product-card-table {
-      background-color: white;
-      border-radius: 8px;
-      box-shadow: 0 2px 15px rgba(0,0,0,0.05);
-      overflow: hidden;
-    }
-    
-    .product-card-table thead {
-      background-color: var(--light-color);
-      border-bottom: 2px solid var(--secondary-color);
-    }
-    
-    .product-card-table th {
-      font-family: 'Playfair Display', serif;
-      color: var(--primary-color);
-      font-weight: 600;
-      padding: 15px;
-      font-size: 14px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-    
-    .product-card-table td {
-      padding: 15px;
-      vertical-align: middle;
-      border-bottom: 1px solid rgba(0,0,0,0.05);
-    }
-    
-    .product-card-table tr:hover {
-      background-color: rgba(196, 155, 99, 0.05);
-    }
-    
-    .product-image {
-      width: 70px;
-      height: 70px;
-      object-fit: cover;
-      border-radius: 8px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-      transition: transform 0.3s ease;
-    }
-    
-    .product-image:hover {
-      transform: scale(1.05);
-    }
-    
-    .product-name {
-      font-weight: 600;
-      color: var(--dark-color);
-      font-family: 'Playfair Display', serif;
-      margin-bottom: 5px;
-    }
-    
-    .category-badge {
-      display: inline-block;
-      background-color: var(--light-color);
-      color: var(--primary-color);
-      padding: 4px 10px;
-      border-radius: 20px;
-      font-size: 12px;
-      font-weight: 500;
-    }
-    
+
     .variant-container {
-      
+      max-width: 250px;
+    }
+
+    .action-buttons {
+      flex-direction: row;
+      flex-wrap: wrap;
+    }
+
+    .action-btn {
+      flex: 1;
+      min-width: 80px;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .main-content {
+      margin-left: 80px;
+      width: calc(100vw - 80px);
+      padding: 0.75rem;
+    }
+
+    .page-title {
+      font-size: 1.5rem;
+    }
+
+    .page-header {
+      padding: 1rem;
+    }
+
+    .header-actions {
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .search-form {
+      min-width: auto;
       width: 100%;
     }
-    
+
+    .product-table th,
+    .product-table td {
+      padding: 10px;
+      font-size: 13px;
+    }
+
+    .product-image,
+    .no-image {
+      width: 50px;
+      height: 50px;
+    }
+
+    .variant-container {
+      max-width: 200px;
+    }
+
     .variant-card {
-      background-color: #f8f9fa;
-      border-radius: 6px;
-      padding: 10px 12px;
-      margin-bottom: 8px;
-      border-left: 3px solid var(--secondary-color);
-      font-size: 13px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      padding: 8px 10px;
+      margin-bottom: 6px;
     }
-    
-    .variant-title {
-      font-weight: 600;
-      color: var(--primary-color);
-      margin-bottom: 3px;
-    }
-    
-    .variant-detail {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-top: 6px;
-    }
-    
+
     .variant-item {
-      background-color: white;
-      border-radius: 4px;
-      padding: 3px 8px;
-      font-size: 12px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-      display: inline-flex;
-      align-items: center;
+      font-size: 10px;
+      padding: 2px 6px;
     }
-    
-    .status-badge {
-      padding: 5px 10px;
-      border-radius: 20px;
-      font-size: 12px;
-      font-weight: 500;
-      text-align: center;
-      width: 80px;
-    }
-    
-    .status-active {
-      background-color: rgba(40, 167, 69, 0.15);
-      color: #28a745;
-    }
-    
-    .status-blocked {
-      background-color: rgba(220, 53, 69, 0.15);
-      color: #dc3545;
-    }
-    
+
     .action-buttons {
-      display: flex;
+      min-width: 100px;
+    }
+
+    .action-btn {
+      padding: 4px 8px;
+      font-size: 11px;
+    }
+  }
+
+  @media (max-width: 576px) {
+    .main-content {
+      margin-left: 70px;
+      width: calc(100vw - 70px);
+      padding: 0.5rem;
+    }
+
+    .page-header {
+      padding: 0.75rem;
+    }
+
+    .page-title {
+      font-size: 1.25rem;
+    }
+
+    .product-table th,
+    .product-table td {
+      padding: 8px;
+      font-size: 12px;
+    }
+
+    .product-image,
+    .no-image {
+      width: 40px;
+      height: 40px;
+    }
+
+    .variant-container {
+      max-width: 150px;
+    }
+
+    .variant-title {
+      font-size: 11px;
+    }
+
+    .variant-item {
+      font-size: 9px;
+      padding: 1px 4px;
+    }
+
+    .status-badge {
+      font-size: 10px;
+      padding: 3px 6px;
+      min-width: 60px;
+    }
+
+    .page-link {
+      min-width: 2rem;
+      height: 2rem;
+      font-size: 0.8rem;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .main-content {
+      margin-left: 65px;
+      width: calc(100vw - 65px);
+      padding: 0.375rem;
+    }
+
+    .offer-input-group {
+      flex-direction: column;
       gap: 8px;
     }
-    
-    .action-btn {
-      border: none;
-      border-radius: 5px;
-      padding: 6px 12px;
-      font-size: 13px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.2s ease;
-    }
-    
-    .edit-btn {
-      background-color: var(--warning-color);
-      color: #212529;
-    }
-    
-    .block-btn {
-      background-color: var(--danger-color);
-      color: white;
-    }
-    
-    .unblock-btn {
-      background-color: var(--success-color);
-      color: white;
-    }
-    
-    .offer-btn {
-      background-color: var(--info-color);
-      color: white;
-    }
-    
-    .action-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 3px 5px rgba(0,0,0,0.1);
-    }
-    
-    .pagination-container {
-      margin-top: 25px;
-    }
-    
-    .pagination .page-link {
-      color: var(--primary-color);
-      border-color: var(--light-color);
-    }
-    
-    .pagination .page-item.active .page-link {
-      background-color: var(--secondary-color);
-      border-color: var(--secondary-color);
-      color: white;
-    }
-    
-    .products-count {
-      color: var(--dark-color);
-      font-style: italic;
-      font-size: 14px;
-    }
-    
-  
-    .modal-content {
-      border-radius: 8px;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-    }
-    
-    .modal-header {
-      background-color: var(--light-color);
-      border-bottom: 2px solid var(--secondary-color);
-    }
-    
-    .modal-title {
-      color: var(--primary-color);
-      font-family: 'Playfair Display', serif;
-      font-weight: 600;
-    }
-    
-    .variant-offer-card {
-      background-color: #f8f9fa;
-      border-radius: 8px;
-      padding: 15px;
-      margin-bottom: 15px;
-      border-left: 3px solid var(--secondary-color);
-    }
-    
-    .variant-offer-label {
-      font-weight: 600;
-      color: var(--primary-color);
-      margin-bottom: 10px;
-    }
-    
-    .offer-input-group {
-      display: flex;
-      gap: 10px;
-    }
-    
+
     .remove-offer-btn {
-      background-color: var(--danger-color);
-      border: none;
-      color: white;
-      border-radius: 5px;
-      transition: all 0.2s ease;
+      width: 100%;
     }
-    
-    .remove-offer-btn:hover:not(:disabled) {
-      background-color: #bd2130;
-      transform: translateY(-2px);
-    }
-    
-    .remove-offer-btn:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-    }
-    
-    @media (max-width: 992px) {
-      .action-buttons {
-        flex-direction: column;
-        gap: 5px;
-      }
-      
-      .action-btn {
-        width: 100%;
-      }
-    }
-  </style>
+  }
 
-  <div class="content-wrapper">
-    <div class="container-fluid">
-      <div class="row g-0">
-        <%- include('../partials/admin/sidebar', { activePage: 'products' }) %>
+  @media (max-width: 400px) {
+    .main-content {
+      margin-left: 60px;
+      width: calc(100vw - 60px);
+      padding: 0.25rem;
+    }
 
-        <main class="col-md-9 col-lg-10 p-0 ps-0 pe-3 py-4">
-          <div class="page-header d-flex justify-content-between align-items-center flex-wrap">
-            <h1 class="page-title">Products</h1>
-            <div class="d-flex gap-3 mt-2 mt-md-0">
-              <form action="/admin/products" method="GET" class="search-form d-flex">
-                <div class="input-group">
-                  <input type="text" name="search" class="form-control" placeholder="Search by product name..." value="<%= searchQuery ? searchQuery : '' %>">
-                  <button class="btn search-btn" type="submit">
-                    <i class="fas fa-search"></i>
-                  </button>
-                  <% if (searchQuery) { %>
-                    <a href="/admin/products" class="btn clear-search-btn">
-                      <i class="fas fa-times"></i>
-                    </a>
-                  <% } %>
-                </div>
-              </form>
-              <a href="/admin/products/add" class="btn add-product-btn text-white">
-                <i class="fas fa-plus me-2"></i>Add Product
-              </a>
+    .page-title {
+      font-size: 1.125rem;
+    }
+
+    .search-input,
+    .search-btn,
+    .clear-search-btn {
+      padding: 6px 10px;
+      font-size: 12px;
+    }
+
+    .add-product-btn {
+      padding: 6px 12px;
+      font-size: 12px;
+    }
+  }
+
+  @media (max-width: 360px) {
+    .main-content {
+      margin-left: 55px;
+      width: calc(100vw - 55px);
+    }
+
+    .variant-container {
+      max-width: 120px;
+    }
+
+    .action-buttons {
+      min-width: 80px;
+    }
+  }
+
+  @media (max-width: 320px) {
+    .main-content {
+      margin-left: 50px;
+      width: calc(100vw - 50px);
+    }
+  }
+</style>
+
+<body>
+  <div class="admin-layout">
+    <%- include('../partials/admin/sidebar', { activePage: 'products' }) %>
+
+    <main class="main-content">
+      <!-- Page Header -->
+      <div class="page-header">
+        <h1 class="page-title">Products</h1>
+        <div class="header-actions">
+          <form action="/admin/products" method="GET" class="search-form">
+            <div class="search-input-group">
+              <input type="text" name="search" class="search-input" placeholder="Search by product name..." value="<%= searchQuery ? searchQuery : '' %>">
+              <button class="search-btn" type="submit">
+                <i class="fas fa-search"></i>
+              </button>
+              <% if (searchQuery) { %>
+                <a href="/admin/products" class="clear-search-btn">
+                  <i class="fas fa-times"></i>
+                </a>
+              <% } %>
             </div>
-          </div>
-
-          <div class="table-responsive product-card-table">
-            <table class="table table-borderless mb-0">
-              <thead>
-                <tr>
-                  <th>Image</th>
-                  <th>Product Details</th>
-                  <th>Variants</th>
-                  <th>Status</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                <% products.forEach(function(product) { %>
-                  <tr>
-                    <td>
-                      <% if (product.variants[0].productImage.length > 0) { %>
-                        <img src="<%= product.variants[0].productImage[0] %>" alt="<%= product.productName %>" class="product-image">
-                      <% } else { %>
-                        <div class="product-image d-flex align-items-center justify-content-center bg-light text-muted" style="font-size: 12px;">No Image</div>
-                      <% } %>
-                    </td>
-                    <td>
-                      <div class="product-name"><%= product.productName %></div>
-                      <div class="category-badge">
-                        <i class="fas fa-tag me-1"></i>
-                        <%= product.category && product.category.name ? product.category.name : 'No Category' %>
-                      </div>
-                    </td>
-                    <td>
-                      <div class="variant-container">
-                        <% product.variants.forEach(function(variant, index) { %>
-                          <div class="variant-card">
-                            <div class="variant-title">Variant <%= index + 1 %>: <%= variant.flavor %></div>
-                            <div class="variant-detail">
-                              <span class="variant-item"><i class="fas fa-cookie-bite me-1"></i><%= variant.sugarLevel %></span>
-                              <span class="variant-item"><i class="fas fa-weight me-1"></i><%= variant.weight %>g</span>
-                              <span class="variant-item"><i class="fas fa-box me-1"></i>Stock: <%= variant.stock_quantity %></span>
-                              <span class="variant-item"><i class="fas fa-rupee-sign me-1"></i><%= variant.salePrice.toFixed(2) %></span>
-                              <span class="variant-item <%= variant.productOffer ? 'text-success' : 'text-muted' %>"><i class="fas fa-percentage me-1"></i><%= variant.productOffer ? variant.productOffer + '%' : 'No Offer' %></span>
-                            </div>
-                          </div>
-                        <% }); %>
-                      </div>
-                    </td>
-                    <td>
-                      <div class="status-badge <%= product.isBlocked ? 'status-blocked' : 'status-active' %>">
-                        <%= product.isBlocked ? 'Blocked' : 'Active' %>
-                      </div>
-                    </td>
-                    <td>
-                      <div class="action-buttons">
-                        <a href="/admin/products/edit/<%= product._id %>" class="action-btn edit-btn">
-                          <i class="fas fa-edit me-1"></i> Edit
-                        </a>
-                        <button class="action-btn <%= product.isBlocked ? 'unblock-btn' : 'block-btn' %>" onclick="toggleStatus('<%= product._id %>', <%= product.isBlocked %>)">
-                          <i class="fas <%= product.isBlocked ? 'fa-unlock' : 'fa-ban' %> me-1"></i>
-                          <%= product.isBlocked ? 'Unblock' : 'Block' %>
-                        </button>
-                        <button class="action-btn offer-btn" onclick="openOfferModal('<%= product._id %>', '<%= encodeURIComponent(JSON.stringify(product.variants)) %>')" title="Manage Offers">
-                          <i class="fas fa-percentage me-1"></i> Offers
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                <% }); %>
-              </tbody>
-            </table>
-          </div>
-
-        
-          <div class="modal fade" id="offerModal" tabindex="-1" aria-labelledby="offerModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered">
-              <div class="modal-content">
-                <div class="modal-header">
-                  <h5 class="modal-title" id="offerModalLabel">Manage Product Offers</h5>
-                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                  <form id="offerForm">
-                    <div id="variantOfferContainer"></div>
-                  </form>
-                </div>
-                <div class="modal-footer">
-                  <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
-                  <button type="button" class="btn btn-primary" style="background-color: var(--secondary-color); border-color: var(--secondary-color);" onclick="submitOfferForm()">Save Changes</button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <% if (totalPages > 1) { %>
-            <div class="pagination-container">
-              <nav aria-label="Page navigation">
-                <ul class="pagination justify-content-center">
-                  <li class="page-item <%= currentPage === 1 ? 'disabled' : '' %>">
-                    <a class="page-link" href="/admin/products?page=<%= currentPage - 1 %>&limit=<%= limit %><%= searchQuery ? '&search=' + searchQuery : '' %>" aria-label="Previous">
-                      <span aria-hidden="true">«</span>
-                    </a>
-                  </li>
-                  
-                  <% for (let i = 1; i <= totalPages; i++) { %>
-                    <li class="page-item <%= currentPage === i ? 'active' : '' %>">
-                      <a class="page-link" href="/admin/products?page=<%= i %>&limit=<%= limit %><%= searchQuery ? '&search=' + searchQuery : '' %>"><%= i %></a>
-                    </li>
-                  <% } %>
-                  
-                  <li class="page-item <%= currentPage === totalPages ? 'disabled' : '' %>">
-                    <a class="page-link" href="/admin/products?page=<%= currentPage + 1 %>&limit=<%= limit %><%= searchQuery ? '&search=' + searchQuery : '' %>" aria-label="Next">
-                      <span aria-hidden="true">»</span>
-                    </a>
-                  </li>
-                </ul>
-              </nav>
-            </div>
-          <% } %>
-          
-          <div class="text-center mt-3">
-            <p class="products-count">Showing <%= products.length %> of <%= totalProducts %> products</p>
-          </div>
-
-        </main>
+          </form>
+          <a href="/admin/products/add" class="add-product-btn">
+            <i class="fas fa-plus"></i>
+            <span>Add Product</span>
+          </a>
+        </div>
       </div>
-    </div>
+
+      <!-- Products Table -->
+      <div class="table-container">
+        <div class="table-responsive">
+          <table class="product-table">
+            <thead>
+              <tr>
+                <th>Image</th>
+                <th>Product Details</th>
+                <th>Variants</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% products.forEach(function(product) { %>
+                <tr>
+                  <td>
+                    <% if (product.variants[0].productImage.length > 0) { %>
+                      <img src="<%= product.variants[0].productImage[0] %>" alt="<%= product.productName %>" class="product-image">
+                    <% } else { %>
+                      <div class="no-image">No Image</div>
+                    <% } %>
+                  </td>
+                  <td>
+                    <div class="product-name"><%= product.productName %></div>
+                    <div class="category-badge">
+                      <i class="fas fa-tag"></i>
+                      <span><%= product.category && product.category.name ? product.category.name : 'No Category' %></span>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="variant-container">
+                      <% product.variants.forEach(function(variant, index) { %>
+                        <div class="variant-card">
+                          <div class="variant-title">Variant <%= index + 1 %>: <%= variant.flavor %></div>
+                          <div class="variant-detail">
+                            <span class="variant-item"><i class="fas fa-cookie-bite"></i><%= variant.sugarLevel %></span>
+                            <span class="variant-item"><i class="fas fa-weight"></i><%= variant.weight %>g</span>
+                            <span class="variant-item"><i class="fas fa-box"></i><%= variant.stock_quantity %></span>
+                            <span class="variant-item"><i class="fas fa-rupee-sign"></i><%= variant.salePrice.toFixed(2) %></span>
+                            <span class="variant-item <%= variant.productOffer ? 'text-success' : 'text-muted' %>"><i class="fas fa-percentage"></i><%= variant.productOffer ? variant.productOffer + '%' : 'No Offer' %></span>
+                          </div>
+                        </div>
+                      <% }); %>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="status-badge <%= product.isBlocked ? 'status-blocked' : 'status-active' %>">
+                      <%= product.isBlocked ? 'Blocked' : 'Active' %>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="action-buttons">
+                      <a href="/admin/products/edit/<%= product._id %>" class="action-btn edit-btn">
+                        <i class="fas fa-edit"></i> Edit
+                      </a>
+                      <button class="action-btn <%= product.isBlocked ? 'unblock-btn' : 'block-btn' %>" onclick="toggleStatus('<%= product._id %>', <%= product.isBlocked %>)">
+                        <i class="fas <%= product.isBlocked ? 'fa-unlock' : 'fa-ban' %>"></i>
+                        <%= product.isBlocked ? 'Unblock' : 'Block' %>
+                      </button>
+                      <button class="action-btn offer-btn" onclick="openOfferModal('<%= product._id %>', '<%= encodeURIComponent(JSON.stringify(product.variants)) %>')" title="Manage Offers">
+                        <i class="fas fa-percentage"></i> Offers
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              <% }); %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Offer Modal -->
+      <div class="modal fade" id="offerModal" tabindex="-1" aria-labelledby="offerModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="offerModalLabel">Manage Product Offers</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <form id="offerForm">
+                <div id="variantOfferContainer"></div>
+              </form>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+              <button type="button" class="btn btn-primary" style="background-color: var(--secondary-color); border-color: var(--secondary-color);" onclick="submitOfferForm()">Save Changes</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pagination -->
+      <% if (totalPages > 1) { %>
+        <div class="pagination-wrapper">
+          <ul class="pagination">
+            <li class="page-item <%= currentPage === 1 ? 'disabled' : '' %>">
+              <a class="page-link" href="/admin/products?page=<%= currentPage - 1 %>&limit=<%= limit %><%= searchQuery ? '&search=' + searchQuery : '' %>" aria-label="Previous">
+                <span aria-hidden="true">«</span>
+              </a>
+            </li>
+            
+            <% for (let i = 1; i <= totalPages; i++) { %>
+              <li class="page-item <%= currentPage === i ? 'active' : '' %>">
+                <a class="page-link" href="/admin/products?page=<%= i %>&limit=<%= limit %><%= searchQuery ? '&search=' + searchQuery : '' %>"><%= i %></a>
+              </li>
+            <% } %>
+            
+            <li class="page-item <%= currentPage === totalPages ? 'disabled' : '' %>">
+              <a class="page-link" href="/admin/products?page=<%= currentPage + 1 %>&limit=<%= limit %><%= searchQuery ? '&search=' + searchQuery : '' %>" aria-label="Next">
+                <span aria-hidden="true">»</span>
+              </a>
+            </li>
+          </ul>
+        </div>
+      <% } %>
+      
+      <!-- Products Count -->
+      <div class="products-count">
+        <p>Showing <%= products.length %> of <%= totalProducts %> products</p>
+      </div>
+    </main>
   </div>
 
+  <!-- Scripts -->
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="https://kit.fontawesome.com/your-font-awesome-kit.js"></script> 
+  <script src="https://kit.fontawesome.com/your-font-awesome-kit.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       const urlParams = new URLSearchParams(window.location.search);
@@ -584,7 +926,7 @@
             '</span>' +
           '</div>' +
           '<div class="offer-input-group">' +
-            '<div class="input-group">' +
+            '<div class="input-group flex-1">' +
               '<span class="input-group-text"><i class="fas fa-percentage"></i></span>' +
               '<input type="number" class="form-control" name="variants[' + index + '][productOffer]" value="' + (variant.productOffer || 0) + '" min="0" max="100" step="1" placeholder="Enter offer percentage">' +
               '<input type="hidden" name="variants[' + index + '][index]" value="' + index + '">' +

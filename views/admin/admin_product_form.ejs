@@ -1,34 +1,576 @@
 <%- include('../partials/admin/header') %>
 
+<style>
+  /* CSS Variables */
+  :root {
+    --primary-color: #6a3e20;
+    --secondary-color: #c49b63;
+    --light-color: #f8f5f0;
+    --dark-color: #2c1810;
+    --success-color: #28a745;
+    --danger-color: #dc3545;
+    --info-color: #17a2b8;
+    --warning-color: #ffc107;
+  }
+
+  /* Base Layout */
+  .admin-layout {
+    display: flex;
+    min-height: 100vh;
+    background-color: #f9f9f9;
+  }
+
+  .main-content {
+    flex: 1;
+    margin-left: 250px;
+    padding: 1.5rem;
+    width: calc(100vw - 250px);
+    min-width: 0;
+    box-sizing: border-box;
+  }
+
+  /* Page Header */
+  .page-header {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    border-bottom: 2px solid var(--secondary-color);
+  }
+
+  .page-title {
+    font-family: 'Playfair Display', serif;
+    color: var(--primary-color);
+    margin: 0;
+    font-weight: 600;
+    font-size: 1.75rem;
+  }
+
+  /* Alert Styles */
+  .alert {
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+  }
+
+  .alert-danger {
+    background-color: rgba(220, 53, 69, 0.1);
+    border: 1px solid rgba(220, 53, 69, 0.2);
+    color: #721c24;
+  }
+
+  /* Form Container */
+  .form-container {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 15px rgba(0,0,0,0.05);
+    padding: 2rem;
+    margin-bottom: 1.5rem;
+  }
+
+  /* Form Elements */
+  .form-label {
+    font-weight: 600;
+    color: var(--dark-color);
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+  }
+
+  .form-control,
+  .form-select {
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    padding: 0.75rem;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    margin-bottom: 1rem;
+  }
+
+  .form-control:focus,
+  .form-select:focus {
+    border-color: var(--secondary-color);
+    box-shadow: 0 0 0 0.2rem rgba(196, 155, 99, 0.25);
+    outline: none;
+  }
+
+  .form-control:invalid,
+  .form-select:invalid {
+    border-color: var(--danger-color);
+  }
+
+  /* Variant Section */
+  .variants-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 2rem 0 1rem 0;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--light-color);
+  }
+
+  .variants-title {
+    font-family: 'Playfair Display', serif;
+    color: var(--primary-color);
+    font-weight: 600;
+    font-size: 1.5rem;
+    margin: 0;
+  }
+
+  .variant-section {
+    background-color: #f8f9fa;
+    border: 2px solid var(--light-color);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    position: relative;
+    transition: all 0.3s ease;
+  }
+
+  .variant-section:hover {
+    border-color: var(--secondary-color);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  }
+
+  .variant-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #dee2e6;
+  }
+
+  .variant-title {
+    font-weight: 600;
+    color: var(--primary-color);
+    font-size: 1.1rem;
+    margin: 0;
+  }
+
+  .remove-variant {
+    background-color: var(--danger-color);
+    border: none;
+    color: white;
+    border-radius: 6px;
+    padding: 0.5rem 1rem;
+    font-size: 0.8rem;
+    transition: all 0.3s ease;
+    cursor: pointer;
+  }
+
+  .remove-variant:hover:not(:disabled) {
+    background-color: #bd2130;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+  }
+
+  .remove-variant:disabled {
+    background-color: #6c757d;
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+
+  /* Form Grid Layout */
+  .variant-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Image Upload Section */
+  .image-upload-section {
+    grid-column: 1 / -1;
+    background-color: white;
+    border-radius: 8px;
+    padding: 1rem;
+    border: 2px dashed var(--light-color);
+    transition: all 0.3s ease;
+  }
+
+  .image-upload-section:hover {
+    border-color: var(--secondary-color);
+    background-color: rgba(196, 155, 99, 0.05);
+  }
+
+  .image-upload {
+    border: 2px dashed var(--secondary-color);
+    border-radius: 8px;
+    padding: 1rem;
+    background-color: rgba(196, 155, 99, 0.05);
+    transition: all 0.3s ease;
+  }
+
+  .image-upload:hover {
+    background-color: rgba(196, 155, 99, 0.1);
+  }
+
+  /* Preview Container */
+  .preview-container {
+    margin-top: 1rem;
+    padding: 1rem;
+    background-color: white;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+  }
+
+  .preview-images {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 1rem;
+    margin-top: 0.5rem;
+  }
+
+  .preview-image {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+  }
+
+  .preview-image:hover {
+    transform: scale(1.05);
+    border-color: var(--secondary-color);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  }
+
+  /* Buttons */
+  .btn {
+    border-radius: 6px;
+    padding: 0.75rem 1.5rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+  }
+
+  .btn-primary {
+    background-color: var(--secondary-color);
+    color: white;
+  }
+
+  .btn-primary:hover {
+    background-color: var(--primary-color);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  }
+
+  .btn-success {
+    background-color: var(--success-color);
+    color: white;
+  }
+
+  .btn-success:hover {
+    background-color: #218838;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  }
+
+  .btn-secondary {
+    background-color: #6c757d;
+    color: white;
+  }
+
+  .btn-secondary:hover {
+    background-color: #5a6268;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  }
+
+  .form-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem;
+    flex-wrap: wrap;
+  }
+
+  /* Modal Styles */
+  .modal-content {
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    border: none;
+  }
+
+  .modal-header {
+    background-color: var(--light-color);
+    border-bottom: 2px solid var(--secondary-color);
+    border-radius: 12px 12px 0 0;
+  }
+
+  .modal-title {
+    color: var(--primary-color);
+    font-family: 'Playfair Display', serif;
+    font-weight: 600;
+  }
+
+  .img-container {
+    max-height: 400px;
+    overflow: auto;
+    border-radius: 8px;
+  }
+
+  #imageToCrop {
+    max-width: 100%;
+    border-radius: 8px;
+  }
+
+  /* Responsive Design */
+  @media (max-width: 1200px) {
+    .main-content {
+      margin-left: 200px;
+      width: calc(100vw - 200px);
+      padding: 1.25rem;
+    }
+
+    .variant-grid {
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    }
+  }
+
+  @media (max-width: 992px) {
+    .main-content {
+      margin-left: 180px;
+      width: calc(100vw - 180px);
+      padding: 1rem;
+    }
+
+    .form-container {
+      padding: 1.5rem;
+    }
+
+    .variant-grid {
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 0.75rem;
+    }
+
+    .variant-section {
+      padding: 1.25rem;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .main-content {
+      margin-left: 80px;
+      width: calc(100vw - 80px);
+      padding: 0.75rem;
+    }
+
+    .page-title {
+      font-size: 1.5rem;
+    }
+
+    .form-container {
+      padding: 1rem;
+    }
+
+    .variant-grid {
+      grid-template-columns: 1fr;
+      gap: 0.5rem;
+    }
+
+    .variant-section {
+      padding: 1rem;
+    }
+
+    .variant-header {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0.5rem;
+    }
+
+    .variants-header {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 1rem;
+    }
+
+    .form-actions {
+      flex-direction: column;
+    }
+
+    .btn {
+      width: 100%;
+      justify-content: center;
+    }
+
+    .preview-images {
+      grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    }
+
+    .preview-image {
+      width: 80px;
+      height: 80px;
+    }
+  }
+
+  @media (max-width: 576px) {
+    .main-content {
+      margin-left: 70px;
+      width: calc(100vw - 70px);
+      padding: 0.5rem;
+    }
+
+    .page-header {
+      padding: 1rem;
+    }
+
+    .page-title {
+      font-size: 1.25rem;
+    }
+
+    .form-container {
+      padding: 0.75rem;
+    }
+
+    .variant-section {
+      padding: 0.75rem;
+    }
+
+    .form-control,
+    .form-select {
+      padding: 0.5rem;
+      font-size: 0.85rem;
+    }
+
+    .btn {
+      padding: 0.5rem 1rem;
+      font-size: 0.85rem;
+    }
+
+    .variants-title {
+      font-size: 1.25rem;
+    }
+
+    .variant-title {
+      font-size: 1rem;
+    }
+
+    .preview-images {
+      grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+    }
+
+    .preview-image {
+      width: 60px;
+      height: 60px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .main-content {
+      margin-left: 65px;
+      width: calc(100vw - 65px);
+      padding: 0.375rem;
+    }
+
+    .modal-dialog {
+      margin: 0.5rem;
+    }
+
+    .img-container {
+      max-height: 250px;
+    }
+  }
+
+  @media (max-width: 400px) {
+    .main-content {
+      margin-left: 60px;
+      width: calc(100vw - 60px);
+      padding: 0.25rem;
+    }
+
+    .page-title {
+      font-size: 1.125rem;
+    }
+
+    .form-container {
+      padding: 0.5rem;
+    }
+
+    .variant-section {
+      padding: 0.5rem;
+    }
+
+    .form-control,
+    .form-select {
+      padding: 0.375rem;
+      font-size: 0.8rem;
+    }
+
+    .btn {
+      padding: 0.375rem 0.75rem;
+      font-size: 0.8rem;
+    }
+  }
+
+  @media (max-width: 360px) {
+    .main-content {
+      margin-left: 55px;
+      width: calc(100vw - 55px);
+    }
+
+    .preview-images {
+      grid-template-columns: repeat(auto-fill, minmax(50px, 1fr));
+    }
+
+    .preview-image {
+      width: 50px;
+      height: 50px;
+    }
+  }
+
+  @media (max-width: 320px) {
+    .main-content {
+      margin-left: 50px;
+      width: calc(100vw - 50px);
+    }
+  }
+</style>
+
 <body>
-  <div class="content-wrapper">
-    <div class="container-fluid">
-      <div class="row">
-        <%- include('../partials/admin/sidebar', { activePage: 'products' }) %>
+  <div class="admin-layout">
+    <%- include('../partials/admin/sidebar', { activePage: 'products' }) %>
 
-        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
-          <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-            <h1 class="h2"><%= product ? 'Edit Product' : 'Add Product' %></h1>
-          </div>
+    <main class="main-content">
+      <!-- Page Header -->
+      <div class="page-header">
+        <h1 class="page-title"><%= product ? 'Edit Product' : 'Add Product' %></h1>
+      </div>
 
-          <% if (errors && errors.length > 0) { %>
-            <div class="alert alert-danger">
-              <% errors.forEach(error => { %>
-                <p><%= error.msg %></p>
-              <% }) %>
-            </div>
-          <% } %>
+      <!-- Error Messages -->
+      <% if (errors && errors.length > 0) { %>
+        <div class="alert alert-danger">
+          <% errors.forEach(error => { %>
+            <p><%= error.msg %></p>
+          <% }) %>
+        </div>
+      <% } %>
 
-          <form id="productForm" action="<%= product ? '/admin/products/edit/' + product._id : '/admin/products/add' %>" method="POST" enctype="multipart/form-data">
-            <div class="mb-3">
+      <!-- Product Form -->
+      <div class="form-container">
+        <form id="productForm" action="<%= product ? '/admin/products/edit/' + product._id : '/admin/products/add' %>" method="POST" enctype="multipart/form-data">
+          
+          <!-- Basic Product Information -->
+          <div class="variant-grid">
+            <div class="form-group">
               <label for="productName" class="form-label">Product Name</label>
               <input type="text" class="form-control" id="productName" name="productName" value="<%= product ? product.productName : '' %>" required>
             </div>
-            <div class="mb-3">
-              <label for="description" class="form-label">Description</label>
-              <textarea class="form-control" id="description" name="description" rows="4" required><%= product ? product.description : '' %></textarea>
-            </div>
-            <div class="mb-3">
+            
+            <div class="form-group">
               <label for="category" class="form-label">Category</label>
               <select class="form-select" id="category" name="category" required>
                 <option value="">Select Category</option>
@@ -37,14 +579,36 @@
                 <% }) %>
               </select>
             </div>
+          </div>
 
-            <h4>Variant Details</h4>
-            <div id="variantsContainer">
-              <% if (product && product.variants && product.variants.length > 0) { %>
-                <% product.variants.forEach((variant, index) => { %>
-                  <div class="variant-section mb-4 border p-3 position-relative" data-index="<%= index %>">
-                    <button type="button" class="btn btn-danger btn-sm position-absolute top-0 end-0 remove-variant" <%= product.variants.length === 1 ? 'disabled' : '' %>>Remove</button>
-                    <div class="mb-3">
+          <div class="form-group">
+            <label for="description" class="form-label">Description</label>
+            <textarea class="form-control" id="description" name="description" rows="4" required><%= product ? product.description : '' %></textarea>
+          </div>
+
+          <!-- Variants Section -->
+          <div class="variants-header">
+            <h4 class="variants-title">Product Variants</h4>
+            <button type="button" id="addVariant" class="btn btn-success">
+              <i class="fas fa-plus"></i>
+              Add Variant
+            </button>
+          </div>
+
+          <div id="variantsContainer">
+            <% if (product && product.variants && product.variants.length > 0) { %>
+              <% product.variants.forEach((variant, index) => { %>
+                <div class="variant-section" data-index="<%= index %>">
+                  <div class="variant-header">
+                    <h5 class="variant-title">Variant <%= index + 1 %></h5>
+                    <button type="button" class="remove-variant" <%= product.variants.length === 1 ? 'disabled' : '' %>>
+                      <i class="fas fa-trash"></i>
+                      Remove
+                    </button>
+                  </div>
+
+                  <div class="variant-grid">
+                    <div class="form-group">
                       <label class="form-label">Flavor</label>
                       <select class="form-select" name="variants[<%= index %>][flavor]" required>
                         <option value="">Select Flavor</option>
@@ -53,7 +617,8 @@
                         <option value="Peanut" <%= variant.flavor === 'Peanut' ? 'selected' : '' %>>Peanut</option>
                       </select>
                     </div>
-                    <div class="mb-3">
+
+                    <div class="form-group">
                       <label class="form-label">Sugar Level</label>
                       <select class="form-select" name="variants[<%= index %>][sugarLevel]" required>
                         <option value="">Select Sugar Level</option>
@@ -62,7 +627,8 @@
                         <option value="Sugar-Free" <%= variant.sugarLevel === 'Sugar-Free' ? 'selected' : '' %>>Sugar-Free</option>
                       </select>
                     </div>
-                    <div class="mb-3">
+
+                    <div class="form-group">
                       <label class="form-label">Weight (grams)</label>
                       <select class="form-select" name="variants[<%= index %>][weight]" required>
                         <option value="">Select Weight</option>
@@ -71,40 +637,56 @@
                         <option value="200" <%= variant.weight === 200 ? 'selected' : '' %>>200</option>
                       </select>
                     </div>
-                    <div class="mb-3">
+
+                    <div class="form-group">
                       <label class="form-label">Stock Quantity</label>
                       <input type="number" class="form-control" name="variants[<%= index %>][stock_quantity]" value="<%= variant.stock_quantity %>" min="0" required>
                     </div>
-                    <div class="mb-3">
+
+                    <div class="form-group">
                       <label class="form-label">Regular Price</label>
                       <input type="number" class="form-control" name="variants[<%= index %>][regularPrice]" value="<%= variant.regularPrice %>" min="0" step="0.01" required>
                     </div>
-                    <div class="mb-3">
+
+                    <div class="form-group">
                       <label class="form-label">Sale Price</label>
                       <input type="number" class="form-control" name="variants[<%= index %>][salePrice]" value="<%= variant.salePrice %>" min="0" step="0.01" required>
                     </div>
-                    <div class="mb-3">
+
+                    <div class="form-group">
                       <label class="form-label">Offer (%)</label>
                       <input type="number" class="form-control" name="variants[<%= index %>][productOffer]" value="<%= variant.productOffer || 0 %>" min="0" max="100" step="1" required>
                     </div>
-                    <div class="mb-3">
+
+                    <div class="image-upload-section">
                       <label class="form-label">Product Images (Minimum 3)</label>
                       <input type="file" class="form-control image-upload" name="variants[<%= index %>][images]" accept="image/*" multiple>
-                      <div class="preview-container mt-2" data-variant-index="<%= index %>">
+                      <div class="preview-container" data-variant-index="<%= index %>">
                         <% if (variant.productImage && variant.productImage.length > 0) { %>
-                          <p>Current Images:</p>
-                          <% variant.productImage.forEach((image, imgIndex) => { %>
-                            <img src="<%= image %>" alt="Product Image" class="preview-image" data-variant-index="<%= index %>" data-image-index="<%= imgIndex %>" style="width: 100px; height: 100px; object-fit: cover; margin-right: 10px; cursor: pointer;">
-                          <% }) %>
+                          <p><strong>Current Images:</strong></p>
+                          <div class="preview-images">
+                            <% variant.productImage.forEach((image, imgIndex) => { %>
+                              <img src="<%= image %>" alt="Product Image" class="preview-image" data-variant-index="<%= index %>" data-image-index="<%= imgIndex %>">
+                            <% }) %>
+                          </div>
                         <% } %>
                       </div>
                     </div>
                   </div>
-                <% }) %>
-              <% } else { %>
-                <div class="variant-section mb-4 border p-3 position-relative" data-index="0">
-                  <button type="button" class="btn btn-danger btn-sm position-absolute top-0 end-0 remove-variant" disabled>Remove</button>
-                  <div class="mb-3">
+                </div>
+              <% }) %>
+            <% } else { %>
+              <div class="variant-section" data-index="0">
+                <div class="variant-header">
+                  <h5 class="variant-title">Variant 1</h5>
+                  <button type="button" class="remove-variant" disabled>
+                    <i class="fas fa-trash"></i>
+                    Remove
+                  </button>
+                </div>
+
+                <div class="variant-grid">
+                  <div class="form-group">
                     <label class="form-label">Flavor</label>
                     <select class="form-select" name="variants[0][flavor]" required>
                       <option value="">Select Flavor</option>
@@ -113,7 +695,8 @@
                       <option value="Peanut">Peanut</option>
                     </select>
                   </div>
-                  <div class="mb-3">
+
+                  <div class="form-group">
                     <label class="form-label">Sugar Level</label>
                     <select class="form-select" name="variants[0][sugarLevel]" required>
                       <option value="">Select Sugar Level</option>
@@ -122,7 +705,8 @@
                       <option value="Sugar-Free">Sugar-Free</option>
                     </select>
                   </div>
-                  <div class="mb-3">
+
+                  <div class="form-group">
                     <label class="form-label">Weight (grams)</label>
                     <select class="form-select" name="variants[0][weight]" required>
                       <option value="">Select Weight</option>
@@ -131,63 +715,81 @@
                       <option value="200">200</option>
                     </select>
                   </div>
-                  <div class="mb-3">
+
+                  <div class="form-group">
                     <label class="form-label">Stock Quantity</label>
                     <input type="number" class="form-control" name="variants[0][stock_quantity]" min="0" required>
                   </div>
-                  <div class="mb-3">
+
+                  <div class="form-group">
                     <label class="form-label">Regular Price</label>
                     <input type="number" class="form-control" name="variants[0][regularPrice]" min="0" step="0.01" required>
                   </div>
-                  <div class="mb-3">
+
+                  <div class="form-group">
                     <label class="form-label">Sale Price</label>
                     <input type="number" class="form-control" name="variants[0][salePrice]" min="0" step="0.01" required>
                   </div>
-                  <div class="mb-3">
+
+                  <div class="form-group">
                     <label class="form-label">Offer (%)</label>
                     <input type="number" class="form-control" name="variants[0][productOffer]" value="0" min="0" max="100" step="1" required>
                   </div>
-                  <div class="mb-3">
+
+                  <div class="image-upload-section">
                     <label class="form-label">Product Images (Minimum 3)</label>
                     <input type="file" class="form-control image-upload" name="variants[0][images]" accept="image/*" multiple required>
-                    <div class="preview-container mt-2" data-variant-index="0"></div>
+                    <div class="preview-container" data-variant-index="0"></div>
                   </div>
-                </div>
-              <% } %>
-            </div>
-            <button type="button" id="addVariant" class="btn btn-success mb-3">Add Variant</button>
-            <button type="submit" class="btn btn-primary"><%= product ? 'Update Product' : 'Add Product' %></button>
-          </form>
-          <a href="/admin/products" class="btn btn-secondary mt-3">Back to Product Listing</a>
-
-          <div class="modal fade" id="cropperModal" tabindex="-1" aria-labelledby="cropperModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-lg">
-              <div class="modal-content">
-                <div class="modal-header">
-                  <h5 class="modal-title" id="cropperModalLabel">Crop Image</h5>
-                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                  <div class="img-container">
-                    <img id="imageToCrop" src="" alt="Image to crop">
-                  </div>
-                </div>
-                <div class="modal-footer">
-                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                  <button type="button" class="btn btn-primary" id="cropImage">Crop & Save</button>
                 </div>
               </div>
+            <% } %>
+          </div>
+
+          <!-- Form Actions -->
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary">
+              <i class="fas fa-save"></i>
+              <%= product ? 'Update Product' : 'Add Product' %>
+            </button>
+            <a href="/admin/products" class="btn btn-secondary">
+              <i class="fas fa-arrow-left"></i>
+              Back to Products
+            </a>
+          </div>
+        </form>
+      </div>
+
+      <!-- Image Cropper Modal -->
+      <div class="modal fade" id="cropperModal" tabindex="-1" aria-labelledby="cropperModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="cropperModalLabel">Crop Image</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <div class="img-container">
+                <img id="imageToCrop" src="/placeholder.svg" alt="Image to crop">
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+              <button type="button" class="btn btn-primary" id="cropImage">Crop & Save</button>
             </div>
           </div>
-        </main>
+        </div>
       </div>
-    </div>
+    </main>
   </div>
 
+  <!-- Scripts -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://kit.fontawesome.com/your-font-awesome-kit.js"></script>
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
@@ -198,33 +800,39 @@
       let currentImageIndex = null;
       let croppedBlobs = {};
 
+      // Image upload preview handler
       document.getElementById('variantsContainer').addEventListener('change', (e) => {
         if (e.target.classList.contains('image-upload')) {
           const files = e.target.files;
           const variantIndex = e.target.closest('.variant-section').dataset.index;
           const previewContainer = document.querySelector(`.preview-container[data-variant-index="${variantIndex}"]`);
-          previewContainer.innerHTML = '<p>Preview:</p>';
-
-          Array.from(files).forEach((file, index) => {
-            const reader = new FileReader();
-            reader.onload = (event) => {
-              const img = document.createElement('img');
-              img.src = event.target.result;
-              img.className = 'preview-image';
-              img.dataset.variantIndex = variantIndex;
-              img.dataset.imageIndex = index;
-              img.style.width = '100px';
-              img.style.height = '100px';
-              img.style.objectFit = 'cover';
-              img.style.marginRight = '10px';
-              img.style.cursor = 'pointer';
-              previewContainer.appendChild(img);
-            };
-            reader.readAsDataURL(file);
-          });
+          
+          // Clear existing preview
+          previewContainer.innerHTML = '<p><strong>Preview:</strong></p>';
+          
+          if (files.length > 0) {
+            const previewImages = document.createElement('div');
+            previewImages.className = 'preview-images';
+            
+            Array.from(files).forEach((file, index) => {
+              const reader = new FileReader();
+              reader.onload = (event) => {
+                const img = document.createElement('img');
+                img.src = event.target.result;
+                img.className = 'preview-image';
+                img.dataset.variantIndex = variantIndex;
+                img.dataset.imageIndex = index;
+                previewImages.appendChild(img);
+              };
+              reader.readAsDataURL(file);
+            });
+            
+            previewContainer.appendChild(previewImages);
+          }
         }
       });
 
+      // Image click handler for cropping
       document.getElementById('variantsContainer').addEventListener('click', (e) => {
         if (e.target.classList.contains('preview-image')) {
           currentVariantIndex = e.target.dataset.variantIndex;
@@ -257,6 +865,7 @@
         }
       });
 
+      // Crop image handler
       document.getElementById('cropImage').addEventListener('click', () => {
         if (cropper) {
           const canvas = cropper.getCroppedCanvas({
@@ -281,14 +890,16 @@
         }
       });
 
+      // Form submission handler
       document.getElementById('productForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         const variantSections = document.querySelectorAll('.variant-section');
         let errors = [];
 
+        // Validate image requirements
         variantSections.forEach((section, index) => {
-          const fileInput = section.querySelector(`input[name="variants[${index}][images]"]`);
-          if (fileInput.files.length > 0 && fileInput.files.length < 3) {
+          const fileInput = section.querySelector(`input[name*="[images]"]`);
+          if (fileInput && fileInput.files.length > 0 && fileInput.files.length < 3) {
             errors.push(`Variant ${index + 1} must have at least 3 images if uploading new images.`);
           }
         });
@@ -306,6 +917,7 @@
         const form = e.target;
         const formData = new FormData(form);
 
+        // Add cropped images to form data
         Object.keys(croppedBlobs).forEach(variantIndex => {
           Object.keys(croppedBlobs[variantIndex]).forEach(imageIndex => {
             const blob = croppedBlobs[variantIndex][imageIndex];
@@ -318,11 +930,20 @@
             method: 'POST',
             body: formData
           });
+          
           if (response.ok) {
-            window.location.href = '/admin/products';
+            Swal.fire({
+              title: 'Success!',
+              text: 'Product saved successfully.',
+              icon: 'success',
+              timer: 2000,
+              showConfirmButton: false
+            }).then(() => {
+              window.location.href = '/admin/products';
+            });
           } else {
             Swal.fire({
-              title: 'Error',
+              title: 'Error!',
               text: 'Failed to save product',
               icon: 'error',
               confirmButtonText: 'OK'
@@ -330,7 +951,7 @@
           }
         } catch (error) {
           Swal.fire({
-            title: 'Error',
+            title: 'Error!',
             text: 'An error occurred while saving the product',
             icon: 'error',
             confirmButtonText: 'OK'
@@ -338,60 +959,77 @@
         }
       });
 
+      // Add variant handler
       document.getElementById('addVariant').addEventListener('click', () => {
         const container = document.getElementById('variantsContainer');
         const variantSection = document.createElement('div');
-        variantSection.className = 'variant-section mb-4 border p-3 position-relative';
+        variantSection.className = 'variant-section';
         variantSection.dataset.index = variantIndex;
         variantSection.innerHTML = `
-          <button type="button" class="btn btn-danger btn-sm position-absolute top-0 end-0 remove-variant">Remove</button>
-          <div class="mb-3">
-            <label class="form-label">Flavor</label>
-            <select class="form-select" name="variants[${variantIndex}][flavor]" required>
-              <option value="">Select Flavor</option>
-              <option value="Almond">Almond</option>
-              <option value="Caramel">Caramel</option>
-              <option value="Peanut">Peanut</option>
-            </select>
+          <div class="variant-header">
+            <h5 class="variant-title">Variant ${variantIndex + 1}</h5>
+            <button type="button" class="remove-variant">
+              <i class="fas fa-trash"></i>
+              Remove
+            </button>
           </div>
-          <div class="mb-3">
-            <label class="form-label">Sugar Level</label>
-            <select class="form-select" name="variants[${variantIndex}][sugarLevel]" required>
-              <option value="">Select Sugar Level</option>
-              <option value="Low">Low</option>
-              <option value="Medium">Medium</option>
-              <option value="Sugar-Free">Sugar-Free</option>
-            </select>
-          </div>
-          <div class="mb-3">
-            <label class="form-label">Weight (grams)</label>
-            <select class="form-select" name="variants[${variantIndex}][weight]" required>
-              <option value="">Select Weight</option>
-              <option value="50">50</option>
-              <option value="100">100</option>
-              <option value="200">200</option>
-            </select>
-          </div>
-          <div class="mb-3">
-            <label class="form-label">Stock Quantity</label>
-            <input type="number" class="form-control" name="variants[${variantIndex}][stock_quantity]" min="0" required>
-          </div>
-          <div class="mb-3">
-            <label class="form-label">Regular Price</label>
-            <input type="number" class="form-control" name="variants[${variantIndex}][regularPrice]" min="0" step="0.01" required>
-          </div>
-          <div class="mb-3">
-            <label class="form-label">Sale Price</label>
-            <input type="number" class="form-control" name="variants[${variantIndex}][salePrice]" min="0" step="0.01" required>
-          </div>
-          <div class="mb-3">
-            <label class="form-label">Offer (%)</label>
-            <input type="number" class="form-control" name="variants[${variantIndex}][productOffer]" value="0" min="0" max="100" step="1" required>
-          </div>
-          <div class="mb-3">
-            <label class="form-label">Product Images (Minimum 3)</label>
-            <input type="file" class="form-control image-upload" name="variants[${variantIndex}][images]" accept="image/*" multiple required>
-            <div class="preview-container mt-2" data-variant-index="${variantIndex}"></div>
+
+          <div class="variant-grid">
+            <div class="form-group">
+              <label class="form-label">Flavor</label>
+              <select class="form-select" name="variants[${variantIndex}][flavor]" required>
+                <option value="">Select Flavor</option>
+                <option value="Almond">Almond</option>
+                <option value="Caramel">Caramel</option>
+                <option value="Peanut">Peanut</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Sugar Level</label>
+              <select class="form-select" name="variants[${variantIndex}][sugarLevel]" required>
+                <option value="">Select Sugar Level</option>
+                <option value="Low">Low</option>
+                <option value="Medium">Medium</option>
+                <option value="Sugar-Free">Sugar-Free</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Weight (grams)</label>
+              <select class="form-select" name="variants[${variantIndex}][weight]" required>
+                <option value="">Select Weight</option>
+                <option value="50">50</option>
+                <option value="100">100</option>
+                <option value="200">200</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Stock Quantity</label>
+              <input type="number" class="form-control" name="variants[${variantIndex}][stock_quantity]" min="0" required>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Regular Price</label>
+              <input type="number" class="form-control" name="variants[${variantIndex}][regularPrice]" min="0" step="0.01" required>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Sale Price</label>
+              <input type="number" class="form-control" name="variants[${variantIndex}][salePrice]" min="0" step="0.01" required>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Offer (%)</label>
+              <input type="number" class="form-control" name="variants[${variantIndex}][productOffer]" value="0" min="0" max="100" step="1" required>
+            </div>
+
+            <div class="image-upload-section">
+              <label class="form-label">Product Images (Minimum 3)</label>
+              <input type="file" class="form-control image-upload" name="variants[${variantIndex}][images]" accept="image/*" multiple required>
+              <div class="preview-container" data-variant-index="${variantIndex}"></div>
+            </div>
           </div>
         `;
         container.appendChild(variantSection);
@@ -399,13 +1037,17 @@
         variantIndex++;
       });
 
+      // Remove variant handler
       document.getElementById('variantsContainer').addEventListener('click', (e) => {
-        if (e.target.classList.contains('remove-variant')) {
-          const variantSection = e.target.closest('.variant-section');
+        if (e.target.classList.contains('remove-variant') || e.target.closest('.remove-variant')) {
+          const button = e.target.classList.contains('remove-variant') ? e.target : e.target.closest('.remove-variant');
+          const variantSection = button.closest('.variant-section');
           const index = variantSection.dataset.index;
+          
           if (croppedBlobs[index]) {
             delete croppedBlobs[index];
           }
+          
           variantSection.remove();
           updateRemoveButtons();
           reindexVariants();
@@ -423,38 +1065,42 @@
       function reindexVariants() {
         const variantSections = document.querySelectorAll('.variant-section');
         const newCroppedBlobs = {};
+        
         variantSections.forEach((section, index) => {
           section.dataset.index = index;
+          
+          // Update variant title
+          const title = section.querySelector('.variant-title');
+          title.textContent = `Variant ${index + 1}`;
+          
+          // Update input names
           const inputs = section.querySelectorAll('input, select');
           inputs.forEach(input => {
             const name = input.name.replace(/variants\[\d+\]/, `variants[${index}]`);
             input.name = name;
           });
+          
+          // Update preview container
           const previewContainer = section.querySelector('.preview-container');
           previewContainer.dataset.variantIndex = index;
+          
+          // Update preview images
           const previewImages = section.querySelectorAll('.preview-image');
           previewImages.forEach(img => {
             img.dataset.variantIndex = index;
           });
+          
+          // Update cropped blobs
           if (croppedBlobs[section.dataset.index]) {
             newCroppedBlobs[index] = croppedBlobs[section.dataset.index];
           }
         });
+        
         croppedBlobs = newCroppedBlobs;
         variantIndex = variantSections.length;
       }
     });
   </script>
-
-  <style>
-    .img-container {
-      max-height: 400px;
-      overflow: auto;
-    }
-    #imageToCrop {
-      max-width: 100%;
-    }
-  </style>
 
   <%- include('../partials/admin/footer') %>
 </body>

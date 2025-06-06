@@ -1,292 +1,719 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Categories - Admin Panel</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        /* Base styles */
+        .content-wrapper {
+            margin-left: 250px;
+            padding: 20px;
+            margin-top: 60px;
+            background-color: #f8f9fa;
+            min-height: calc(100vh - 60px);
+            transition: margin-left 0.3s ease;
+        }
+
+        .table th, .table td {
+            vertical-align: middle;
+            padding: 12px;
+        }
+
+        .category-image {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 5px;
+            flex-wrap: nowrap;
+        }
+
+        /* Card layout for mobile */
+        .category-card {
+            display: none;
+            border: 1px solid #dee2e6;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            padding: 20px;
+            background: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .category-card-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .category-card-image {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 12px;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+
+        .category-card-info {
+            flex: 1;
+        }
+
+        .category-name {
+            font-weight: bold;
+            font-size: 1.2em;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .category-status {
+            display: inline-block;
+        }
+
+        .category-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .detail-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .detail-label {
+            font-size: 0.85em;
+            color: #6c757d;
+            margin-bottom: 3px;
+            font-weight: 500;
+        }
+
+        .detail-value {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .search-container {
+            margin-bottom: 20px;
+        }
+
+        /* Responsive breakpoints */
+        
+        /* Large tablets and small desktops */
+        @media (max-width: 1200px) {
+            .content-wrapper {
+                margin-left: 200px;
+            }
+            
+            .table th, .table td {
+                font-size: 0.9em;
+                padding: 10px;
+            }
+            
+            .category-image {
+                width: 50px;
+                height: 50px;
+            }
+        }
+
+        /* Tablets */
+        @media (max-width: 992px) {
+            .content-wrapper {
+                margin-left: 0;
+                padding: 15px;
+                margin-top: 60px;
+            }
+            
+            .table-responsive {
+                font-size: 0.85em;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+                gap: 3px;
+            }
+            
+            .action-buttons .btn {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            /* Hide less important columns on tablets */
+            .table .d-md-none {
+                display: none !important;
+            }
+        }
+
+        /* Small tablets and large phones */
+        @media (max-width: 768px) {
+            .content-wrapper {
+                padding: 10px;
+            }
+            
+            /* Hide table, show cards */
+            .table-responsive {
+                display: none;
+            }
+            
+            .category-card {
+                display: block;
+            }
+            
+            .modal-dialog {
+                margin: 10px;
+                max-width: calc(100% - 20px);
+            }
+            
+            .search-container .d-flex {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .search-container .form-control {
+                margin-bottom: 10px;
+            }
+            
+            .search-container .btn {
+                width: 100%;
+            }
+            
+            h1 {
+                font-size: 1.5em;
+            }
+            
+            .d-flex.justify-content-between {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .btn-primary {
+                width: 100%;
+            }
+        }
+
+        /* Mobile phones */
+        @media (max-width: 576px) {
+            .content-wrapper {
+                padding: 8px;
+            }
+            
+            .category-details {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+            
+            .category-card {
+                padding: 15px;
+            }
+            
+            .category-card-header {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .category-card-image {
+                margin: 0 auto 10px auto;
+            }
+            
+            .action-buttons {
+                flex-direction: row;
+                justify-content: space-around;
+                flex-wrap: wrap;
+            }
+            
+            .action-buttons .btn {
+                flex: 1;
+                margin: 2px;
+                padding: 8px 4px;
+                font-size: 0.8em;
+                min-width: 70px;
+            }
+            
+            .pagination {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            .pagination .page-item {
+                margin: 2px;
+            }
+            
+            .modal-body .form-control {
+                font-size: 16px; /* Prevents zoom on iOS */
+            }
+            
+            h1 {
+                font-size: 1.3em;
+                text-align: center;
+                margin-bottom: 20px;
+            }
+        }
+
+        /* Extra small devices */
+        @media (max-width: 400px) {
+            .content-wrapper {
+                padding: 5px;
+            }
+            
+            .category-card {
+                padding: 12px;
+            }
+            
+            .action-buttons .btn {
+                padding: 6px 2px;
+                font-size: 0.75em;
+                min-width: 60px;
+            }
+            
+            .category-card-image {
+                width: 60px;
+                height: 60px;
+            }
+        }
+
+        /* Landscape orientation adjustments */
+        @media (max-height: 500px) and (orientation: landscape) {
+            .content-wrapper {
+                margin-top: 50px;
+                padding: 10px;
+            }
+            
+            .modal-dialog {
+                max-height: 90vh;
+                overflow-y: auto;
+            }
+        }
+
+        /* Status badge improvements */
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 500;
+        }
+
+        .status-listed {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .status-unlisted {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        /* Offer badge */
+        .offer-badge {
+            background-color: #fff3cd;
+            color: #856404;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: 500;
+        }
+    </style>
+</head>
+
 <%- include('../partials/admin/header') %>
 
 <body>
-  <div class="content-wrapper">
-    <div class="container-fluid">
-      <div class="row">
-        <%- include('../partials/admin/sidebar', { activePage: 'category' }) %>
+    <div class="content-wrapper">
+        <div class="container-fluid">
+            <div class="row">
+                <%- include('../partials/admin/sidebar', { activePage: 'category' }) %>
 
-        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
-          <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-            <h1 class="h2">Categories</h1>
-            <a href="/admin/category/add" class="btn btn-primary">Add Category</a>
-          </div>
-
-          <div class="mb-3">
-            <form action="/admin/category" method="GET" class="d-flex">
-              <input type="text" class="form-control me-2" name="search" placeholder="Search categories" value="<%= searchQuery %>">
-              <button type="submit" class="btn btn-primary">Search</button>
-            </form>
-          </div>
-
-          <div class="table-responsive">
-            <table class="table table-striped table-sm">
-              <thead>
-                <tr>
-                  <th scope="col" style="padding: 12px;">Image</th>
-                  <th scope="col" style="padding: 12px;">Name</th>
-                  <th scope="col" style="padding: 12px;">Description</th>
-                  <th scope="col" style="padding: 12px;">Offer</th>
-                  <th scope="col" style="padding: 12px;">Status</th>
-                  <th scope="col" style="padding: 12px;">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                <% categories.forEach((category) => { %>
-                  <tr>
-                    <td style="padding: 12px; vertical-align: middle;">
-                      <% if (category.image) { %>
-                        <img src="<%= category.image %>" alt="<%= category.name %>" style="width: 60px; height: 60px; object-fit: cover; margin-right: 10px;">
-                      <% } else { %>
-                        No Image
-                      <% } %>
-                    </td>
-                    <td style="padding: 12px; vertical-align: middle;"><%= category.name %></td>
-                    <td style="padding: 12px; vertical-align: middle;"><%= category.description %></td>
-                    <td style="padding: 12px; vertical-align: middle;"><%= category.categoryOffer ? category.categoryOffer + '%' : 'None' %></td>
-                    <td style="padding: 12px; vertical-align: middle;"><%= category.isListed ? 'Listed' : 'Unlisted' %></td>
-                    <td style="padding: 12px; vertical-align: middle;">
-                      <a href="/admin/category/edit/<%= category._id %>" class="btn btn-sm btn-warning" style="margin-right: 5px;">Edit</a>
-                      <button class="btn btn-sm <%= category.isListed ? 'btn-danger' : 'btn-success' %>" onclick="toggleStatus('<%= category._id %>', <%= category.isListed %>)" style="margin-right: 5px;">
-                        <%= category.isListed ? 'Unlist' : 'List' %>
-                      </button>
-                      <button class="btn btn-sm btn-info" onclick="openOfferModal('<%= category._id %>', <%= category.categoryOffer || 0 %>)" title="Manage Offer">
-                        <i class="fas fa-percentage"></i>
-                      </button>
-                    </td>
-                  </tr>
-                <% }) %>
-              </tbody>
-            </table>
-          </div>
-
-          
-          <div class="modal fade" id="categoryOfferModal" tabindex="-1" aria-labelledby="categoryOfferModalLabel" aria-hidden="true">
-            <div class="modal-dialog">
-              <div class="modal-content">
-                <div class="modal-header">
-                  <h5 class="modal-title" id="categoryOfferModalLabel">Manage Category Offer</h5>
-                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                  <form id="categoryOfferForm">
-                    <div class="mb-3">
-                      <label for="categoryOfferInput" class="form-label">Category Offer (%)</label>
-                      <input type="number" class="form-control" id="categoryOfferInput" name="categoryOffer" min="0" max="100" step="1" placeholder="Enter offer percentage">
-                      <button type="button" class="btn btn-danger btn-sm mt-2" id="removeOfferBtn" onclick="removeOffer()">Remove Offer</button>
+                <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+                    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                        <h1 class="h2">Categories</h1>
+                        <a href="/admin/category/add" class="btn btn-primary">
+                            <i class="fas fa-plus d-none d-sm-inline"></i>
+                            <span class="d-none d-sm-inline">Add Category</span>
+                            <span class="d-sm-none">Add</span>
+                        </a>
                     </div>
-                  </form>
-                </div>
-                <div class="modal-footer">
-                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                  <button type="button" class="btn btn-primary" onclick="submitCategoryOfferForm()">Save Changes</button>
-                </div>
-              </div>
+
+                    <div class="search-container">
+                        <form action="/admin/category" method="GET" class="d-flex">
+                            <input type="text" class="form-control me-2" name="search" placeholder="Search categories" value="<%= searchQuery %>">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-search d-sm-none"></i>
+                                <span class="d-none d-sm-inline">Search</span>
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Desktop/Tablet Table View -->
+                    <div class="table-responsive">
+                        <table class="table table-striped table-sm">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th scope="col">Image</th>
+                                    <th scope="col">Name</th>
+                                    <th scope="col" class="d-none d-lg-table-cell">Description</th>
+                                    <th scope="col">Offer</th>
+                                    <th scope="col">Status</th>
+                                    <th scope="col">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% categories.forEach((category) => { %>
+                                    <tr>
+                                        <td>
+                                            <% if (category.image) { %>
+                                                <img src="<%= category.image %>" alt="<%= category.name %>" class="category-image">
+                                            <% } else { %>
+                                                <div class="category-image bg-light d-flex align-items-center justify-content-center">
+                                                    <i class="fas fa-image text-muted"></i>
+                                                </div>
+                                            <% } %>
+                                        </td>
+                                        <td><strong><%= category.name %></strong></td>
+                                        <td class="d-none d-lg-table-cell">
+                                            <span title="<%= category.description %>">
+                                                <%= category.description.length > 50 ? category.description.substring(0, 50) + '...' : category.description %>
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <% if (category.categoryOffer) { %>
+                                                <span class="offer-badge"><%= category.categoryOffer %>%</span>
+                                            <% } else { %>
+                                                <span class="text-muted">None</span>
+                                            <% } %>
+                                        </td>
+                                        <td>
+                                            <span class="status-badge <%= category.isListed ? 'status-listed' : 'status-unlisted' %>">
+                                                <%= category.isListed ? 'Listed' : 'Unlisted' %>
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <div class="action-buttons">
+                                                <a href="/admin/category/edit/<%= category._id %>" class="btn btn-sm btn-warning" title="Edit">
+                                                    <i class="fas fa-edit"></i>
+                                                    <span class="d-none d-xl-inline">Edit</span>
+                                                </a>
+                                                <button class="btn btn-sm <%= category.isListed ? 'btn-danger' : 'btn-success' %>" 
+                                                        onclick="toggleStatus('<%= category._id %>', <%= category.isListed %>)" 
+                                                        title="<%= category.isListed ? 'Unlist' : 'List' %>">
+                                                    <i class="fas <%= category.isListed ? 'fa-eye-slash' : 'fa-eye' %>"></i>
+                                                    <span class="d-none d-xl-inline"><%= category.isListed ? 'Unlist' : 'List' %></span>
+                                                </button>
+                                                <button class="btn btn-sm btn-info" 
+                                                        onclick="openOfferModal('<%= category._id %>', <%= category.categoryOffer || 0 %>)" 
+                                                        title="Manage Offer">
+                                                    <i class="fas fa-percentage"></i>
+                                                    <span class="d-none d-xl-inline">Offer</span>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                <% }) %>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Mobile Card View -->
+                    <div class="mobile-cards">
+                        <% categories.forEach((category) => { %>
+                            <div class="category-card">
+                                <div class="category-card-header">
+                                    <% if (category.image) { %>
+                                        <img src="<%= category.image %>" alt="<%= category.name %>" class="category-card-image">
+                                    <% } else { %>
+                                        <div class="category-card-image bg-light d-flex align-items-center justify-content-center">
+                                            <i class="fas fa-image text-muted fa-2x"></i>
+                                        </div>
+                                    <% } %>
+                                    <div class="category-card-info">
+                                        <div class="category-name"><%= category.name %></div>
+                                        <span class="status-badge <%= category.isListed ? 'status-listed' : 'status-unlisted' %>">
+                                            <%= category.isListed ? 'Listed' : 'Unlisted' %>
+                                        </span>
+                                    </div>
+                                </div>
+                                
+                                <div class="category-details">
+                                    <div class="detail-item">
+                                        <span class="detail-label">Description</span>
+                                        <span class="detail-value"><%= category.description %></span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="detail-label">Offer</span>
+                                        <span class="detail-value">
+                                            <% if (category.categoryOffer) { %>
+                                                <span class="offer-badge"><%= category.categoryOffer %>%</span>
+                                            <% } else { %>
+                                                <span class="text-muted">None</span>
+                                            <% } %>
+                                        </span>
+                                    </div>
+                                </div>
+                                
+                                <div class="action-buttons">
+                                    <a href="/admin/category/edit/<%= category._id %>" class="btn btn-sm btn-warning">
+                                        <i class="fas fa-edit"></i> Edit
+                                    </a>
+                                    <button class="btn btn-sm <%= category.isListed ? 'btn-danger' : 'btn-success' %>" 
+                                            onclick="toggleStatus('<%= category._id %>', <%= category.isListed %>)">
+                                        <i class="fas <%= category.isListed ? 'fa-eye-slash' : 'fa-eye' %>"></i>
+                                        <%= category.isListed ? 'Unlist' : 'List' %>
+                                    </button>
+                                    <button class="btn btn-sm btn-info" 
+                                            onclick="openOfferModal('<%= category._id %>', <%= category.categoryOffer || 0 %>)">
+                                        <i class="fas fa-percentage"></i> Offer
+                                    </button>
+                                </div>
+                            </div>
+                        <% }) %>
+                    </div>
+
+                    <!-- Category Offer Modal -->
+                    <div class="modal fade" id="categoryOfferModal" tabindex="-1" aria-labelledby="categoryOfferModalLabel" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="categoryOfferModalLabel">Manage Category Offer</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <form id="categoryOfferForm">
+                                        <div class="mb-3">
+                                            <label for="categoryOfferInput" class="form-label">Category Offer (%)</label>
+                                            <input type="number" class="form-control" id="categoryOfferInput" name="categoryOffer" 
+                                                   min="0" max="100" step="1" placeholder="Enter offer percentage">
+                                            <div class="form-text">Enter a value between 0 and 100</div>
+                                        </div>
+                                        <div class="d-grid gap-2">
+                                            <button type="button" class="btn btn-danger" id="removeOfferBtn" onclick="removeOffer()">
+                                                <i class="fas fa-trash"></i> Remove Offer
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                    <button type="button" class="btn btn-primary" onclick="submitCategoryOfferForm()">
+                                        <i class="fas fa-save"></i> Save Changes
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Pagination -->
+                    <% if (totalPages > 1) { %>
+                        <nav aria-label="Page navigation" class="mt-4">
+                            <ul class="pagination justify-content-center flex-wrap">
+                                <li class="page-item <%= currentPage === 1 ? 'disabled' : '' %>">
+                                    <a class="page-link" href="/admin/category?page=<%= currentPage - 1 %>&limit=<%= limit %>&search=<%= searchQuery %>" aria-label="Previous">
+                                        <span class="d-none d-sm-inline">« Previous</span>
+                                        <span class="d-sm-none">«</span>
+                                    </a>
+                                </li>
+                                
+                                <% for (let i = 1; i <= totalPages; i++) { %>
+                                    <li class="page-item <%= currentPage === i ? 'active' : '' %>">
+                                        <a class="page-link" href="/admin/category?page=<%= i %>&limit=<%= limit %>&search=<%= searchQuery %>"><%= i %></a>
+                                    </li>
+                                <% } %>
+                                
+                                <li class="page-item <%= currentPage === totalPages ? 'disabled' : '' %>">
+                                    <a class="page-link" href="/admin/category?page=<%= currentPage + 1 %>&limit=<%= limit %>&search=<%= searchQuery %>" aria-label="Next">
+                                        <span class="d-none d-sm-inline">Next »</span>
+                                        <span class="d-sm-none">»</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </nav>
+                    <% } %>
+                    
+                    <div class="text-center mt-3">
+                        <p class="text-muted">Showing <%= categories.length %> of <%= totalCategories %> categories</p>
+                    </div>
+
+                </main>
             </div>
-          </div>
-
-          <% if (totalPages > 1) { %>
-            <nav aria-label="Page navigation">
-              <ul class="pagination justify-content-center">
-                <li class="page-item <%= currentPage === 1 ? 'disabled' : '' %>">
-                  <a class="page-link" href="/admin/category?page=<%= currentPage - 1 %>&limit=<%= limit %>&search=<%= searchQuery %>" aria-label="Previous">
-                    <span aria-hidden="true">«</span>
-                  </a>
-                </li>
-                
-                <% for (let i = 1; i <= totalPages; i++) { %>
-                  <li class="page-item <%= currentPage === i ? 'active' : '' %>">
-                    <a class="page-link" href="/admin/category?page=<%= i %>&limit=<%= limit %>&search=<%= searchQuery %>"><%= i %></a>
-                  </li>
-                <% } %>
-                
-                <li class="page-item <%= currentPage === totalPages ? 'disabled' : '' %>">
-                  <a class="page-link" href="/admin/category?page=<%= currentPage + 1 %>&limit=<%= limit %>&search=<%= searchQuery %>" aria-label="Next">
-                    <span aria-hidden="true">»</span>
-                  </a>
-                </li>
-              </ul>
-            </nav>
-          <% } %>
-          
-          <div class="text-center mt-3">
-            <p>Showing <%= categories.length %> of <%= totalCategories %> categories</p>
-          </div>
-
-        </main>
-      </div>
+        </div>
     </div>
-  </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="https://kit.fontawesome.com/your-font-awesome-kit.js"></script> 
-  <script>
-    async function toggleStatus(categoryId, isListed) {
-      const action = isListed ? 'unlist' : 'list';
-      const result = await Swal.fire({
-        title: `Are you sure you want to ${action} this category?`,
-        text: "This action will affect category visibility!",
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#3085d6',
-        cancelButtonColor: '#d33',
-        confirmButtonText: `Yes, ${action} it!`
-      });
-
-      if (result.isConfirmed) {
-        try {
-          const response = await fetch(`/admin/category/toggle-status/${categoryId}`, {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' }
-          });
-          const data = await response.json();
-          if (data.success) {
-            Swal.fire({
-              title: 'Success!',
-              text: `Category has been ${action}ed successfully.`,
-              icon: 'success',
-              timer: 2000,
-              showConfirmButton: false
-            }).then(() => location.reload());
-          } else {
-            Swal.fire({
-              title: 'Error!',
-              text: 'Error toggling category status.',
-              icon: 'error',
-              confirmButtonText: 'OK'
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://kit.fontawesome.com/your-font-awesome-kit.js"></script>
+    <script>
+        async function toggleStatus(categoryId, isListed) {
+            const action = isListed ? 'unlist' : 'list';
+            const result = await Swal.fire({
+                title: `Are you sure you want to ${action} this category?`,
+                text: "This action will affect category visibility!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: `Yes, ${action} it!`
             });
-          }
-        } catch (error) {
-          console.error('Error:', error);
-          Swal.fire({
-            title: 'Error!',
-            text: 'Error toggling category status.',
-            icon: 'error',
-            confirmButtonText: 'OK'
-          });
+
+            if (result.isConfirmed) {
+                try {
+                    const response = await fetch(`/admin/category/toggle-status/${categoryId}`, {
+                        method: 'PATCH',
+                        headers: { 'Content-Type': 'application/json' }
+                    });
+                    const data = await response.json();
+                    if (data.success) {
+                        Swal.fire({
+                            title: 'Success!',
+                            text: `Category has been ${action}ed successfully.`,
+                            icon: 'success',
+                            timer: 2000,
+                            showConfirmButton: false
+                        }).then(() => location.reload());
+                    } else {
+                        Swal.fire({
+                            title: 'Error!',
+                            text: 'Error toggling category status.',
+                            icon: 'error',
+                            confirmButtonText: 'OK'
+                        });
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    Swal.fire({
+                        title: 'Error!',
+                        text: 'Error toggling category status.',
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
+                }
+            }
         }
-      }
-    }
 
-    let currentCategoryId = null;
+        let currentCategoryId = null;
 
-    function openOfferModal(categoryId, currentOffer) {
-      currentCategoryId = categoryId;
-      const offerInput = document.getElementById('categoryOfferInput');
-      offerInput.value = currentOffer;
-      document.getElementById('removeOfferBtn').disabled = currentOffer === 0;
+        function openOfferModal(categoryId, currentOffer) {
+            currentCategoryId = categoryId;
+            const offerInput = document.getElementById('categoryOfferInput');
+            offerInput.value = currentOffer;
+            document.getElementById('removeOfferBtn').disabled = currentOffer === 0;
 
-      const modal = new bootstrap.Modal(document.getElementById('categoryOfferModal'));
-      modal.show();
-    }
-
-    async function submitCategoryOfferForm() {
-      const offerInput = document.getElementById('categoryOfferInput');
-      const categoryOffer = parseInt(offerInput.value) || 0;
-
-      if (categoryOffer < 0 || categoryOffer > 100) {
-        Swal.fire({
-          title: 'Error!',
-          text: 'Offer percentage must be between 0 and 100.',
-          icon: 'error',
-          confirmButtonText: 'OK'
-        });
-        return;
-      }
-
-      try {
-        const response = await fetch(`/admin/category/update-offer/${currentCategoryId}`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ categoryOffer })
-        });
-
-        const data = await response.json();
-        if (data.success) {
-          Swal.fire({
-            title: 'Success!',
-            text: 'Category offer updated successfully.',
-            icon: 'success',
-            timer: 2000,
-            showConfirmButton: false
-          }).then(() => {
-            const modal = bootstrap.Modal.getInstance(document.getElementById('categoryOfferModal'));
-            modal.hide();
-            location.reload();
-          });
-        } else {
-          Swal.fire({
-            title: 'Error!',
-            text: data.message || 'Error updating category offer.',
-            icon: 'error',
-            confirmButtonText: 'OK'
-          });
+            const modal = new bootstrap.Modal(document.getElementById('categoryOfferModal'));
+            modal.show();
         }
-      } catch (error) {
-        console.error('Error:', error);
-        Swal.fire({
-          title: 'Error!',
-          text: 'Error updating category offer.',
-          icon: 'error',
-          confirmButtonText: 'OK'
-        });
-      }
-    }
 
-    async function removeOffer() {
-      const result = await Swal.fire({
-        title: 'Are you sure?',
-        text: 'Do you want to remove the offer for this category?',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#3085d6',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Yes, remove it!'
-      });
+        async function submitCategoryOfferForm() {
+            const offerInput = document.getElementById('categoryOfferInput');
+            const categoryOffer = parseInt(offerInput.value) || 0;
 
-      if (result.isConfirmed) {
-        try {
-          const response = await fetch(`/admin/category/update-offer/${currentCategoryId}`, {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ categoryOffer: 0 })
-          });
+            if (categoryOffer < 0 || categoryOffer > 100) {
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'Offer percentage must be between 0 and 100.',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
+                return;
+            }
 
-          const data = await response.json();
-          if (data.success) {
-            Swal.fire({
-              title: 'Success!',
-              text: 'Category offer removed successfully.',
-              icon: 'success',
-              timer: 2000,
-              showConfirmButton: false
-            }).then(() => {
-              const modal = bootstrap.Modal.getInstance(document.getElementById('categoryOfferModal'));
-              modal.hide();
-              location.reload();
+            try {
+                const response = await fetch(`/admin/category/update-offer/${currentCategoryId}`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ categoryOffer })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    Swal.fire({
+                        title: 'Success!',
+                        text: 'Category offer updated successfully.',
+                        icon: 'success',
+                        timer: 2000,
+                        showConfirmButton: false
+                    }).then(() => {
+                        const modal = bootstrap.Modal.getInstance(document.getElementById('categoryOfferModal'));
+                        modal.hide();
+                        location.reload();
+                    });
+                } else {
+                    Swal.fire({
+                        title: 'Error!',
+                        text: data.message || 'Error updating category offer.',
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'Error updating category offer.',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
+            }
+        }
+
+        async function removeOffer() {
+            const result = await Swal.fire({
+                title: 'Are you sure?',
+                text: 'Do you want to remove the offer for this category?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, remove it!'
             });
-          } else {
-            Swal.fire({
-              title: 'Error!',
-              text: data.message || 'Error removing category offer.',
-              icon: 'error',
-              confirmButtonText: 'OK'
-            });
-          }
-        } catch (error) {
-          console.error('Error:', error);
-          Swal.fire({
-            title: 'Error!',
-            text: 'Error removing category offer.',
-            icon: 'error',
-            confirmButtonText: 'OK'
-          });
-        }
-      }
-    }
-  </script>
 
-  <%- include('../partials/admin/footer') %>
+            if (result.isConfirmed) {
+                try {
+                    const response = await fetch(`/admin/category/update-offer/${currentCategoryId}`, {
+                        method: 'PATCH',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ categoryOffer: 0 })
+                    });
+
+                    const data = await response.json();
+                    if (data.success) {
+                        Swal.fire({
+                            title: 'Success!',
+                            text: 'Category offer removed successfully.',
+                            icon: 'success',
+                            timer: 2000,
+                            showConfirmButton: false
+                        }).then(() => {
+                            const modal = bootstrap.Modal.getInstance(document.getElementById('categoryOfferModal'));
+                            modal.hide();
+                            location.reload();
+                        });
+                    } else {
+                        Swal.fire({
+                            title: 'Error!',
+                            text: data.message || 'Error removing category offer.',
+                            icon: 'error',
+                            confirmButtonText: 'OK'
+                        });
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    Swal.fire({
+                        title: 'Error!',
+                        text: 'Error removing category offer.',
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
+                }
+            }
+        }
+    </script>
+
+    <%- include('../partials/admin/footer') %>
 </body>
 </html>

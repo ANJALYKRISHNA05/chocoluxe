@@ -1,153 +1,886 @@
-<%- include('../partials/user/header') %>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CHOCOLUXE - <%= isEdit ? 'Edit Address' : 'Add New Address' %></title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        :root {
+            --primary: #4a2c2a;
+            --accent: #d1a876;
+            --background: #f5e8d4;
+            --card-bg: #fff9e6;
+            --muted: #888;
+        }
 
-<div class="container my-5">
-    <div class="row">
-     
-        <div class="col-md-3 mb-4">
+        * {
+            box-sizing: border-box;
+        }
+
+        body, html {
+            height: 100%;
+            margin: 0;
+            background-color: var(--background);
+            font-family: 'Nunito Sans', sans-serif;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* Navbar Styles */
+        .navbar {
+            background-color: var(--primary);
+            padding: 15px 20px;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            flex-wrap: wrap;
+        }
+
+        .navbar .brand {
+            font-size: 1.5rem;
+            font-weight: 700;
+            flex: 1;
+        }
+
+        .navbar .brand small {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 400;
+            color: var(--accent);
+        }
+
+        .navbar .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 25px;
+        }
+
+        .navbar .nav-icons {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .navbar a {
+            color: white;
+            text-decoration: none;
+            font-size: 1rem;
+            transition: color 0.3s;
+        }
+
+        .navbar a:hover {
+            color: var(--accent);
+        }
+
+        .navbar .search-bar {
+            width: 200px;
+            font-size: 0.9rem;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 4px;
+        }
+
+        .navbar .menu-toggle {
+            display: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            background: none;
+            border: none;
+            color: white;
+            padding: 5px;
+        }
+
+        .user-menu {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .user-dropdown {
+            display: none;
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background-color: var(--primary);
+            border: 1px solid var(--accent);
+            border-radius: 5px;
+            padding: 10px;
+            z-index: 1000;
+            min-width: 180px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .user-dropdown a {
+            display: flex;
+            align-items: center;
+            padding: 10px 15px;
+            color: white;
+            font-size: 0.9rem;
+            gap: 10px;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+
+        .user-dropdown a:hover {
+            background-color: #5a3c3a;
+            color: var(--accent);
+        }
+
+        .user-menu.active .user-dropdown {
+            display: block;
+        }
+
+        /* Content Container */
+        .content-container {
+            display: flex;
+            flex: 1;
+            padding: 20px;
+            gap: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /* Sidebar Styles */
+        .sidebar-container {
+            width: 280px;
+            flex-shrink: 0;
+        }
+
+        .sidebar {
+            background-color: white;
+            border-radius: 8px;
+            padding: 24px;
+            width: 100%;
+            height: fit-content;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar .user-profile {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 32px;
+            text-align: center;
+        }
+
+        .sidebar .username {
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 4px;
+        }
+
+        .sidebar .email {
+            font-size: 12px;
+            color: var(--muted);
+        }
+
+        .sidebar nav ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .sidebar nav ul li {
+            margin-bottom: 8px;
+        }
+
+        .sidebar nav ul li a {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            border-radius: 6px;
+            color: var(--muted);
+            text-decoration: none;
+            transition: all 0.2s;
+            font-size: 14px;
+        }
+
+        .sidebar nav ul li a.active,
+        .sidebar nav ul li a.bg-primary.bg-opacity-10 {
+            background-color: #eff6ff;
+            color: #2563eb;
+        }
+
+        .sidebar nav ul li a:hover {
+            background-color: #f9fafb;
+            color: var(--primary);
+        }
+
+        .sidebar nav ul li a i {
+            margin-right: 12px;
+            font-size: 16px;
+            width: 20px;
+            text-align: center;
+        }
+
+        .sidebar .logout a:hover {
+            color: #ef4444;
+            background-color: #fef2f2;
+        }
+
+        /* Mobile Sidebar Overlay */
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+
+        .sidebar-mobile {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: -100%;
+            width: 280px;
+            height: 100%;
+            background-color: white;
+            z-index: 1000;
+            transition: left 0.3s ease;
+            overflow-y: auto;
+        }
+
+        .sidebar-mobile.active {
+            left: 0;
+        }
+
+        .sidebar-mobile .sidebar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            border-bottom: 1px solid #e5e7eb;
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .sidebar-mobile .sidebar-header h3 {
+            margin: 0;
+            font-size: 1.2rem;
+        }
+
+        .sidebar-mobile .close-sidebar {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        /* Mobile Menu Button */
+        .mobile-menu-btn {
+            background-color: var(--primary);
+            color: white;
+            border: 2px solid var(--primary);
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .mobile-menu-btn:hover {
+            background-color: var(--accent);
+            border-color: var(--accent);
+            color: white;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(74, 44, 42, 0.2);
+        }
+
+        .mobile-menu-btn:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(74, 44, 42, 0.2);
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        /* Form Card Styles */
+        .form-card {
+            background-color: var(--card-bg);
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(74, 44, 42, 0.1);
+            padding: 30px;
+            border: none;
+        }
+
+        .form-title {
+            color: var(--primary);
+            font-weight: 700;
+            margin-bottom: 25px;
+            font-size: 1.8rem;
+        }
+
+        .back-btn {
+            background-color: transparent;
+            color: var(--muted);
+            border: 1px solid var(--muted);
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+        }
+
+        .back-btn:hover {
+            background-color: var(--muted);
+            color: white;
+        }
+
+        .form-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .form-label {
+            color: var(--primary);
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: block;
+            font-size: 0.95rem;
+        }
+
+        .form-control,
+        .form-select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            transition: all 0.3s;
+            font-size: 1rem;
+            background-color: white;
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(209, 168, 118, 0.25);
+            outline: none;
+        }
+
+        .form-check-input {
+            border: 2px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .form-check-input:checked {
+            background-color: var(--accent);
+            border-color: var(--accent);
+        }
+
+        .form-check-label {
+            color: var(--primary);
+            font-weight: 500;
+            margin-left: 8px;
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        .btn-cancel {
+            background-color: transparent;
+            color: var(--muted);
+            border: 1px solid var(--muted);
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-cancel:hover {
+            background-color: var(--muted);
+            color: white;
+        }
+
+        .btn-save {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-save:hover {
+            background-color: #5a3c3a;
+            transform: translateY(-1px);
+        }
+
+        /* Footer */
+        .footer {
+            background-color: var(--primary);
+            color: white;
+            padding: 20px 0;
+            margin-top: auto;
+        }
+
+        .footer .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .footer .row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .footer a {
+            color: var(--accent);
+            margin: 0 10px;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.3s;
+        }
+
+        .footer a:hover {
+            color: white;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .content-container {
+                padding: 15px;
+                gap: 15px;
+            }
+
+            .sidebar-container {
+                width: 250px;
+            }
+
+            .form-card {
+                padding: 25px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .navbar .nav-links,
+            .navbar .nav-icons {
+                display: none;
+            }
+
+            .navbar .menu-toggle {
+                display: block;
+            }
+
+            .navbar .search-bar {
+                width: 150px;
+            }
+
+            .content-container {
+                flex-direction: column;
+                padding: 15px;
+            }
+
+            .sidebar-container {
+                display: none;
+            }
+
+            .sidebar-overlay.active {
+                display: block;
+            }
+
+            .sidebar-mobile {
+                display: block;
+            }
+
+            .form-card {
+                padding: 20px;
+            }
+
+            .form-title {
+                font-size: 1.5rem;
+                text-align: center;
+            }
+
+            .form-header {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .form-actions {
+                justify-content: center;
+                flex-direction: column;
+            }
+
+            .btn-cancel,
+            .btn-save {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .navbar {
+                padding: 10px 15px;
+            }
+
+            .navbar .brand {
+                font-size: 1.2rem;
+            }
+
+            .navbar .brand small {
+                font-size: 0.7rem;
+            }
+
+            .navbar .search-bar {
+                width: 120px;
+                font-size: 0.8rem;
+                padding: 6px 10px;
+            }
+
+            .content-container {
+                padding: 10px;
+            }
+
+            .form-card {
+                padding: 15px;
+                border-radius: 10px;
+            }
+
+            .form-title {
+                font-size: 1.3rem;
+            }
+
+            .form-control,
+            .form-select {
+                padding: 10px 12px;
+                font-size: 0.9rem;
+            }
+
+            .btn-cancel,
+            .btn-save {
+                padding: 10px 20px;
+                font-size: 0.9rem;
+            }
+
+            .back-btn {
+                padding: 6px 12px;
+                font-size: 0.85rem;
+            }
+
+            .mobile-menu-btn {
+                padding: 8px 14px;
+                font-size: 0.85rem;
+            }
+
+            .footer .row {
+                flex-direction: column;
+                text-align: center;
+                gap: 10px;
+            }
+
+            .footer a {
+                font-size: 0.8rem;
+                margin: 0 5px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .form-header {
+                gap: 10px;
+            }
+
+            .form-actions {
+                gap: 10px;
+            }
+
+            .row.g-3 {
+                --bs-gutter-x: 0.5rem;
+            }
+
+            .col-md-4,
+            .col-md-6 {
+                margin-bottom: 15px;
+            }
+        }
+
+        /* Utility Classes */
+        .d-none-mobile {
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            .d-none-mobile {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <%- include('../partials/user/header') %>
+    
+    <!-- Mobile Sidebar Overlay -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeMobileSidebar()"></div>
+    
+    <!-- Mobile Sidebar -->
+    <div class="sidebar-mobile" id="mobileSidebar">
+        <div class="sidebar-header">
+            <h3>Menu</h3>
+            <button class="close-sidebar" onclick="closeMobileSidebar()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="sidebar">
+            <%- include('../partials/user/sidebar', { activeTab: 'address' }) %>
+        </div>
+    </div>
+    
+    <div class="content-container">
+        <div class="sidebar-container d-none-mobile">
             <%- include('../partials/user/sidebar', { activeTab: 'address' }) %>
         </div>
         
-      
-        <div class="col-md-9">
-            <div class="card border-0 shadow-sm">
-                <div class="card-body p-4">
-                    <div class="d-flex justify-content-between align-items-center mb-4">
-                        <h4 class="mb-0"><%= isEdit ? 'Edit Address' : 'Add New Address' %></h4>
-                        <a href="/user/address" class="btn btn-outline-secondary">
-                            <i class="fas fa-arrow-left me-2"></i> Back to Addresses
-                        </a>
+        <div class="main-content">
+            <!-- Mobile Menu Button -->
+            <div class="d-block d-md-none mb-3">
+                <button class="mobile-menu-btn" onclick="openMobileSidebar()">
+                    <i class="fas fa-bars"></i> Menu
+                </button>
+            </div>
+            
+            <div class="form-card">
+                <div class="form-header">
+                    <h4 class="form-title mb-0"><%= isEdit ? 'Edit Address' : 'Add New Address' %></h4>
+                    <a href="/user/address" class="back-btn">
+                        <i class="fas fa-arrow-left"></i> Back to Addresses
+                    </a>
+                </div>
+                
+                <form id="addressForm" action="<%= isEdit ? '/user/address/update' : '/user/address/add' %>" method="POST">
+                    <% if (isEdit) { %>
+                        <input type="hidden" name="addressId" value="<%= address._id %>">
+                    <% } %>
+                    
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="name" class="form-label">Full Name</label>
+                            <input type="text" class="form-control" id="name" name="name" 
+                                   value="<%= isEdit ? address.name : '' %>" 
+                                   placeholder="Enter your full name" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="addressType" class="form-label">Address Type</label>
+                            <select class="form-select" id="addressType" name="addressType" required>
+                                <option value="">Select address type</option>
+                                <option value="HOME" <%= isEdit && address.addressType === 'HOME' ? 'selected' : '' %>>Home</option>
+                                <option value="WORK" <%= isEdit && address.addressType === 'WORK' ? 'selected' : '' %>>Work</option>
+                                <option value="OTHER" <%= isEdit && address.addressType === 'OTHER' ? 'selected' : '' %>>Other</option>
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <label for="address" class="form-label">Address</label>
+                            <input type="text" class="form-control" id="address" name="address" 
+                                   placeholder="Street address, apartment, suite, etc." 
+                                   value="<%= isEdit ? address.address : '' %>" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="city" class="form-label">City</label>
+                            <input type="text" class="form-control" id="city" name="city" 
+                                   placeholder="Enter city name"
+                                   value="<%= isEdit ? address.city : '' %>" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="state" class="form-label">State</label>
+                            <input type="text" class="form-control" id="state" name="state" 
+                                   placeholder="Enter state name"
+                                   value="<%= isEdit ? address.state : '' %>" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="pincode" class="form-label">Pincode</label>
+                            <input type="text" class="form-control" id="pincode" name="pincode" 
+                                   pattern="[0-9]{6}" maxlength="6" 
+                                   placeholder="6-digit pincode"
+                                   value="<%= isEdit ? address.pincode : '' %>" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="phone" class="form-label">Phone Number</label>
+                            <input type="text" class="form-control" id="phone" name="phone" 
+                                   pattern="[0-9]{10}" maxlength="10" 
+                                   placeholder="10-digit phone number"
+                                   value="<%= isEdit ? address.phone : '' %>" required>
+                        </div>
+                        <div class="col-md-6 d-flex align-items-end">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="true" id="setDefault" name="isDefault"
+                                       <%= isEdit && address.isDefault ? 'checked' : '' %>>
+                                <label class="form-check-label" for="setDefault">
+                                    Set as default address
+                                </label>
+                            </div>
+                        </div>
                     </div>
                     
-                    <form id="addressForm" action="<%= isEdit ? '/user/address/update' : '/user/address/add' %>" method="POST">
-                        <% if (isEdit) { %>
-                            <input type="hidden" name="addressId" value="<%= address._id %>">
-                        <% } %>
-                        
-                        <div class="row g-3">
-                            <div class="col-md-6">
-                                <label for="name" class="form-label">Full Name</label>
-                                <input type="text" class="form-control" id="name" name="name" value="<%= isEdit ? address.name : '' %>" required>
-                            </div>
-                            <div class="col-md-6">
-                                <label for="addressType" class="form-label">Address Type</label>
-                                <select class="form-select" id="addressType" name="addressType" required>
-                                    <option value="HOME" <%= isEdit && address.addressType === 'HOME' ? 'selected' : '' %>>Home</option>
-                                    <option value="WORK" <%= isEdit && address.addressType === 'WORK' ? 'selected' : '' %>>Work</option>
-                                    <option value="OTHER" <%= isEdit && address.addressType === 'OTHER' ? 'selected' : '' %>>Other</option>
-                                </select>
-                            </div>
-                            <div class="col-12">
-                                <label for="address" class="form-label">Address</label>
-                                <input type="text" class="form-control" id="address" name="address" 
-                                       placeholder="Street address, apartment, suite, etc." 
-                                       value="<%= isEdit ? address.address : '' %>" required>
-                            </div>
-                            <div class="col-md-4">
-                                <label for="city" class="form-label">City</label>
-                                <input type="text" class="form-control" id="city" name="city" 
-                                       value="<%= isEdit ? address.city : '' %>" required>
-                            </div>
-                            <div class="col-md-4">
-                                <label for="state" class="form-label">State</label>
-                                <input type="text" class="form-control" id="state" name="state" 
-                                       value="<%= isEdit ? address.state : '' %>" required>
-                            </div>
-                            <div class="col-md-4">
-                                <label for="pincode" class="form-label">Pincode</label>
-                                <input type="text" class="form-control" id="pincode" name="pincode" 
-                                       pattern="[0-9]{6}" maxlength="6" 
-                                       value="<%= isEdit ? address.pincode : '' %>" required>
-                            </div>
-                            <div class="col-md-6">
-                                <label for="phone" class="form-label">Phone Number</label>
-                                <input type="text" class="form-control" id="phone" name="phone" 
-                                       pattern="[0-9]{10}" maxlength="10" 
-                                       value="<%= isEdit ? address.phone : '' %>" required>
-                            </div>
-                            <div class="col-md-6 d-flex align-items-end">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" value="true" id="setDefault" name="isDefault"
-                                           <%= isEdit && address.isDefault ? 'checked' : '' %>>
-                                    <label class="form-check-label" for="setDefault">
-                                        Set as default address
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="d-flex justify-content-end mt-4">
-                            <a href="/user/address" class="btn btn-outline-secondary me-2">Cancel</a>
-                            <button type="submit" class="btn btn-dark">
-                                <%= isEdit ? 'Update Address' : 'Save Address' %>
-                            </button>
-                        </div>
-                    </form>
-                </div>
+                    <div class="form-actions">
+                        <a href="/user/address" class="btn-cancel">Cancel</a>
+                        <button type="submit" class="btn-save">
+                            <%= isEdit ? 'Update Address' : 'Save Address' %>
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
-</div>
+    
+    <%- include('../partials/user/footer') %>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function toggleMenu() {
+            const navbar = document.querySelector('.navbar');
+            navbar.classList.toggle('active');
+        }
 
-<% if (message) { %>
-<script>
+        function toggleUserMenu() {
+            const userMenu = document.querySelector('.user-menu');
+            userMenu.classList.toggle('active');
+        }
 
-    document.addEventListener('DOMContentLoaded', function() {
-       
-        
-            Swal.fire({
-                icon: 'error',
-                title: 'Oops...',
-                text: '<%= message %>',
+        function openMobileSidebar() {
+            const overlay = document.getElementById('sidebarOverlay');
+            const sidebar = document.getElementById('mobileSidebar');
+            overlay.classList.add('active');
+            sidebar.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeMobileSidebar() {
+            const overlay = document.getElementById('sidebarOverlay');
+            const sidebar = document.getElementById('mobileSidebar');
+            overlay.classList.remove('active');
+            sidebar.classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        // Close user menu when clicking outside
+        document.addEventListener('click', function(event) {
+            const userMenu = document.querySelector('.user-menu');
+            const isClickInside = userMenu.contains(event.target);
+            if (!isClickInside && userMenu.classList.contains('active')) {
+                userMenu.classList.remove('active');
+            }
+        });
+
+        // Close mobile sidebar on window resize
+        window.addEventListener('resize', function() {
+            if (window.innerWidth > 768) {
+                closeMobileSidebar();
+            }
+        });
+
+        // Handle escape key to close mobile sidebar
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeMobileSidebar();
+            }
+        });
+
+        // Show error message if exists
+        <% if (message) { %>
+            document.addEventListener('DOMContentLoaded', function() {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: '<%= message %>',
+                });
             });
-            </script>
         <% } %>
         
-       <script>
-        const addressForm = document.getElementById('addressForm');
-        addressForm.addEventListener('submit', function(event) {
-            event.preventDefault();
-            
-            const name = document.getElementById('name').value;
-            const address = document.getElementById('address').value;
-            const city = document.getElementById('city').value;
-            const state = document.getElementById('state').value;
-            const pincode = document.getElementById('pincode').value;
-            const phone = document.getElementById('phone').value;
-            
-           
-            if (!name || !address || !city || !state || !pincode || !phone) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Validation Error',
-                    text: 'All fields are required.',
-                });
-                return;
-            }
-            
-         
-            if (!/^\d{6}$/.test(pincode)) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Validation Error',
-                    text: 'Pincode must be 6 digits.',
-                });
-                return;
-            }
-            
-          
-            if (!/^\d{10}$/.test(phone)) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Validation Error',
-                    text: 'Phone number must be 10 digits.',
-                });
-                return;
-            }
-            
-           
-            this.submit();
+        // Form validation
+        document.addEventListener('DOMContentLoaded', function() {
+            const addressForm = document.getElementById('addressForm');
+            addressForm.addEventListener('submit', function(event) {
+                event.preventDefault();
+                
+                const name = document.getElementById('name').value.trim();
+                const address = document.getElementById('address').value.trim();
+                const city = document.getElementById('city').value.trim();
+                const state = document.getElementById('state').value.trim();
+                const pincode = document.getElementById('pincode').value.trim();
+                const phone = document.getElementById('phone').value.trim();
+                const addressType = document.getElementById('addressType').value;
+                
+                // Check if all fields are filled
+                if (!name || !address || !city || !state || !pincode || !phone || !addressType) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Validation Error',
+                        text: 'All fields are required.',
+                    });
+                    return;
+                }
+                
+                // Validate pincode
+                if (!/^\d{6}$/.test(pincode)) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Validation Error',
+                        text: 'Pincode must be exactly 6 digits.',
+                    });
+                    return;
+                }
+                
+                // Validate phone number
+                if (!/^\d{10}$/.test(phone)) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Validation Error',
+                        text: 'Phone number must be exactly 10 digits.',
+                    });
+                    return;
+                }
+                
+                // If all validations pass, submit the form
+                this.submit();
+            });
         });
-    });
-</script>
-
-<%- include('../partials/user/footer') %>
+    </script>
+</body>
+</html>

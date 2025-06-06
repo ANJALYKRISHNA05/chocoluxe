@@ -15,26 +15,46 @@
       <div class="products-counter">
         <p class="products-found"><span><%= totalProducts %></span> products found</p>
       </div>
-      <div class="d-flex align-items-center responsive-sort">
-        <div class="d-md-none filter-toggle-btn">
-          <button class="btn btn-outline-primary" type="button" data-bs-toggle="collapse" data-bs-target="#filterCollapse" aria-expanded="false" aria-controls="filterCollapse">
-            <i class="fas fa-filter me-2"></i> Filters
-          </button>
+      <div class="d-flex align-items-center responsive-controls">
+        <!-- Mobile Filter Toggle Button -->
+        <button class="btn btn-outline-primary filter-toggle-btn d-lg-none me-2" type="button" id="mobileFilterToggle">
+          <i class="fas fa-filter me-2"></i> Filters
+        </button>
+        <!-- Sort dropdown for mobile -->
+        <div class="mobile-sort d-lg-none">
+          <select class="form-select custom-select" name="sort" id="mobileSort" onchange="applyMobileSort(this.value)">
+            <option value="">Sort By</option>
+            <option value="price_low_high" <%= filters.sort === 'price_low_high' ? 'selected' : '' %>>Price: Low to High</option>
+            <option value="price_high_low" <%= filters.sort === 'price_high_low' ? 'selected' : '' %>>Price: High to Low</option>
+            <option value="name_asc" <%= filters.sort === 'name_asc' ? 'selected' : '' %>>Name: A to Z</option>
+            <option value="name_desc" <%= filters.sort === 'name_desc' ? 'selected' : '' %>>Name: Z to A</option>
+          </select>
         </div>
       </div>
     </div>
+
     <div class="row">
-     
+      <!-- Filter Sidebar -->
       <div class="col-lg-3 mb-4">
-        <div class="filter-sidebar" id="filterCollapse">
-          <div class="filter-header">
+        <div class="filter-sidebar" id="filterSidebar">
+          <!-- Mobile Filter Header -->
+          <div class="mobile-filter-header d-lg-none">
+            <h5>Filter Products</h5>
+            <button class="btn-close-filter" id="closeFilterBtn">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+          
+          <!-- Desktop Filter Header -->
+          <div class="filter-header d-none d-lg-block">
             <h5>Refine Your Selection</h5>
           </div>
+          
           <div class="filter-content">
             <form id="filterForm" action="/products" method="GET">
               <input type="hidden" name="page" value="1">
               
-              
+              <!-- Search Products -->
               <div class="filter-group">
                 <label for="search" class="filter-label">Search Products</label>
                 <div class="input-group">
@@ -47,8 +67,8 @@
                 </div>
               </div>
 
-            
-              <div class="filter-group">
+              <!-- Sort By (Desktop only) -->
+              <div class="filter-group d-none d-lg-block">
                 <label for="sort" class="filter-label">Sort By</label>
                 <select class="form-select custom-select" name="sort" id="sort" onchange="this.form.submit()">
                   <option value="">Default</option>
@@ -61,6 +81,7 @@
 
               <div class="filter-divider"></div>
 
+              <!-- Category Filter -->
               <div class="filter-group">
                 <h6 class="filter-label">Category</h6>
                 <div class="filter-scrollable">
@@ -79,6 +100,7 @@
 
               <div class="filter-divider"></div>
 
+              <!-- Flavor Filter -->
               <div class="filter-group">
                 <h6 class="filter-label">Flavor</h6>
                 <div class="filter-scrollable">
@@ -97,6 +119,7 @@
 
               <div class="filter-divider"></div>
 
+              <!-- Sugar Level Filter -->
               <div class="filter-group">
                 <h6 class="filter-label">Sugar Level</h6>
                 <div class="filter-scrollable">
@@ -115,6 +138,7 @@
 
               <div class="filter-divider"></div>
 
+              <!-- Weight Filter -->
               <div class="filter-group">
                 <h6 class="filter-label">Weight (grams)</h6>
                 <div class="filter-scrollable">
@@ -133,6 +157,7 @@
 
               <div class="filter-divider"></div>
 
+              <!-- Price Range Filter -->
               <div class="filter-group">
                 <h6 class="filter-label">Price Range</h6>
                 <div class="price-range-inputs">
@@ -152,6 +177,7 @@
 
               <div class="filter-divider"></div>
 
+              <!-- Filter Actions -->
               <div class="filter-actions">
                 <button type="submit" class="btn btn-primary btn-filter">
                   <i class="fas fa-filter me-2"></i>Apply Filters
@@ -165,6 +191,7 @@
         </div>
       </div>
 
+      <!-- Products Content -->
       <div class="col-lg-9">
         <div class="products-content">
           <% if (products.length === 0) { %>
@@ -233,6 +260,7 @@
               <% }); %>
             </div>
 
+            <!-- Pagination -->
             <% if (totalPages > 1) { %>
               <div class="pagination-container">
                 <nav aria-label="Product pagination">
@@ -264,6 +292,9 @@
     </div>
   </div>
 </section>
+
+<!-- Filter Overlay for Mobile -->
+<div class="filter-overlay" id="filterOverlay"></div>
 
 <style>
   .product-listing-section {
@@ -308,15 +339,77 @@
     max-width: 600px;
     margin: 0 auto;
   }
-  
+
+  /* Responsive Controls */
+  .responsive-controls {
+    gap: 10px;
+  }
+
+  .filter-toggle-btn {
+    background-color: #d4a26a;
+    border-color: #d4a26a;
+    color: white;
+    border-radius: 25px;
+    padding: 8px 16px;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+  }
+
+  .filter-toggle-btn:hover {
+    background-color: #c49260;
+    border-color: #c49260;
+    color: white;
+  }
+
+  .mobile-sort .form-select {
+    min-width: 120px;
+    font-size: 0.9rem;
+    border-radius: 25px;
+    border-color: #d4a26a;
+  }
+
+  /* Filter Sidebar Styles */
   .filter-sidebar {
     background-color: #ffffff;
     border-radius: 12px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
     overflow: hidden;
     transition: all 0.3s ease;
+    position: relative;
   }
-  
+
+  /* Mobile Filter Header */
+  .mobile-filter-header {
+    background-color: #3a1c1a;
+    color: #fff;
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .mobile-filter-header h5 {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+  }
+
+  .btn-close-filter {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 50%;
+    transition: background-color 0.3s ease;
+  }
+
+  .btn-close-filter:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+
+  /* Desktop Filter Header */
   .filter-header {
     background-color: #3a1c1a;
     color: #fff;
@@ -448,6 +541,25 @@
   
   .btn-clear-filter:hover {
     background-color: rgba(212, 162, 106, 0.1);
+  }
+
+  /* Filter Overlay */
+  .filter-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1040;
+    display: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .filter-overlay.show {
+    display: block;
+    opacity: 1;
   }
   
   .products-content {
@@ -765,14 +877,41 @@
     color: #ccc;
     cursor: not-allowed;
   }
-  
-  @media (max-width: 992px) {
+
+  /* Responsive Design */
+  @media (max-width: 1199.98px) {
+    .product-grid {
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 20px;
+    }
+  }
+
+  @media (max-width: 991.98px) {
     .filter-sidebar {
-      margin-bottom: 30px;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 85%;
+      max-width: 400px;
+      height: 100vh;
+      z-index: 1050;
+      overflow-y: auto;
+      transform: translateX(-100%);
+      transition: transform 0.3s ease;
+      border-radius: 0;
+    }
+
+    .filter-sidebar.show {
+      transform: translateX(0);
+    }
+
+    .product-grid {
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 20px;
     }
   }
   
-  @media (max-width: 768px) {
+  @media (max-width: 767.98px) {
     .product-banner {
       padding: 40px 0;
     }
@@ -780,50 +919,110 @@
     .page-title {
       font-size: 2rem;
     }
-    
-    .product-grid {
-      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-      gap: 20px;
+
+    .products-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 15px;
     }
-    
-    .filter-sidebar {
-      position: fixed;
-      top: 0;
-      left: 0;
+
+    .responsive-controls {
       width: 100%;
-      height: 100%;
-      z-index: 1050;
-      overflow-y: auto;
-      transform: translateX(-100%);
-      display: none;
+      justify-content: space-between;
+    }
+
+    .filter-toggle-btn {
+      flex: 1;
+      max-width: 120px;
+    }
+
+    .mobile-sort {
+      flex: 1;
+    }
+
+    .mobile-sort .form-select {
+      width: 100%;
+      min-width: auto;
     }
     
-    .filter-sidebar.show {
-      transform: translateX(0);
-      display: block;
-    }
-  }
-  
-  @media (max-width: 576px) {
     .product-grid {
       grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
       gap: 15px;
     }
     
     .product-image {
-      height: 180px;
+      height: 140px;
     }
     
     .product-info {
-      padding: 15px;
+      padding: 12px;
     }
     
     .product-name {
+      font-size: 0.9rem;
+    }
+
+    .filter-sidebar {
+      width: 90%;
+      max-width: none;
+    }
+
+    .pagination {
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .page-link {
+      width: 35px;
+      height: 35px;
+      font-size: 0.9rem;
+    }
+  }
+  
+  @media (max-width: 575.98px) {
+    .page-title {
+      font-size: 1.8rem;
+    }
+
+    .products-header {
+      margin-bottom: 20px;
+    }
+
+    .products-found {
       font-size: 1rem;
     }
     
-    .page-title {
-      font-size: 1.8rem;
+    .product-grid {
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 12px;
+    }
+    
+    .product-image {
+      height: 120px;
+    }
+    
+    .product-info {
+      padding: 10px;
+    }
+    
+    .product-name {
+      font-size: 0.85rem;
+      margin-bottom: 4px;
+    }
+
+    .product-category {
+      font-size: 0.8rem;
+      margin-bottom: 8px;
+    }
+
+    .product-specs {
+      gap: 3px;
+      margin-bottom: 8px;
+    }
+
+    .product-spec {
+      font-size: 0.7rem;
+      padding: 2px 6px;
     }
     
     .sale-price {
@@ -842,12 +1041,112 @@
       font-size: 0.7rem;
       padding: 1px 6px;
     }
+
+    .btn-view-product {
+      font-size: 0.75rem;
+      padding: 6px 0;
+      margin-top: 8px;
+    }
+
+    .filter-sidebar {
+      width: 95%;
+    }
+
+    .filter-content {
+      padding: 15px;
+    }
+
+    .filter-actions {
+      flex-direction: row;
+      gap: 8px;
+    }
+
+    .btn-filter, .btn-clear-filter {
+      flex: 1;
+      padding: 8px 12px;
+      font-size: 0.85rem;
+    }
+  }
+
+  @media (max-width: 374.98px) {
+    .product-grid {
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      gap: 10px;
+    }
+
+    .product-image {
+      height: 100px;
+    }
+
+    .product-name {
+      font-size: 0.8rem;
+    }
+
+    .sale-price {
+      font-size: 0.9rem;
+    }
   }
 </style>
 
 <script>
+  // Mobile Filter Toggle Functionality
+  const mobileFilterToggle = document.getElementById('mobileFilterToggle');
+  const filterSidebar = document.getElementById('filterSidebar');
+  const filterOverlay = document.getElementById('filterOverlay');
+  const closeFilterBtn = document.getElementById('closeFilterBtn');
+
+  function openMobileFilter() {
+    filterSidebar.classList.add('show');
+    filterOverlay.classList.add('show');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeMobileFilter() {
+    filterSidebar.classList.remove('show');
+    filterOverlay.classList.remove('show');
+    document.body.style.overflow = '';
+  }
+
+  if (mobileFilterToggle) {
+    mobileFilterToggle.addEventListener('click', openMobileFilter);
+  }
+
+  if (closeFilterBtn) {
+    closeFilterBtn.addEventListener('click', closeMobileFilter);
+  }
+
+  if (filterOverlay) {
+    filterOverlay.addEventListener('click', closeMobileFilter);
+  }
+
+  // Close filter on escape key
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && filterSidebar.classList.contains('show')) {
+      closeMobileFilter();
+    }
+  });
+
+  // Mobile Sort Functionality
+  function applyMobileSort(sortValue) {
+    const form = document.getElementById('filterForm');
+    const sortInput = form.querySelector('select[name="sort"]') || document.createElement('select');
+    sortInput.name = 'sort';
+    sortInput.value = sortValue;
+    if (!form.contains(sortInput)) {
+      form.appendChild(sortInput);
+    }
+    form.submit();
+  }
+
+  // Filter Form Functionality
   document.querySelectorAll('.filter-checkbox').forEach(checkbox => {
     checkbox.addEventListener('change', function() {
+      // Close mobile filter after selection
+      if (window.innerWidth < 992) {
+        setTimeout(() => {
+          closeMobileFilter();
+        }, 300);
+      }
       document.getElementById('filterForm').submit();
     });
   });
@@ -870,6 +1169,7 @@
     }
   }
 
+  // Wishlist Functionality
   document.querySelectorAll('.wishlist-btn').forEach(button => {
     button.addEventListener('click', async function() {
       const productId = this.getAttribute('data-product-id');
@@ -895,58 +1195,81 @@
             this.classList.remove('active');
             this.setAttribute('title', 'Add to Wishlist');
             updateWishlistBadge(data.itemCount);
-            Swal.fire({
-              icon: 'success',
-              title: 'Removed from Wishlist',
-              text: 'Product has been removed from your wishlist.',
-              showConfirmButton: false,
-              timer: 1500,
-            });
+            if (typeof Swal !== 'undefined') {
+              Swal.fire({
+                icon: 'success',
+                title: 'Removed from Wishlist',
+                text: 'Product has been removed from your wishlist.',
+                showConfirmButton: false,
+                timer: 1500,
+              });
+            }
           } else {
             this.classList.add('active');
             this.setAttribute('title', 'Remove from Wishlist');
             updateWishlistBadge(data.itemCount);
-            Swal.fire({
-              icon: 'success',
-              title: 'Added to Wishlist',
-              text: data.message,
-              showConfirmButton: false,
-              timer: 1500,
-            });
+            if (typeof Swal !== 'undefined') {
+              Swal.fire({
+                icon: 'success',
+                title: 'Added to Wishlist',
+                text: data.message,
+                showConfirmButton: false,
+                timer: 1500,
+              });
+            }
           }
         } else {
           if (data.message === 'Please log in to add items to wishlist') {
-            Swal.fire({
-              icon: 'warning',
-              title: 'Login Required',
-              text: 'Please log in to add items to your wishlist.',
-              confirmButtonText: 'Login',
-            }).then((result) => {
-              if (result.isConfirmed) {
-                window.location.href = '/user/login';
-              }
-            });
+            if (typeof Swal !== 'undefined') {
+              Swal.fire({
+                icon: 'warning',
+                title: 'Login Required',
+                text: 'Please log in to add items to your wishlist.',
+                confirmButtonText: 'Login',
+              }).then((result) => {
+                if (result.isConfirmed) {
+                  window.location.href = '/user/login';
+                }
+              });
+            } else {
+              alert('Please log in to add items to your wishlist.');
+            }
           } else {
-            Swal.fire({
-              icon: 'error',
-              title: 'Error',
-              text: data.message,
-              showConfirmButton: false,
-              timer: 1500,
-            });
+            if (typeof Swal !== 'undefined') {
+              Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: data.message,
+                showConfirmButton: false,
+                timer: 1500,
+              });
+            } else {
+              alert(data.message);
+            }
           }
         }
       } catch (error) {
         console.error('Error handling wishlist action:', error);
-        Swal.fire({
-          icon: 'error',
-          title: 'Error',
-          text: 'Something went wrong. Please try again later.',
-          showConfirmButton: false,
-          timer: 1500,
-        });
+        if (typeof Swal !== 'undefined') {
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Something went wrong. Please try again later.',
+            showConfirmButton: false,
+            timer: 1500,
+          });
+        } else {
+          alert('Something went wrong. Please try again later.');
+        }
       }
     });
+  });
+
+  // Handle window resize
+  window.addEventListener('resize', function() {
+    if (window.innerWidth >= 992 && filterSidebar.classList.contains('show')) {
+      closeMobileFilter();
+    }
   });
 </script>
 

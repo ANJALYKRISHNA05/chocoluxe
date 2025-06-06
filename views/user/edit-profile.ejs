@@ -16,6 +16,10 @@
             --muted: #888;
         }
 
+        * {
+            box-sizing: border-box;
+        }
+
         body, html {
             height: 100%;
             margin: 0;
@@ -26,21 +30,22 @@
             min-height: 100vh;
         }
 
-    
+        /* Navbar Styles */
         .navbar {
             background-color: var(--primary);
-            padding: 15px 30px;
+            padding: 15px 20px;
             color: white;
             display: flex;
             justify-content: space-between;
             align-items: center;
             position: relative;
+            flex-wrap: wrap;
         }
 
         .navbar .brand {
             font-size: 1.5rem;
             font-weight: 700;
-            text-align: center;
+            flex: 1;
         }
 
         .navbar .brand small {
@@ -66,6 +71,7 @@
             color: white;
             text-decoration: none;
             font-size: 1rem;
+            transition: color 0.3s;
         }
 
         .navbar a:hover {
@@ -75,13 +81,19 @@
         .navbar .search-bar {
             width: 200px;
             font-size: 0.9rem;
-            padding: 5px 10px;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 4px;
         }
 
         .navbar .menu-toggle {
             display: none;
             font-size: 1.5rem;
             cursor: pointer;
+            background: none;
+            border: none;
+            color: white;
+            padding: 5px;
         }
 
         .user-menu {
@@ -93,7 +105,7 @@
         .user-dropdown {
             display: none;
             position: absolute;
-            top: 30px;
+            top: 100%;
             right: 0;
             background-color: var(--primary);
             border: 1px solid var(--accent);
@@ -101,6 +113,7 @@
             padding: 10px;
             z-index: 1000;
             min-width: 180px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
 
         .user-dropdown a {
@@ -110,10 +123,8 @@
             color: white;
             font-size: 0.9rem;
             gap: 10px;
-        }
-
-        .user-dropdown a i {
-            font-size: 1rem;
+            border-radius: 4px;
+            transition: background-color 0.3s;
         }
 
         .user-dropdown a:hover {
@@ -125,20 +136,21 @@
             display: block;
         }
 
+        /* Content Container */
         .content-container {
             display: flex;
             flex: 1;
-            padding: 30px;
-            gap: 30px;
+            padding: 20px;
+            gap: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
         }
 
+        /* Sidebar Styles */
         .sidebar-container {
             width: 280px;
             flex-shrink: 0;
-        }
-
-        .main-content {
-            flex: 1;
         }
 
         .sidebar {
@@ -146,10 +158,11 @@
             border-radius: 8px;
             padding: 24px;
             width: 100%;
-            height: 100%;
+            height: fit-content;
             display: flex;
             flex-direction: column;
             border: 1px solid #e5e7eb;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
         .sidebar .user-profile {
@@ -157,51 +170,153 @@
             flex-direction: column;
             align-items: center;
             margin-bottom: 32px;
+            text-align: center;
         }
 
         .sidebar .username {
-            font-weight: 500;
+            font-weight: 600;
             color: #1f2937;
+            margin-bottom: 4px;
         }
 
         .sidebar .email {
             font-size: 12px;
             color: var(--muted);
-            margin-top: 4px;
+        }
+
+        .sidebar nav ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .sidebar nav ul li {
+            margin-bottom: 8px;
         }
 
         .sidebar nav ul li a {
             display: flex;
             align-items: center;
-            padding: 8px 12px;
+            padding: 12px 16px;
             border-radius: 6px;
             color: var(--muted);
             text-decoration: none;
             transition: all 0.2s;
+            font-size: 14px;
         }
 
+        .sidebar nav ul li a.active,
         .sidebar nav ul li a.bg-primary.bg-opacity-10 {
+            background-color: #eff6ff;
             color: #2563eb;
         }
 
         .sidebar nav ul li a:hover {
             background-color: #f9fafb;
+            color: var(--primary);
         }
 
         .sidebar nav ul li a i {
             margin-right: 12px;
             font-size: 16px;
-        }
-
-        .sidebar nav ul li a span {
-            font-size: 14px;
+            width: 20px;
+            text-align: center;
         }
 
         .sidebar .logout a:hover {
             color: #ef4444;
+            background-color: #fef2f2;
         }
 
-        
+        /* Mobile Sidebar Overlay */
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+
+        .sidebar-mobile {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: -100%;
+            width: 280px;
+            height: 100%;
+            background-color: white;
+            z-index: 1000;
+            transition: left 0.3s ease;
+            overflow-y: auto;
+        }
+
+        .sidebar-mobile.active {
+            left: 0;
+        }
+
+        .sidebar-mobile .sidebar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            border-bottom: 1px solid #e5e7eb;
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .sidebar-mobile .sidebar-header h3 {
+            margin: 0;
+            font-size: 1.2rem;
+        }
+
+        .sidebar-mobile .close-sidebar {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        /* Mobile Menu Button */
+        .mobile-menu-btn {
+            background-color: var(--primary);
+            color: white;
+            border: 2px solid var(--primary);
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .mobile-menu-btn:hover {
+            background-color: var(--accent);
+            border-color: var(--accent);
+            color: white;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(74, 44, 42, 0.2);
+        }
+
+        .mobile-menu-btn:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(74, 44, 42, 0.2);
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        /* Profile Card */
         .profile-card {
             background-color: var(--card-bg);
             border-radius: 15px;
@@ -215,12 +330,15 @@
             margin-bottom: 25px;
             border-bottom: 1px solid #eee;
             padding-bottom: 15px;
+            font-size: 1.8rem;
         }
 
         .profile-image-container {
             display: flex;
             align-items: center;
             margin-bottom: 25px;
+            flex-wrap: wrap;
+            gap: 20px;
         }
 
         .profile-image-preview {
@@ -229,96 +347,7 @@
             border-radius: 50%;
             object-fit: cover;
             border: 3px solid var(--accent);
-            margin-right: 20px;
-        }
-
-        .image-upload-btn {
-            background-color: var(--primary);
-            color: white;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 5px;
-            font-size: 0.9rem;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .image-upload-btn:hover {
-            background-color: #5a3c3a;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-label {
-            color: var(--primary);
-            font-weight: 600;
-            margin-bottom: 8px;
-        }
-
-        .form-control {
-            padding: 10px 15px;
-            border: 2px solid #ddd;
-            border-radius: 8px;
-            transition: all 0.3s;
-        }
-
-        .form-control:focus {
-            border-color: var(--accent);
-            box-shadow: 0 0 0 3px rgba(209, 168, 118, 0.25);
-        }
-
-        .btn-edit {
-            background-color: var(--accent);
-            color: white;
-            border: none;
-            padding: 12px 25px;
-            border-radius: 8px;
-            font-weight: 600;
-            transition: all 0.3s;
-        }
-
-        .btn-edit:hover {
-            background-color: #b68d5a;
-        }
-
-        .btn-cancel {
-            background-color: #ddd;
-            color: #555;
-            border: none;
-            padding: 12px 25px;
-            border-radius: 8px;
-            font-weight: 600;
-            transition: all 0.3s;
-        }
-
-        .btn-cancel:hover {
-            background-color: #ccc;
-        }
-
-        .action-buttons {
-            display: flex;
-            gap: 15px;
-            margin-top: 25px;
-        }
-
-        .alert {
-            margin-bottom: 20px;
-            padding: 15px;
-            border-radius: 8px;
-        }
-
-        .alert-danger {
-            background-color: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-
-        .alert-success {
-            background-color: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
+            flex-shrink: 0;
         }
 
         .file-upload-wrapper {
@@ -337,7 +366,132 @@
             height: 100%;
         }
 
-       
+        .image-upload-btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .image-upload-btn:hover {
+            background-color: #5a3c3a;
+            transform: translateY(-1px);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            color: var(--primary);
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: block;
+            font-size: 0.95rem;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            transition: all 0.3s;
+            font-size: 1rem;
+            background-color: white;
+        }
+
+        .form-control:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(209, 168, 118, 0.25);
+            outline: none;
+        }
+
+        .form-control[readonly] {
+            background-color: #f8f9fa;
+            color: var(--muted);
+        }
+
+        .form-text {
+            font-size: 0.85rem;
+            color: var(--muted);
+            margin-top: 5px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        .btn-edit {
+            background-color: var(--accent);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+
+        .btn-edit:hover {
+            background-color: #b68d5a;
+            color: white;
+            transform: translateY(-1px);
+        }
+
+        .btn-cancel {
+            background-color: #6c757d;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-cancel:hover {
+            background-color: #5a6268;
+            color: white;
+            transform: translateY(-1px);
+        }
+
+        .alert {
+            margin-bottom: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid transparent;
+        }
+
+        .alert-danger {
+            background-color: #f8d7da;
+            color: #721c24;
+            border-color: #f5c6cb;
+        }
+
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+            border-color: #c3e6cb;
+        }
+
+        /* Footer */
         .footer {
             background-color: var(--primary);
             color: white;
@@ -345,11 +499,26 @@
             margin-top: auto;
         }
 
+        .footer .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .footer .row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
         .footer a {
             color: var(--accent);
             margin: 0 10px;
             text-decoration: none;
             font-size: 0.9rem;
+            transition: color 0.3s;
         }
 
         .footer a:hover {
@@ -361,95 +530,73 @@
             margin: 5px;
         }
 
-      
-        @media (max-width: 992px) {
+        /* Responsive Design */
+        @media (max-width: 1024px) {
             .content-container {
-                flex-direction: column;
-                padding: 20px;
+                padding: 15px;
+                gap: 15px;
             }
 
             .sidebar-container {
-                width: 100%;
-                margin-bottom: 20px;
+                width: 250px;
             }
 
-            .profile-image-container {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-
-            .profile-image-preview {
-                margin-right: 0;
-                margin-bottom: 15px;
-            }
-
-            .action-buttons {
-                flex-direction: column;
+            .profile-card {
+                padding: 25px;
             }
         }
 
         @media (max-width: 768px) {
-            .navbar {
-                padding: 15px;
-                flex-direction: column;
-                align-items: flex-start;
-            }
-
-            .navbar .brand {
-                margin-bottom: 15px;
-            }
-
-            .navbar .nav-links, .navbar .nav-icons {
+            .navbar .nav-links,
+            .navbar .nav-icons {
                 display: none;
             }
 
             .navbar .menu-toggle {
                 display: block;
-                position: absolute;
-                top: 15px;
-                right: 15px;
             }
 
-            .navbar.active .nav-links, .navbar.active .nav-icons {
-                display: flex;
+            .navbar .search-bar {
+                width: 150px;
+            }
+
+            .content-container {
                 flex-direction: column;
-                width: 100%;
-                background-color: var(--primary);
-                padding: 15px 0;
+                padding: 15px;
             }
 
-            .navbar.active .nav-links a, .navbar.active .nav-icons a {
-                margin: 10px 20px;
+            .sidebar-container {
+                display: none;
             }
 
-            .navbar.active .search-bar {
-                width: 100%;
-                margin: 10px 20px;
+            .sidebar-overlay.active {
+                display: block;
             }
 
-            .navbar.active .user-menu {
-                width: 100%;
-                justify-content: flex-start;
-                margin: 10px 20px;
+            .sidebar-mobile {
+                display: block;
             }
 
-            .user-dropdown {
-                position: static;
-                border: none;
-                background-color: transparent;
-                padding: 0;
+            .profile-image-container {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
             }
 
-            .user-dropdown a {
-                margin: 10px 20px;
+            .profile-card {
+                padding: 20px;
             }
 
-            .footer .col {
-                margin-bottom: 10px;
+            .action-buttons {
+                justify-content: center;
             }
         }
 
         @media (max-width: 576px) {
+            .navbar {
+                padding: 10px 15px;
+            }
+
             .navbar .brand {
                 font-size: 1.2rem;
             }
@@ -458,40 +605,127 @@
                 font-size: 0.7rem;
             }
 
-            .navbar.active .nav-links a, .navbar.active .nav-icons a {
-                font-size: 0.8rem;
-            }
-
             .navbar .search-bar {
                 width: 120px;
-                font-size: 0.7rem;
+                font-size: 0.8rem;
+                padding: 6px 10px;
+            }
+
+            .content-container {
+                padding: 10px;
+            }
+
+            .profile-card {
+                padding: 15px;
+                border-radius: 10px;
+            }
+
+            .edit-profile-title {
+                font-size: 1.5rem;
+            }
+
+            .profile-image-preview {
+                width: 80px;
+                height: 80px;
+            }
+
+            .form-control {
+                padding: 10px 12px;
+                font-size: 0.9rem;
+            }
+
+            .btn-edit,
+            .btn-cancel {
+                padding: 10px 20px;
+                font-size: 0.9rem;
+            }
+
+            .mobile-menu-btn {
+                padding: 8px 14px;
+                font-size: 0.85rem;
             }
 
             .footer .row {
                 flex-direction: column;
                 text-align: center;
+                gap: 10px;
             }
 
             .footer a {
-                font-size: 0.7rem;
+                font-size: 0.8rem;
+                margin: 0 5px;
             }
         }
 
-       
+        @media (max-width: 480px) {
+            .profile-image-container {
+                gap: 15px;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .btn-edit,
+            .btn-cancel {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .form-group {
+                margin-bottom: 15px;
+            }
+        }
+
+        /* Utility Classes */
         .hover-bg-light:hover {
             background-color: #f9fafb !important;
+        }
+
+        .d-none-mobile {
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            .d-none-mobile {
+                display: none;
+            }
         }
     </style>
 </head>
 <body>
     <%- include('../partials/user/header') %>
     
+    <!-- Mobile Sidebar Overlay -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeMobileSidebar()"></div>
+    
+    <!-- Mobile Sidebar -->
+    <div class="sidebar-mobile" id="mobileSidebar">
+        <div class="sidebar-header">
+            <h3>Menu</h3>
+            <button class="close-sidebar" onclick="closeMobileSidebar()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="sidebar">
+            <%- include('../partials/user/sidebar', { activeTab: 'edit' }) %>
+        </div>
+    </div>
+    
     <div class="content-container">
-        <div class="sidebar-container">
+        <div class="sidebar-container d-none-mobile">
             <%- include('../partials/user/sidebar', { activeTab: 'edit' }) %>
         </div>
         
         <div class="main-content">
+            <!-- Mobile Menu Button -->
+            <div class="d-block d-md-none mb-3">
+                <button class="mobile-menu-btn" onclick="openMobileSidebar()">
+                    <i class="fas fa-bars"></i> Menu
+                </button>
+            </div>
+            
             <% if (locals.message && message.length > 0) { %>
                 <div class="alert alert-danger">
                     <%= message %>
@@ -506,7 +740,7 @@
                         <img id="profileImagePreview" class="profile-image-preview" src="<%= user.profileImage %>" alt="Profile Image">
                         <div class="file-upload-wrapper">
                             <button type="button" class="image-upload-btn">
-                                <i class="fas fa-camera me-2"></i> Change Profile Picture
+                                <i class="fas fa-camera"></i> Change Profile Picture
                             </button>
                             <input type="file" name="profileImage" id="profileImageInput" accept="image/*">
                         </div>
@@ -524,8 +758,8 @@
                     
                     <div class="form-group">
                         <label for="newEmail" class="form-label">New Email (leave blank if unchanged)</label>
-                        <input type="email" class="form-control" id="newEmail" name="newEmail">
-                        <small class="form-text text-muted">Changing email requires verification</small>
+                        <input type="email" class="form-control" id="newEmail" name="newEmail" placeholder="Enter new email address">
+                        <small class="form-text">Changing email requires verification</small>
                     </div>
                     
                     <div class="form-group">
@@ -534,11 +768,11 @@
                     </div>
                     
                     <div class="action-buttons">
-                        <button type="submit" class="btn btn-edit">
-                            <i class="fas fa-save me-2"></i> Save Changes
+                        <button type="submit" class="btn-edit">
+                            <i class="fas fa-save"></i> Save Changes
                         </button>
-                        <a href="/user/profile" class="btn btn-cancel">
-                            <i class="fas fa-times me-2"></i> Cancel
+                        <a href="/user/profile" class="btn-cancel">
+                            <i class="fas fa-times"></i> Cancel
                         </a>
                     </div>
                 </form>
@@ -550,7 +784,6 @@
     
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-    
         function toggleMenu() {
             const navbar = document.querySelector('.navbar');
             navbar.classList.toggle('active');
@@ -561,6 +794,23 @@
             userMenu.classList.toggle('active');
         }
 
+        function openMobileSidebar() {
+            const overlay = document.getElementById('sidebarOverlay');
+            const sidebar = document.getElementById('mobileSidebar');
+            overlay.classList.add('active');
+            sidebar.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeMobileSidebar() {
+            const overlay = document.getElementById('sidebarOverlay');
+            const sidebar = document.getElementById('mobileSidebar');
+            overlay.classList.remove('active');
+            sidebar.classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        // Close user menu when clicking outside
         document.addEventListener('click', function(event) {
             const userMenu = document.querySelector('.user-menu');
             const isClickInside = userMenu.contains(event.target);
@@ -569,7 +819,21 @@
             }
         });
 
-       
+        // Close mobile sidebar on window resize
+        window.addEventListener('resize', function() {
+            if (window.innerWidth > 768) {
+                closeMobileSidebar();
+            }
+        });
+
+        // Handle escape key to close mobile sidebar
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeMobileSidebar();
+            }
+        });
+
+        // Profile image preview functionality
         document.getElementById("profileImageInput").addEventListener("change", function() {
             const file = this.files[0];
             if (file) {

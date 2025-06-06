@@ -9,54 +9,371 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <style>
-    body {
+    :root {
+      --primary: #4a2c2a;
+      --accent: #d1a876;
+      --background: #f5e8d4;
+      --card-bg: #fff9e6;
+      --muted: #888;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body, html {
+      height: 100%;
+      margin: 0;
+      background-color: var(--background);
       font-family: 'Nunito Sans', sans-serif;
-      background-color: #f5e8d4;
+      display: flex;
+      flex-direction: column;
       min-height: 100vh;
     }
+
+    /* Navbar Styles */
+    .navbar {
+      background-color: var(--primary);
+      padding: 15px 20px;
+      color: white;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: relative;
+      flex-wrap: wrap;
+    }
+
+    .navbar .brand {
+      font-size: 1.5rem;
+      font-weight: 700;
+      flex: 1;
+    }
+
+    .navbar .brand small {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 400;
+      color: var(--accent);
+    }
+
+    .navbar .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 25px;
+    }
+
+    .navbar .nav-icons {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .navbar a {
+      color: white;
+      text-decoration: none;
+      font-size: 1rem;
+      transition: color 0.3s;
+    }
+
+    .navbar a:hover {
+      color: var(--accent);
+    }
+
+    .navbar .search-bar {
+      width: 200px;
+      font-size: 0.9rem;
+      padding: 8px 12px;
+      border: none;
+      border-radius: 4px;
+    }
+
+    .navbar .menu-toggle {
+      display: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      background: none;
+      border: none;
+      color: white;
+      padding: 5px;
+    }
+
+    .user-menu {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .user-dropdown {
+      display: none;
+      position: absolute;
+      top: 100%;
+      right: 0;
+      background-color: var(--primary);
+      border: 1px solid var(--accent);
+      border-radius: 5px;
+      padding: 10px;
+      z-index: 1000;
+      min-width: 180px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .user-dropdown a {
+      display: flex;
+      align-items: center;
+      padding: 10px 15px;
+      color: white;
+      font-size: 0.9rem;
+      gap: 10px;
+      border-radius: 4px;
+      transition: background-color 0.3s;
+    }
+
+    .user-dropdown a:hover {
+      background-color: #5a3c3a;
+      color: var(--accent);
+    }
+
+    .user-menu.active .user-dropdown {
+      display: block;
+    }
+
+    /* Content Container */
+    .content-container {
+      display: flex;
+      flex: 1;
+      padding: 20px;
+      max-width: 1200px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    /* Mobile Sidebar Overlay */
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 999;
+    }
+
+    .sidebar-mobile {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: -100%;
+      width: 280px;
+      height: 100%;
+      background-color: white;
+      z-index: 1000;
+      transition: left 0.3s ease;
+      overflow-y: auto;
+    }
+
+    .sidebar-mobile.active {
+      left: 0;
+    }
+
+    .sidebar-mobile .sidebar-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px;
+      border-bottom: 1px solid #e5e7eb;
+      background-color: var(--primary);
+      color: white;
+    }
+
+    .sidebar-mobile .sidebar-header h3 {
+      margin: 0;
+      font-size: 1.2rem;
+    }
+
+    .sidebar-mobile .close-sidebar {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 1.5rem;
+      cursor: pointer;
+      padding: 5px;
+    }
+
+    /* Mobile Menu Button */
+    .mobile-menu-btn {
+      background-color: var(--primary);
+      color: white;
+      border: 2px solid var(--primary);
+      padding: 10px 16px;
+      border-radius: 8px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+      font-size: 0.9rem;
+      margin-bottom: 15px;
+    }
+
+    .mobile-menu-btn:hover {
+      background-color: var(--accent);
+      border-color: var(--accent);
+      color: white;
+      transform: translateY(-1px);
+      box-shadow: 0 2px 8px rgba(74, 44, 42, 0.2);
+    }
+
+    .mobile-menu-btn:focus {
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(74, 44, 42, 0.2);
+    }
+
+    /* Order Container Styles */
     .order-container {
       max-width: 1000px;
       margin: 0 auto;
       background: #fff;
-      border-radius: 8px;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-      padding: 2rem;
+      border-radius: 15px;
+      box-shadow: 0 4px 15px rgba(74, 44, 42, 0.1);
+      padding: 30px;
+      width: 100%;
     }
+
     .order-header {
       border-bottom: 1px solid #dee2e6;
       padding-bottom: 1.5rem;
       margin-bottom: 2rem;
+      display: flex;
+      flex-direction: column;
     }
+
+    @media (min-width: 768px) {
+      .order-header {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+      }
+    }
+
+    .order-title {
+      margin-bottom: 0.5rem;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    .order-date {
+      color: var(--muted);
+      font-size: 0.9rem;
+      margin-bottom: 1rem;
+    }
+
+    .order-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 15px;
+    }
+
+    @media (min-width: 768px) {
+      .order-actions {
+        margin-top: 0;
+      }
+    }
+
+    .btn-back {
+      background-color: transparent;
+      color: var(--primary);
+      border: 1px solid var(--primary);
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-weight: 600;
+      transition: all 0.3s;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.9rem;
+    }
+
+    .btn-back:hover {
+      background-color: var(--primary);
+      color: white;
+    }
+
     .btn-primary {
-      background-color: #4b2e2e;
-      border-color: #4b2e2e;
+      background-color: var(--primary);
+      border-color: var(--primary);
+      color: white;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-weight: 600;
+      transition: all 0.3s;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.9rem;
     }
+
     .btn-primary:hover {
       background-color: #3c2525;
       border-color: #3c2525;
+      transform: translateY(-1px);
     }
+
     .btn-danger {
       background-color: #dc3545;
       border-color: #dc3545;
+      color: white;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-weight: 600;
+      transition: all 0.3s;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.9rem;
     }
+
     .btn-danger:hover {
       background-color: #c82333;
       border-color: #c82333;
+      transform: translateY(-1px);
     }
+
     .btn-warning {
       background-color: #f6ad55;
       border-color: #f6ad55;
+      color: white;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-weight: 600;
+      transition: all 0.3s;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.9rem;
     }
+
     .btn-warning:hover {
       background-color: #e69b44;
       border-color: #e69b44;
+      transform: translateY(-1px);
     }
+
     .section-title {
       font-weight: 700;
       position: relative;
       padding-bottom: 0.5rem;
       margin-bottom: 1.5rem;
+      color: var(--primary);
+      font-size: 1.3rem;
     }
+
     .section-title::after {
       content: '';
       position: absolute;
@@ -64,15 +381,32 @@
       bottom: 0;
       height: 3px;
       width: 40px;
-      background-color: #f8c78d;
+      background-color: var(--accent);
       border-radius: 2px;
     }
+
     .info-card {
       border: 1px solid #dee2e6;
-      border-radius: 8px;
+      border-radius: 10px;
       padding: 1.5rem;
       background-color: #fff;
+      height: 100%;
     }
+
+    /* Status Tracker */
+    .status-tracker {
+      overflow-x: auto;
+      padding: 10px 0;
+      margin-bottom: 20px;
+    }
+
+    .status-steps {
+      display: flex;
+      justify-content: space-between;
+      min-width: 600px;
+      padding: 10px 0;
+    }
+
     .status-step {
       position: relative;
       display: flex;
@@ -80,6 +414,7 @@
       align-items: center;
       flex: 1;
     }
+
     .status-step::before {
       content: '';
       position: absolute;
@@ -90,9 +425,11 @@
       right: 50%;
       z-index: 0;
     }
+
     .status-step:first-child::before {
       display: none;
     }
+
     .status-icon {
       width: 44px;
       height: 44px;
@@ -107,11 +444,13 @@
       border: 2px solid #fff;
       box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
     }
+
     .status-step.active .status-icon {
-      background-color: #4b2e2e;
+      background-color: var(--primary);
       color: #fff;
       box-shadow: 0 4px 10px rgba(75, 46, 46, 0.2);
     }
+
     .status-icon.pending { background-color: #f6ad55; }
     .status-icon.confirmed { background-color: #4299e1; }
     .status-icon.shipped { background-color: #9f7aea; }
@@ -119,7 +458,7 @@
     .status-icon.return-requested { background-color: #f6ad55; }
     .status-icon.returned { background-color: #17a2b8; }
     .status-icon.cancelled { background-color: #dc3545; }
-    .status-step.active::before { background-color: #4b2e2e; }
+    .status-step.active::before { background-color: var(--primary); }
     .status-step.pending.active::before { background-color: #f6ad55; }
     .status-step.confirmed.active::before { background-color: #4299e1; }
     .status-step.shipped.active::before { background-color: #9f7aea; }
@@ -127,55 +466,388 @@
     .status-step.return-requested.active::before { background-color: #f6ad55; }
     .status-step.returned.active::before { background-color: #17a2b8; }
     .status-step.cancelled.active::before { background-color: #dc3545; }
+
+    .status-label {
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-align: center;
+      color: var(--muted);
+    }
+
+    .status-step.active .status-label {
+      color: var(--primary);
+    }
+
+    /* Order Items */
     .order-item {
       border: 1px solid #dee2e6;
-      border-radius: 8px;
-      padding: 1rem;
+      border-radius: 10px;
+      padding: 15px;
       background-color: #fff;
       transition: all 0.3s ease;
+      margin-bottom: 15px;
+      display: flex;
+      flex-direction: column;
     }
+
+    @media (min-width: 576px) {
+      .order-item {
+        flex-direction: row;
+        align-items: center;
+      }
+    }
+
     .order-item:hover {
       transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      box-shadow: 0 4px 12px rgba(74, 44, 42, 0.08);
     }
+
     .item-image {
       width: 80px;
       height: 80px;
       object-fit: cover;
-      border-radius: 4px;
-      border: 1px solid #dee2e6;
-    }
-    .modal-content {
       border-radius: 8px;
-      padding: 1.5rem;
+      border: 1px solid #dee2e6;
+      margin-bottom: 15px;
     }
-    textarea.form-control {
-      border-radius: 4px;
+
+    @media (min-width: 576px) {
+      .item-image {
+        margin-bottom: 0;
+        margin-right: 15px;
+      }
     }
+
+    .item-details {
+      flex: 1;
+    }
+
+    .item-name {
+      font-weight: 600;
+      color: var(--primary);
+      margin-bottom: 5px;
+      font-size: 1.1rem;
+    }
+
+    .item-variant {
+      color: var(--muted);
+      font-size: 0.85rem;
+      margin-bottom: 5px;
+    }
+
+    .item-quantity {
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+
+    .item-price {
+      font-weight: 600;
+      color: var(--primary);
+      font-size: 1.1rem;
+      margin-top: 10px;
+      text-align: right;
+    }
+
+    @media (min-width: 576px) {
+      .item-price {
+        margin-top: 0;
+        margin-left: 15px;
+      }
+    }
+
+    /* Order Summary */
+    .order-summary {
+      border-top: 1px solid #dee2e6;
+      padding-top: 20px;
+      margin-top: 20px;
+    }
+
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+
+    .summary-label {
+      color: var(--muted);
+    }
+
+    .summary-value {
+      font-weight: 600;
+    }
+
+    .summary-total {
+      border-top: 1px solid #dee2e6;
+      padding-top: 10px;
+      margin-top: 10px;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    /* Alerts */
+    .alert {
+      border-radius: 10px;
+      padding: 15px;
+      margin-bottom: 20px;
+      border: none;
+    }
+
+    .alert-warning {
+      background-color: #fff3cd;
+      color: #856404;
+    }
+
+    .alert-success {
+      background-color: #d4edda;
+      color: #155724;
+    }
+
+    .alert-danger {
+      background-color: #f8d7da;
+      color: #721c24;
+    }
+
+    /* Modal Styles */
+    .modal-content {
+      border-radius: 10px;
+      border: none;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .modal-header {
+      background-color: var(--primary);
+      color: white;
+      border-top-left-radius: 10px;
+      border-top-right-radius: 10px;
+      padding: 15px 20px;
+    }
+
+    .modal-title {
+      font-weight: 600;
+    }
+
+    .modal-body {
+      padding: 20px;
+    }
+
+    .modal-footer {
+      padding: 15px 20px;
+      border-top: 1px solid #dee2e6;
+    }
+
+    .form-control {
+      border: 2px solid #dee2e6;
+      border-radius: 8px;
+      padding: 12px 15px;
+      transition: all 0.3s;
+    }
+
+    .form-control:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(209, 168, 118, 0.25);
+      outline: none;
+    }
+
+    /* Toast Styles */
     .toast {
       border-radius: 8px;
       box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Footer */
+    .footer {
+      background-color: var(--primary);
+      color: white;
+      padding: 20px 0;
+      margin-top: auto;
+    }
+
+    .footer .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    .footer .row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+
+    .footer a {
+      color: var(--accent);
+      margin: 0 10px;
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: color 0.3s;
+    }
+
+    .footer a:hover {
+      color: white;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 1024px) {
+      .order-container {
+        padding: 25px;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .navbar .nav-links,
+      .navbar .nav-icons {
+        display: none;
+      }
+
+      .navbar .menu-toggle {
+        display: block;
+      }
+
+      .navbar .search-bar {
+        width: 150px;
+      }
+
+      .order-container {
+        padding: 20px;
+      }
+
+      .section-title {
+        font-size: 1.2rem;
+      }
+
+      .info-card {
+        padding: 15px;
+        margin-bottom: 20px;
+      }
+    }
+
+    @media (max-width: 576px) {
+      .navbar {
+        padding: 10px 15px;
+      }
+
+      .navbar .brand {
+        font-size: 1.2rem;
+      }
+
+      .navbar .brand small {
+        font-size: 0.7rem;
+      }
+
+      .navbar .search-bar {
+        width: 120px;
+        font-size: 0.8rem;
+        padding: 6px 10px;
+      }
+
+      .order-container {
+        padding: 15px;
+        border-radius: 10px;
+      }
+
+      .order-header {
+        padding-bottom: 1rem;
+        margin-bottom: 1.5rem;
+      }
+
+      .order-title {
+        font-size: 1.3rem;
+      }
+
+      .section-title {
+        font-size: 1.1rem;
+      }
+
+      .order-actions {
+        flex-direction: column;
+        width: 100%;
+      }
+
+      .order-actions .btn {
+        width: 100%;
+        justify-content: center;
+      }
+
+      .mobile-menu-btn {
+        padding: 8px 14px;
+        font-size: 0.85rem;
+      }
+
+      .footer .row {
+        flex-direction: column;
+        text-align: center;
+        gap: 10px;
+      }
+
+      .footer a {
+        font-size: 0.8rem;
+        margin: 0 5px;
+      }
+    }
+
+    /* Utility Classes */
+    .d-none-mobile {
+      display: block;
+    }
+
+    @media (max-width: 768px) {
+      .d-none-mobile {
+        display: none;
+      }
     }
   </style>
 </head>
 <body>
   <%- include('../partials/user/header') %>
+  
+  <!-- Mobile Sidebar Overlay -->
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeMobileSidebar()"></div>
+  
+  <!-- Mobile Sidebar -->
+  <div class="sidebar-mobile" id="mobileSidebar">
+    <div class="sidebar-header">
+      <h3>Menu</h3>
+      <button class="close-sidebar" onclick="closeMobileSidebar()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div class="sidebar">
+      <%- include('../partials/user/sidebar', { activeTab: 'orders' }) %>
+    </div>
+  </div>
 
-  <div class="container py-5">
+  <div class="container py-4">
+    <!-- Mobile Menu Button -->
+    <div class="d-block d-md-none">
+      <button class="mobile-menu-btn" onclick="openMobileSidebar()">
+        <i class="fas fa-bars"></i> Menu
+      </button>
+    </div>
+    
     <div class="order-container">
-      <div class="order-header d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center">
+      <div class="order-header">
         <div>
-          <a href="/user/orders" class="btn btn-outline-dark mb-3"><i class="fas fa-arrow-left me-2"></i>Back to Orders</a>
-          <h1 class="h4 mb-2">Order #<%= order.orderId %></h1>
-          <p class="text-muted small">Placed on <%= orderDate %></p>
+          <a href="/user/orders" class="btn-back mb-3">
+            <i class="fas fa-arrow-left"></i> Back to Orders
+          </a>
+          <h1 class="order-title">Order #<%= order.orderId %></h1>
+          <p class="order-date">Placed on <%= orderDate %></p>
         </div>
-        <div class="mt-3 mt-md-0">
+        <div class="order-actions">
           <% if (order.status === 'Pending' || order.status === 'Confirmed') { %>
-            <button onclick="showCancelModal()" class="btn btn-danger"><i class="fas fa-times-circle me-2"></i>Cancel Order</button>
+            <button onclick="showCancelModal()" class="btn-danger">
+              <i class="fas fa-times-circle"></i> Cancel Order
+            </button>
           <% } %>
           <% if (order.status === 'Delivered' && !order.return.requested) { %>
-            <button onclick="showReturnModal()" class="btn btn-warning ms-2"><i class="fas fa-exchange-alt me-2"></i>Request Return</button>
-            <a href="/orders/<%= order.orderId %>/invoice" class="btn btn-primary ms-2"><i class="fas fa-file-download me-2"></i>Download Invoice</a>
+            <button onclick="showReturnModal()" class="btn-warning">
+              <i class="fas fa-exchange-alt"></i> Request Return
+            </button>
+            <a href="/orders/<%= order.orderId %>/invoice" class="btn-primary">
+              <i class="fas fa-file-download"></i> Download Invoice
+            </a>
           <% } %>
         </div>
       </div>
@@ -206,28 +878,30 @@
 
       <div class="mb-5">
         <h2 class="section-title">Order Status</h2>
-        <div class="d-flex justify-content-between py-4">
-          <% 
-            const statuses = ['Pending', 'Confirmed', 'Shipped', 'Delivered', 'Return Requested', 'Returned'];
-            const currentStatusIndex = statuses.indexOf(order.status);
-            const cancelled = order.status === 'Cancelled';
-          %>
-          <% statuses.forEach((status, index) => { %>
-            <div class="status-step <%= index <= currentStatusIndex ? 'active' : '' %> <%= status.toLowerCase().replace(/ /g, '-') %>">
-              <div class="status-icon <%= index <= currentStatusIndex ? status.toLowerCase().replace(/ /g, '-') : '' %> <%= cancelled && status === 'Pending' ? 'cancelled' : '' %>">
-                <% if (index <= currentStatusIndex) { %>
-                  <i class="fas fa-check"></i>
-                <% } else if (cancelled && status === 'Pending') { %>
-                  <i class="fas fa-times"></i>
-                <% } else { %>
-                  <i class="fas fa-circle fa-xs"></i>
-                <% } %>
+        <div class="status-tracker">
+          <div class="status-steps">
+            <% 
+              const statuses = ['Pending', 'Confirmed', 'Shipped', 'Delivered', 'Return Requested', 'Returned'];
+              const currentStatusIndex = statuses.indexOf(order.status);
+              const cancelled = order.status === 'Cancelled';
+            %>
+            <% statuses.forEach((status, index) => { %>
+              <div class="status-step <%= index <= currentStatusIndex ? 'active' : '' %> <%= status.toLowerCase().replace(/ /g, '-') %>">
+                <div class="status-icon <%= index <= currentStatusIndex ? status.toLowerCase().replace(/ /g, '-') : '' %> <%= cancelled && status === 'Pending' ? 'cancelled' : '' %>">
+                  <% if (index <= currentStatusIndex) { %>
+                    <i class="fas fa-check"></i>
+                  <% } else if (cancelled && status === 'Pending') { %>
+                    <i class="fas fa-times"></i>
+                  <% } else { %>
+                    <i class="fas fa-circle fa-xs"></i>
+                  <% } %>
+                </div>
+                <span class="status-label">
+                  <%= status %>
+                </span>
               </div>
-              <span class="text-sm font-medium text-center <%= index <= currentStatusIndex ? 'text-dark' : 'text-muted' %>">
-                <%= status %>
-              </span>
-            </div>
-          <% }) %>
+            <% }) %>
+          </div>
         </div>
       </div>
 
@@ -235,7 +909,7 @@
         <div class="col-md-6 mb-4 mb-md-0">
           <h3 class="section-title">Shipping Information</h3>
           <div class="info-card">
-            <p class="font-weight-bold"><%= order.shippingAddress.name %></p>
+            <p class="fw-bold"><%= order.shippingAddress.name %></p>
             <p><%= order.shippingAddress.address %></p>
             <p><%= order.shippingAddress.city %>, <%= order.shippingAddress.state %> <%= order.shippingAddress.pincode %></p>
             <p class="text-muted"><i class="fas fa-phone-alt me-2"></i><%= order.shippingAddress.phone %></p>
@@ -246,15 +920,15 @@
           <div class="info-card">
             <div class="mb-3">
               <p class="text-muted small mb-1">Payment Method</p>
-              <p class="font-weight-bold"><i class="fas fa-credit-card me-2"></i><%= order.paymentMethod %></p>
+              <p class="fw-bold"><i class="fas fa-credit-card me-2"></i><%= order.paymentMethod %></p>
             </div>
             <div class="mb-3">
               <p class="text-muted small mb-1">Total Amount</p>
-              <p class="font-weight-bold"><i class="fas fa-money-bill-wave me-2"></i>₹<%= order.total.toFixed(2) %></p>
+              <p class="fw-bold"><i class="fas fa-money-bill-wave me-2"></i>₹<%= order.total.toFixed(2) %></p>
             </div>
             <div>
               <p class="text-muted small mb-1">Delivery Status</p>
-              <p class="font-weight-bold"><i class="fas fa-truck me-2"></i><%= order.status %></p>
+              <p class="fw-bold"><i class="fas fa-truck me-2"></i><%= order.status %></p>
             </div>
           </div>
         </div>
@@ -262,50 +936,46 @@
 
       <div class="mb-5">
         <h3 class="section-title">Order Items</h3>
-        <div class="row">
-          <% order.items.forEach(item => { %>
-            <% const variant = item.product.variants.find(v => v.sku === item.sku); %>
-            <div class="col-12 mb-3">
-              <div class="order-item d-flex align-items-center">
-                <img src="<%= variant.productImage[0] %>" alt="<%= item.product.productName %>" class="item-image me-3" onerror="this.src='/Images/placeholder.jpg'">
-                <div class="flex-grow-1">
-                  <h5 class="mb-1"><%= item.product.productName %></h5>
-                  <p class="text-muted small mb-1">
-                    Flavor: <%= variant.flavor %> | Sugar: <%= variant.sugarLevel %> | Weight: <%= variant.weight %>g
-                  </p>
-                  <p class="text-muted small mb-0">Quantity: <%= item.quantity %> × ₹<%= item.price.toFixed(2) %></p>
-                </div>
-                <div class="text-end">
-                  <p class="font-weight-bold">₹<%= item.subtotal.toFixed(2) %></p>
-                </div>
-              </div>
+        <% order.items.forEach(item => { %>
+          <% const variant = item.product.variants.find(v => v.sku === item.sku); %>
+          <div class="order-item">
+            <img src="<%= variant.productImage[0] %>" alt="<%= item.product.productName %>" class="item-image" onerror="this.src='/Images/placeholder.jpg'">
+            <div class="item-details">
+              <h5 class="item-name"><%= item.product.productName %></h5>
+              <p class="item-variant">
+                Flavor: <%= variant.flavor %> | Sugar: <%= variant.sugarLevel %> | Weight: <%= variant.weight %>g
+              </p>
+              <p class="item-quantity">Quantity: <%= item.quantity %> × ₹<%= item.price.toFixed(2) %></p>
             </div>
-          <% }) %>
-        </div>
+            <div class="item-price">
+              ₹<%= item.subtotal.toFixed(2) %>
+            </div>
+          </div>
+        <% }) %>
       </div>
 
-      <div class="border-top pt-4">
+      <div class="order-summary">
         <div class="row">
           <div class="col-md-6 offset-md-6">
-            <div class="mb-2 d-flex justify-content-between">
-              <span>Subtotal</span>
-              <span>₹<%= order.subtotal.toFixed(2) %></span>
+            <div class="summary-row">
+              <span class="summary-label">Subtotal</span>
+              <span class="summary-value">₹<%= order.subtotal.toFixed(2) %></span>
             </div>
             <% if (order.totalSavings > 0) { %>
-              <div class="mb-2 d-flex justify-content-between">
-                <span>Total Savings</span>
-                <span>-₹<%= order.totalSavings.toFixed(2) %></span>
+              <div class="summary-row">
+                <span class="summary-label">Total Savings</span>
+                <span class="summary-value">-₹<%= order.totalSavings.toFixed(2) %></span>
               </div>
             <% } %>
             <% if (order.coupon && order.discount > 0) { %>
-              <div class="mb-2 d-flex justify-content-between">
-                <span>Coupon Discount (<%= order.coupon.code %>)</span>
-                <span>-₹<%= order.discount.toFixed(2) %></span>
+              <div class="summary-row">
+                <span class="summary-label">Coupon Discount (<%= order.coupon.code %>)</span>
+                <span class="summary-value">-₹<%= order.discount.toFixed(2) %></span>
               </div>
             <% } %>
-            <div class="mb-2 d-flex justify-content-between">
-              <span>Shipping</span>
-              <span>
+            <div class="summary-row">
+              <span class="summary-label">Shipping</span>
+              <span class="summary-value">
                 <% if (typeof order.deliveryCharge === 'undefined' || order.deliveryCharge === null || order.deliveryCharge === 0) { %>
                   Free
                 <% } else { %>
@@ -313,47 +983,9 @@
                 <% } %>
               </span>
             </div>
-            <div class="d-flex justify-content-between font-weight-bold pt-2 border-top">
+            <div class="summary-row summary-total">
               <span>Total</span>
               <span>₹<%= order.total.toFixed(2) %></span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div id="cancelModal" class="modal fade" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title">Cancel Order</h5>
-              <button type="button" class="btn-close" onclick="hideModal('cancelModal')" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-              <p>Please tell us why you're cancelling this order:</p>
-              <textarea id="cancelReason" class="form-control" rows="4" placeholder="Your reason for cancellation..."></textarea>
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-outline-secondary" onclick="hideModal('cancelModal')">Close</button>
-              <button type="button" class="btn btn-danger" onclick="submitCancel('<%= order.orderId %>')"><i class="fas fa-check me-2"></i>Submit</button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div id="returnModal" class="modal fade" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title">Request Return</h5>
-              <button type="button" class="btn-close" onclick="hideModal('returnModal')" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-              <p>Please tell us why you're returning this order:</p>
-              <textarea id="returnReason" class="form-control" rows="4" placeholder="Your reason for return..."></textarea>
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-outline-secondary" onclick="hideModal('returnModal')">Close</button>
-              <button type="button" class="btn btn-warning" onclick="submitReturn('<%= order.orderId %>')"><i class="fas fa-check me-2"></i>Submit</button>
             </div>
           </div>
         </div>
@@ -361,7 +993,105 @@
     </div>
   </div>
 
+  <!-- Cancel Modal -->
+  <div id="cancelModal" class="modal fade" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Cancel Order</h5>
+          <button type="button" class="btn-close" onclick="hideModal('cancelModal')" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p>Please tell us why you're cancelling this order:</p>
+          <textarea id="cancelReason" class="form-control" rows="4" placeholder="Your reason for cancellation..."></textarea>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" onclick="hideModal('cancelModal')">Close</button>
+          <button type="button" class="btn btn-danger" onclick="submitCancel('<%= order.orderId %>')">
+            <i class="fas fa-check me-2"></i>Submit
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Return Modal -->
+  <div id="returnModal" class="modal fade" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Request Return</h5>
+          <button type="button" class="btn-close" onclick="hideModal('returnModal')" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p>Please tell us why you're returning this order:</p>
+          <textarea id="returnReason" class="form-control" rows="4" placeholder="Your reason for return..."></textarea>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" onclick="hideModal('returnModal')">Close</button>
+          <button type="button" class="btn btn-warning" onclick="submitReturn('<%= order.orderId %>')">
+            <i class="fas fa-check me-2"></i>Submit
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <%- include('../partials/user/footer') %>
+  
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
   <script>
+    function toggleMenu() {
+      const navbar = document.querySelector('.navbar');
+      navbar.classList.toggle('active');
+    }
+
+    function toggleUserMenu() {
+      const userMenu = document.querySelector('.user-menu');
+      userMenu.classList.toggle('active');
+    }
+
+    function openMobileSidebar() {
+      const overlay = document.getElementById('sidebarOverlay');
+      const sidebar = document.getElementById('mobileSidebar');
+      overlay.classList.add('active');
+      sidebar.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeMobileSidebar() {
+      const overlay = document.getElementById('sidebarOverlay');
+      const sidebar = document.getElementById('mobileSidebar');
+      overlay.classList.remove('active');
+      sidebar.classList.remove('active');
+      document.body.style.overflow = 'auto';
+    }
+
+    // Close user menu when clicking outside
+    document.addEventListener('click', function(event) {
+      const userMenu = document.querySelector('.user-menu');
+      if (userMenu) {
+        const isClickInside = userMenu.contains(event.target);
+        if (!isClickInside && userMenu.classList.contains('active')) {
+          userMenu.classList.remove('active');
+        }
+      }
+    });
+
+    // Close mobile sidebar on window resize
+    window.addEventListener('resize', function() {
+      if (window.innerWidth > 768) {
+        closeMobileSidebar();
+      }
+    });
+
+    // Handle escape key to close mobile sidebar
+    document.addEventListener('keydown', function(event) {
+      if (event.key === 'Escape') {
+        closeMobileSidebar();
+      }
+    });
+
     function showToast(message, type = 'success') {
       const toast = document.createElement('div');
       toast.className = `toast align-items-center text-white ${type === 'success' ? 'bg-success' : 'bg-danger'} border-0 position-fixed bottom-0 end-0 m-3`;
@@ -475,8 +1205,5 @@
       });
     }
   </script>
-
-  <%- include('../partials/user/footer') %>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

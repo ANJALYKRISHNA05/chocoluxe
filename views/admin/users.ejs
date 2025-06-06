@@ -1,18 +1,21 @@
-
 <%- include('../partials/admin/header') %>
 
-
-<!-- 
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-</head>
--->
-
 <style>
- 
+  /* Base styles */
+  .content-wrapper {
+    margin-left: 250px;
+    padding: 20px;
+    margin-top: 60px;
+    background-color: #F5F1E9;
+    min-height: calc(100vh - 60px);
+    transition: margin-left 0.3s ease;
+  }
+
+  .table th, .table td {
+    vertical-align: middle;
+    white-space: nowrap;
+  }
+
   .toggle-switch {
     position: relative;
     display: inline-block;
@@ -63,7 +66,7 @@
   }
   
   .status-label {
-    margin-left: 5rem;
+    margin-left: 1rem;
     font-weight: 500;
   }
   
@@ -74,8 +77,7 @@
   .status-blocked {
     color: #dc3545;
   }
-  
-  
+
   .pagination {
     justify-content: center;
     margin-top: 1rem;
@@ -94,8 +96,7 @@
     color: #5C4033;
     background-color: #F5F1E9;
   }
-  
-  
+
   .search-wrapper {
     margin-bottom: 1rem;
     width: 100%;
@@ -115,82 +116,196 @@
     border-color: #3d2a23;
   }
 
-
-  .content-wrapper {
-    background-color: #F5F1E9;
-    min-height: 100vh;
-    padding: 20px;
-    transition: margin-left 0.3s ease-in-out;
-    margin-left: 250px; 
+  /* Card layout for mobile */
+  .user-card {
+    display: none;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    padding: 15px;
+    background: white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
   }
 
-  .sidebar {
-    width: 250px;
-    position: fixed;
-    top: 0;
-    left: 0;
-    height: 100%;
-    background-color: #5C4033;
-    color: white;
-    transition: transform 0.3s ease-in-out;
-    z-index: 1000; 
+  .user-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
   }
 
+  .user-name {
+    font-weight: bold;
+    font-size: 1.1em;
+    color: #5C4033;
+  }
 
+  .user-details {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 15px;
+  }
+
+  .detail-item {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .detail-label {
+    font-size: 0.8em;
+    color: #6c757d;
+    margin-bottom: 2px;
+  }
+
+  .detail-value {
+    font-weight: 500;
+  }
+
+  .user-status-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+    background-color: #f8f9fa;
+    border-radius: 5px;
+  }
+
+  /* Responsive breakpoints */
+  
+  /* Large tablets and small desktops */
+  @media (max-width: 1200px) {
+    .content-wrapper {
+      margin-left: 200px;
+    }
+    
+    .table th, .table td {
+      font-size: 0.9em;
+      padding: 8px;
+    }
+  }
+
+  /* Tablets */
+  @media (max-width: 992px) {
+    .content-wrapper {
+      margin-left: 0;
+      padding: 15px;
+      margin-top: 60px;
+    }
+    
+    .table-responsive {
+      font-size: 0.85em;
+    }
+    
+    .search-wrapper {
+      max-width: 100%;
+    }
+  }
+
+  /* Small tablets and large phones */
   @media (max-width: 768px) {
     .content-wrapper {
-      margin-left: 0; 
+      padding: 10px;
     }
-    .sidebar {
-      transform: translateX(-250px); 
+    
+    /* Hide table, show cards */
+    .table-responsive {
+      display: none;
     }
-    .sidebar.active {
-      transform: translateX(0); 
+    
+    .user-card {
+      display: block;
     }
+    
     .toggle-switch {
       width: 3rem;
       height: 1.5rem;
     }
+    
     .slider:before {
       height: 1rem;
       width: 1rem;
       left: 0.2rem;
       bottom: 0.2rem;
     }
+    
     input:checked + .slider:before {
       transform: translateX(1.5rem);
     }
+    
     .status-label {
-      margin-left: 3.5rem;
+      margin-left: 0.5rem;
       font-size: 0.9rem;
     }
-    .search-wrapper {
-      max-width: 100%;
-    }
-    .pagination .page-link {
-      font-size: 0.9rem;
-      padding: 0.5rem;
+    
+    h1 {
+      font-size: 1.5em;
+      margin-bottom: 20px;
     }
   }
 
+  /* Mobile phones */
   @media (max-width: 576px) {
-    .table th, .table td {
-      font-size: 0.85rem;
+    .content-wrapper {
+      padding: 8px;
     }
-   
-    .table th:nth-child(4), .table td:nth-child(4) {
-      display: none;
+    
+    .user-details {
+      grid-template-columns: 1fr;
+    }
+    
+    .pagination {
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    
+    .pagination .page-item {
+      margin: 2px;
+    }
+    
+    h1 {
+      font-size: 1.3em;
+      text-align: center;
+    }
+    
+    .breadcrumb {
+      font-size: 0.9em;
+    }
+  }
+
+  /* Extra small devices */
+  @media (max-width: 400px) {
+    .content-wrapper {
+      padding: 5px;
+    }
+    
+    .user-card {
+      padding: 10px;
+    }
+    
+    .search-wrapper .input-group {
+      flex-wrap: wrap;
+    }
+    
+    .search-wrapper .form-control {
+      margin-bottom: 5px;
+    }
+  }
+
+  /* Landscape orientation adjustments */
+  @media (max-height: 500px) and (orientation: landscape) {
+    .content-wrapper {
+      margin-top: 50px;
+      padding: 10px;
     }
   }
 </style>
 
 <div class="content-wrapper">
-
-  <button class="btn btn-primary d-md-none mb-3" type="button" id="sidebarToggle">
-    <i class="fas fa-bars"></i>
-  </button>
-
   <%- include('../partials/admin/sidebar', { currentPage: 'users' }) %>
+  
   <div class="content-header">
     <div class="container-fluid">
       <div class="row mb-2">
@@ -213,8 +328,8 @@
         <div class="col-12">
           <div class="card" style="border-color: #5C4033;">
             <div class="card-header" style="background-color: #5C4033; color: white;">
-              <div class="d-flex justify-content-between align-items-center">
-                <h3 class="card-title">User List</h3>
+              <div class="d-flex justify-content-between align-items-center flex-wrap">
+                <h3 class="card-title mb-2 mb-md-0">User List</h3>
                 <div class="search-wrapper">
                   <form action="/admin/users" method="GET" class="d-flex">
                     <div class="input-group">
@@ -234,7 +349,9 @@
                 </div>
               </div>
             </div>
+            
             <div class="card-body">
+              <!-- Desktop/Tablet Table View -->
               <div class="table-responsive">
                 <table id="usersTable" class="table table-bordered table-striped">
                   <thead>
@@ -242,8 +359,8 @@
                       <th>#</th>
                       <th>Username</th>
                       <th>Email</th>
-                      <th>Phone</th>
-                      <th>Registration Date</th>
+                      <th class="d-none d-md-table-cell">Phone</th>
+                      <th class="d-none d-lg-table-cell">Registration Date</th>
                       <th>Status</th>
                     </tr>
                   </thead>
@@ -252,10 +369,10 @@
                       <% users.forEach((user, index) => { %>
                         <tr>
                           <td><%= (currentPage - 1) * 5 + index + 1 %></td>
-                          <td><%= user.username %></td>
+                          <td><strong><%= user.username %></strong></td>
                           <td><%= user.email %></td>
-                          <td><%= user.phone || 'Not provided' %></td>
-                          <td><%= new Date(user.createdAt).toLocaleDateString('en-US', { 
+                          <td class="d-none d-md-table-cell"><%= user.phone || 'Not provided' %></td>
+                          <td class="d-none d-lg-table-cell"><%= new Date(user.createdAt).toLocaleDateString('en-US', { 
                             year: 'numeric', 
                             month: 'short', 
                             day: 'numeric' 
@@ -281,14 +398,66 @@
                   </tbody>
                 </table>
               </div>
+
+              <!-- Mobile Card View -->
+              <div class="mobile-cards">
+                <% if (users && users.length > 0) { %>
+                  <% users.forEach((user, index) => { %>
+                    <div class="user-card">
+                      <div class="user-card-header">
+                        <div class="user-name"><%= user.username %></div>
+                        <span class="badge <%= user.isBlocked ? 'bg-danger' : 'bg-success' %>">
+                          #<%= (currentPage - 1) * 5 + index + 1 %>
+                        </span>
+                      </div>
+                      
+                      <div class="user-details">
+                        <div class="detail-item">
+                          <span class="detail-label">Email</span>
+                          <span class="detail-value"><%= user.email %></span>
+                        </div>
+                        <div class="detail-item">
+                          <span class="detail-label">Phone</span>
+                          <span class="detail-value"><%= user.phone || 'Not provided' %></span>
+                        </div>
+                        <div class="detail-item">
+                          <span class="detail-label">Registration Date</span>
+                          <span class="detail-value"><%= new Date(user.createdAt).toLocaleDateString('en-US', { 
+                            year: 'numeric', 
+                            month: 'short', 
+                            day: 'numeric' 
+                          }) %></span>
+                        </div>
+                      </div>
+                      
+                      <div class="user-status-container">
+                        <label class="toggle-switch">
+                          <input type="checkbox" class="user-status-toggle" 
+                                 data-user-id="<%= user._id %>" 
+                                 <%= user.isBlocked ? '' : 'checked' %>>
+                          <span class="slider"></span>
+                        </label>
+                        <span class="status-label <%= user.isBlocked ? 'status-blocked' : 'status-active' %>">
+                          <%= user.isBlocked ? 'Blocked' : 'Active' %>
+                        </span>
+                      </div>
+                    </div>
+                  <% }); %>
+                <% } else { %>
+                  <div class="text-center p-4">
+                    <p>No users found</p>
+                  </div>
+                <% } %>
+              </div>
               
-           
+              <!-- Pagination -->
               <% if (totalPages > 1) { %>
-                <nav aria-label="Page navigation">
-                  <ul class="pagination">
+                <nav aria-label="Page navigation" class="mt-4">
+                  <ul class="pagination flex-wrap">
                     <li class="page-item <%= currentPage === 1 ? 'disabled' : '' %>">
                       <a class="page-link" href="/admin/users?page=<%= currentPage - 1 %><%= searchQuery ? '&search=' + searchQuery : '' %>" aria-label="Previous">
-                        <span aria-hidden="true">«</span>
+                        <span class="d-none d-sm-inline">Previous</span>
+                        <span class="d-sm-none">Prev</span>
                       </a>
                     </li>
                     
@@ -300,7 +469,8 @@
                     
                     <li class="page-item <%= currentPage === totalPages ? 'disabled' : '' %>">
                       <a class="page-link" href="/admin/users?page=<%= currentPage + 1 %><%= searchQuery ? '&search=' + searchQuery : '' %>" aria-label="Next">
-                        <span aria-hidden="true">»</span>
+                        <span class="d-none d-sm-inline">Next</span>
+                        <span class="d-sm-none">Next</span>
                       </a>
                     </li>
                   </ul>
@@ -318,32 +488,19 @@
   </section>
 </div>
 
-
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
 <script>
   document.addEventListener('DOMContentLoaded', function () {
-
-    const sidebarToggle = document.getElementById('sidebarToggle');
-    const sidebar = document.querySelector('.sidebar');
-    
-    if (sidebarToggle && sidebar) {
-      sidebarToggle.addEventListener('click', function () {
-        sidebar.classList.toggle('active');
-      });
-    }
-
-  
     document.querySelectorAll('.user-status-toggle').forEach(toggle => {
       toggle.addEventListener('change', async function (e) {
         const userId = this.dataset.userId;
         const isCurrentlyActive = this.checked;
         const actionText = isCurrentlyActive ? 'unblock' : 'block';
         const switchElement = this;
-        const statusLabel = switchElement.closest('td').querySelector('.status-label');
+        const statusLabel = switchElement.closest('td, .user-status-container').querySelector('.status-label');
 
-       
         const result = await Swal.fire({
           title: `Confirm ${actionText}?`,
           text: isCurrentlyActive

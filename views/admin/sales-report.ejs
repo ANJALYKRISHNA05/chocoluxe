@@ -17,11 +17,17 @@
             background-color: #f5e8d4;
             overflow-x: hidden;
         }
+
+        /* Base layout */
         .content {
             margin-left: 250px;
             padding: 20px;
+            margin-top: 60px;
             min-height: calc(100vh - 60px);
+            transition: margin-left 0.3s ease;
         }
+
+        /* Card styles */
         .card {
             background-color: #fff9e6;
             border: none;
@@ -29,18 +35,27 @@
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
             padding: 20px;
             margin-bottom: 20px;
+            transition: transform 0.2s ease;
         }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+        }
+
         .card-title {
             color: #4a2c2a;
             font-size: 1.2rem;
             font-weight: 600;
             margin-bottom: 10px;
         }
+
         .card-value {
             color: #4a2c2a;
             font-size: 1.8rem;
             font-weight: 700;
         }
+
         .filter-card {
             background-color: #fff9e6;
             border: none;
@@ -49,44 +64,63 @@
             padding: 15px;
             margin-bottom: 20px;
         }
+
+        /* Button styles */
         .btn-chocolate {
             background-color: #4a2c2a;
             color: #fff;
             border: none;
+            transition: all 0.3s ease;
         }
+
         .btn-chocolate:hover {
             background-color: #3a1c1a;
             color: #fff;
+            transform: translateY(-1px);
         }
+
         .btn-outline-chocolate {
             color: #4a2c2a;
             border-color: #4a2c2a;
             background-color: transparent;
         }
+
         .btn-outline-chocolate:hover {
             background-color: #4a2c2a;
             color: #fff;
         }
+
+        /* Table styles */
         .table {
             background-color: #fff9e6;
             border-radius: 10px;
+            overflow: hidden;
         }
+
         .table th, .table td {
             color: #4a2c2a;
+            vertical-align: middle;
+            padding: 12px;
         }
+
         .table thead th {
             background-color: #d1a876;
             color: #fff;
             border: none;
+            font-weight: 600;
         }
+
         .table-striped tbody tr:nth-of-type(odd) {
             background-color: rgba(209, 168, 118, 0.1);
         }
+
+        /* Chart container */
         .chart-container {
             position: relative;
             height: 300px;
             width: 100%;
         }
+
         .date-range-picker {
             border: 1px solid #d1a876;
             border-radius: 5px;
@@ -94,15 +128,296 @@
             background-color: #fff;
             color: #4a2c2a;
         }
+
         .download-btn {
             margin-right: 10px;
+            margin-bottom: 10px;
         }
-        @media (max-width: 768px) {
+
+        /* Alert styles */
+        .alert-light {
+            background-color: #fff9e6;
+            border-color: #d1a876;
+            color: #4a2c2a;
+        }
+
+        /* Responsive Design */
+
+        /* Large tablets and small desktops */
+        @media (max-width: 1200px) {
             .content {
-                margin-left: 60px;
+                margin-left: 220px;
+                padding: 15px;
             }
+            
+            .card-value {
+                font-size: 1.6rem;
+            }
+            
+            .chart-container {
+                height: 280px;
+            }
+        }
+
+        /* Tablets */
+        @media (max-width: 992px) {
+            .content {
+                margin-left: 200px;
+                padding: 15px;
+            }
+            
             .card-value {
                 font-size: 1.5rem;
+            }
+            
+            .chart-container {
+                height: 250px;
+            }
+            
+            .table th, .table td {
+                padding: 8px;
+                font-size: 0.9rem;
+            }
+        }
+
+        /* Small tablets and large phones */
+        @media (max-width: 768px) {
+            .content {
+                margin-left: 70px;
+                padding: 10px;
+            }
+            
+            .card {
+                padding: 15px;
+                margin-bottom: 15px;
+            }
+            
+            .card-title {
+                font-size: 1rem;
+            }
+            
+            .card-value {
+                font-size: 1.4rem;
+            }
+            
+            .chart-container {
+                height: 220px;
+            }
+            
+            .filter-card {
+                padding: 10px;
+            }
+            
+            /* Stack filter form elements */
+            .filter-form .col-md-3 {
+                margin-bottom: 10px;
+            }
+            
+            /* Download buttons stack */
+            .download-section {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .download-btn {
+                width: 100%;
+                margin-right: 0;
+            }
+            
+            /* Table responsive improvements */
+            .table th, .table td {
+                padding: 6px;
+                font-size: 0.85rem;
+            }
+            
+            /* Hide less important columns on mobile */
+            .table .d-none-mobile {
+                display: none;
+            }
+            
+            /* Pagination adjustments */
+            .pagination {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            .pagination .page-item {
+                margin: 2px;
+            }
+        }
+
+        /* Mobile phones */
+        @media (max-width: 576px) {
+            .content {
+                margin-left: 60px;
+                padding: 8px;
+            }
+            
+            h2 {
+                font-size: 1.5rem;
+                text-align: center;
+                margin-bottom: 20px;
+            }
+            
+            .card {
+                padding: 12px;
+                margin-bottom: 12px;
+            }
+            
+            .card-title {
+                font-size: 0.9rem;
+                margin-bottom: 8px;
+            }
+            
+            .card-value {
+                font-size: 1.2rem;
+            }
+            
+            .chart-container {
+                height: 200px;
+            }
+            
+            /* Metrics cards - 2 per row on mobile */
+            .metrics-row .col-md-3 {
+                flex: 0 0 50%;
+                max-width: 50%;
+            }
+            
+            /* Charts - 1 per row on mobile */
+            .charts-row .col-md-6,
+            .charts-row .col-md-4 {
+                flex: 0 0 100%;
+                max-width: 100%;
+                margin-bottom: 15px;
+            }
+            
+            /* Form elements full width */
+            .filter-form .col-md-3 {
+                flex: 0 0 100%;
+                max-width: 100%;
+            }
+            
+            /* Table improvements for mobile */
+            .table-responsive {
+                border-radius: 10px;
+                overflow-x: auto;
+            }
+            
+            .table {
+                min-width: 600px;
+            }
+            
+            .table th, .table td {
+                padding: 4px;
+                font-size: 0.8rem;
+                white-space: nowrap;
+            }
+            
+            /* Alert text smaller */
+            .alert {
+                font-size: 0.9rem;
+                padding: 10px;
+            }
+            
+            /* Pagination smaller */
+            .pagination .page-link {
+                padding: 0.25rem 0.5rem;
+                font-size: 0.8rem;
+            }
+        }
+
+        /* Extra small devices */
+        @media (max-width: 400px) {
+            .content {
+                margin-left: 50px;
+                padding: 5px;
+            }
+            
+            .card {
+                padding: 10px;
+            }
+            
+            .card-title {
+                font-size: 0.85rem;
+            }
+            
+            .card-value {
+                font-size: 1.1rem;
+            }
+            
+            .chart-container {
+                height: 180px;
+            }
+            
+            /* Metrics cards stack on very small screens */
+            .metrics-row .col-md-3 {
+                flex: 0 0 100%;
+                max-width: 100%;
+            }
+            
+            .btn {
+                font-size: 0.8rem;
+                padding: 0.5rem 0.75rem;
+            }
+            
+            h2 {
+                font-size: 1.3rem;
+            }
+        }
+
+        /* Landscape orientation adjustments */
+        @media (max-height: 500px) and (orientation: landscape) {
+            .content {
+                margin-top: 50px;
+                padding: 10px;
+            }
+            
+            .chart-container {
+                height: 150px;
+            }
+            
+            .card {
+                padding: 10px;
+                margin-bottom: 10px;
+            }
+        }
+
+        /* Print styles */
+        @media print {
+            .content {
+                margin-left: 0;
+                margin-top: 0;
+            }
+            
+            .btn, .pagination {
+                display: none;
+            }
+            
+            .card {
+                break-inside: avoid;
+                box-shadow: none;
+                border: 1px solid #ddd;
+            }
+        }
+
+        /* Custom responsive utilities */
+        .text-responsive {
+            font-size: calc(0.8rem + 0.5vw);
+        }
+
+        .card-responsive {
+            min-height: auto;
+        }
+
+        /* Improved spacing for mobile */
+        @media (max-width: 768px) {
+            .mb-4 {
+                margin-bottom: 1rem !important;
+            }
+            
+            .py-4 {
+                padding-top: 1rem !important;
+                padding-bottom: 1rem !important;
             }
         }
     </style>
@@ -114,12 +429,12 @@
     <%- include('../partials/admin/sidebar', { activePage: 'sales-report' }) %>
 
     <div class="content">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2 style="color: #4a2c2a;">Sales Report</h2>
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
+            <h2 style="color: #4a2c2a;" class="mb-2 mb-md-0">Sales Report</h2>
         </div>
 
         <div class="filter-card mb-4">
-            <form action="/admin/sales-report" method="GET" class="row g-3 align-items-end">
+            <form action="/admin/sales-report" method="GET" class="row g-3 align-items-end filter-form">
                 <div class="col-md-3">
                     <label for="filter" class="form-label">Report Type</label>
                     <select name="filter" id="filter" class="form-select" onchange="toggleDateFields()">
@@ -144,43 +459,41 @@
             </form>
         </div>
 
-       
         <div class="alert alert-light mb-4">
             <strong>Report Period:</strong> 
             <%= dateRange.startDate.toLocaleDateString() %> to <%= dateRange.endDate.toLocaleDateString() %>
         </div>
 
-  
-        <div class="row mb-4">
-            <div class="col-md-3">
-                <div class="card">
+        <!-- Metrics Cards -->
+        <div class="row mb-4 metrics-row">
+            <div class="col-md-3 col-6">
+                <div class="card card-responsive">
                     <h5 class="card-title">Total Orders</h5>
                     <p class="card-value"><%= salesMetrics.orderCount %></p>
                 </div>
             </div>
-            <div class="col-md-3">
-                <div class="card">
+            <div class="col-md-3 col-6">
+                <div class="card card-responsive">
                     <h5 class="card-title">Total Revenue</h5>
                     <p class="card-value">₹<%= salesMetrics.totalSales.toFixed(2) %></p>
                 </div>
             </div>
-            <div class="col-md-3">
-                <div class="card">
+            <div class="col-md-3 col-6">
+                <div class="card card-responsive">
                     <h5 class="card-title">Total Discount</h5>
                     <p class="card-value">₹<%= salesMetrics.totalDiscount.toFixed(2) %></p>
                 </div>
             </div>
-            <div class="col-md-3">
-                <div class="card">
+            <div class="col-md-3 col-6">
+                <div class="card card-responsive">
                     <h5 class="card-title">Gross Revenue</h5>
                     <p class="card-value">₹<%= salesMetrics.grossRevenue.toFixed(2) %></p>
                 </div>
             </div>
         </div>
 
-       
-        <div class="row mb-4">
-           
+        <!-- Main Charts -->
+        <div class="row mb-4 charts-row">
             <div class="col-md-6">
                 <div class="card">
                     <h5 class="card-title">Sales Overview</h5>
@@ -190,7 +503,6 @@
                 </div>
             </div>
             
-         
             <div class="col-md-6">
                 <div class="card">
                     <h5 class="card-title">Payment Methods</h5>
@@ -201,8 +513,8 @@
             </div>
         </div>
 
-        <div class="row mb-4">
-          
+        <!-- Secondary Charts -->
+        <div class="row mb-4 charts-row">
             <div class="col-md-4">
                 <div class="card">
                     <h5 class="card-title">Top Products</h5>
@@ -212,7 +524,6 @@
                 </div>
             </div>
             
-        
             <div class="col-md-4">
                 <div class="card">
                     <h5 class="card-title">Top Categories</h5>
@@ -222,7 +533,6 @@
                 </div>
             </div>
             
- 
             <div class="col-md-4">
                 <div class="card">
                     <h5 class="card-title">Top Coupons</h5>
@@ -233,7 +543,7 @@
             </div>
         </div>
 
-      
+        <!-- Best Selling Products Table -->
         <div class="card mb-4">
             <h5 class="card-title">Best Selling Products (Top 5)</h5>
             <div class="table-responsive">
@@ -243,7 +553,7 @@
                             <th>#</th>
                             <th>Product Name</th>
                             <th>Total Sales Amount</th>
-                            <th>Quantity Sold</th>
+                            <th class="d-none-mobile">Quantity Sold</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -253,7 +563,7 @@
                                     <td><%= index + 1 %></td>
                                     <td><%= product.productDetails.productName %></td>
                                     <td>₹<%= product.totalRevenue.toFixed(2) %></td>
-                                    <td><%= product.totalQuantity %></td>
+                                    <td class="d-none-mobile"><%= product.totalQuantity %></td>
                                 </tr>
                             <% }); %>
                         <% } else { %>
@@ -266,7 +576,7 @@
             </div>
         </div>
 
-        
+        <!-- Best Selling Categories Table -->
         <div class="card mb-4">
             <h5 class="card-title">Best Selling Categories (Top 5)</h5>
             <div class="table-responsive">
@@ -276,7 +586,7 @@
                             <th>#</th>
                             <th>Category Name</th>
                             <th>Total Sales Amount</th>
-                            <th>Total Orders</th>
+                            <th class="d-none-mobile">Total Orders</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -286,7 +596,7 @@
                                     <td><%= index + 1 %></td>
                                     <td><%= category.categoryName %></td>
                                     <td>₹<%= category.totalRevenue.toFixed(2) %></td>
-                                    <td><%= category.orderCount %></td>
+                                    <td class="d-none-mobile"><%= category.orderCount %></td>
                                 </tr>
                             <% }); %>
                         <% } else { %>
@@ -299,20 +609,20 @@
             </div>
         </div>
 
-      
+        <!-- Download Report -->
         <div class="card mb-4">
             <h5 class="card-title">Download Report</h5>
-            <div class="d-flex justify-content-center gap-4 py-4">
+            <div class="d-flex justify-content-center gap-2 py-4 download-section flex-wrap">
                 <a href="/admin/sales-report/download/pdf?filter=<%= filterType %>&startDate=<%= dateRange.startDate.toISOString().split('T')[0] %>&endDate=<%= dateRange.endDate.toISOString().split('T')[0] %>" class="btn btn-danger download-btn">
-                    <i class="fas fa-file-pdf me-2"></i> Download as PDF
+                    <i class="fas fa-file-pdf me-2"></i> <span class="d-none d-sm-inline">Download as </span>PDF
                 </a>
                 <a href="/admin/sales-report/download/excel?filter=<%= filterType %>&startDate=<%= dateRange.startDate.toISOString().split('T')[0] %>&endDate=<%= dateRange.endDate.toISOString().split('T')[0] %>" class="btn btn-success download-btn">
-                    <i class="fas fa-file-excel me-2"></i> Download as Excel
+                    <i class="fas fa-file-excel me-2"></i> <span class="d-none d-sm-inline">Download as </span>Excel
                 </a>
             </div>
         </div>
 
-     
+        <!-- Transaction Details -->
         <div class="card mb-4">
             <h5 class="card-title">Transaction Details</h5>
             <div class="table-responsive">
@@ -321,10 +631,10 @@
                         <tr>
                             <th>Order ID</th>
                             <th>Date</th>
-                            <th>Customer</th>
-                            <th>Payment Method</th>
+                            <th class="d-none-mobile">Customer</th>
+                            <th class="d-none-mobile">Payment Method</th>
                             <th>Status</th>
-                            <th>Discount</th>
+                            <th class="d-none-mobile">Discount</th>
                             <th>Total</th>
                         </tr>
                     </thead>
@@ -334,8 +644,8 @@
                                 <tr>
                                     <td><%= order.orderId %></td>
                                     <td><%= new Date(order.createdAt).toLocaleDateString() %></td>
-                                    <td><%= order.shippingAddress.name %></td>
-                                    <td><%= order.paymentMethod %></td>
+                                    <td class="d-none-mobile"><%= order.shippingAddress.name %></td>
+                                    <td class="d-none-mobile"><%= order.paymentMethod %></td>
                                     <td>
                                         <span class="badge <%= order.status === 'Delivered' ? 'bg-success' : 
                                                           order.status === 'Cancelled' ? 'bg-danger' : 
@@ -343,7 +653,7 @@
                                             <%= order.status %>
                                         </span>
                                     </td>
-                                    <td>₹<%= order.discount.toFixed(2) %></td>
+                                    <td class="d-none-mobile">₹<%= order.discount.toFixed(2) %></td>
                                     <td>₹<%= order.total.toFixed(2) %></td>
                                 </tr>
                             <% }); %>
@@ -356,11 +666,11 @@
                 </table>
             </div>
 
-           
+            <!-- Pagination -->
             <% if (orders && orders.length > 0) { %>
-                <div class="d-flex justify-content-between align-items-center px-3 py-2">
-                    <div>
-                        Showing <%= Math.min(orders.length, pagination.skip + 1) %> to <%= Math.min(orders.length, pagination.skip + pagination.limit) %> of <%= orders.length %> transactions
+                <div class="d-flex justify-content-between align-items-center px-3 py-2 flex-wrap">
+                    <div class="mb-2 mb-md-0">
+                        <small>Showing <%= Math.min(orders.length, pagination.skip + 1) %> to <%= Math.min(orders.length, pagination.skip + pagination.limit) %> of <%= orders.length %> transactions</small>
                     </div>
                     <nav aria-label="Transaction pagination">
                         <ul class="pagination mb-0">
@@ -386,14 +696,11 @@
         </div>
     </div>
 
- 
     <%- include('../partials/admin/footer') %>
-
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script>
-      
         function toggleDateFields() {
             const filterType = document.getElementById('filter').value;
             const customDateFields = document.querySelectorAll('.custom-date-field');
@@ -405,9 +712,12 @@
             }
         }
 
-     
         document.addEventListener('DOMContentLoaded', function() {
-        
+            // Chart.js responsive configuration
+            Chart.defaults.responsive = true;
+            Chart.defaults.maintainAspectRatio = false;
+            
+            // Sales Overview Chart
             const salesOverviewCtx = document.getElementById('salesOverviewChart').getContext('2d');
             new Chart(salesOverviewCtx, {
                 type: 'bar',
@@ -436,11 +746,16 @@
                         y: {
                             beginAtZero: true
                         }
+                    },
+                    plugins: {
+                        legend: {
+                            display: window.innerWidth > 576
+                        }
                     }
                 }
             });
 
-            
+            // Payment Methods Chart
             const paymentMethodsCtx = document.getElementById('paymentMethodsChart').getContext('2d');
             const paymentMethodNames = <%- JSON.stringify(Object.keys(paymentMethods)) %>;
             const paymentCounts = <%- JSON.stringify(Object.values(paymentMethods).map(p => p.count)) %>;
@@ -473,13 +788,19 @@
                     maintainAspectRatio: false,
                     plugins: {
                         legend: {
-                            position: 'right'
+                            position: window.innerWidth > 768 ? 'right' : 'bottom',
+                            labels: {
+                                boxWidth: window.innerWidth > 576 ? 12 : 8,
+                                font: {
+                                    size: window.innerWidth > 576 ? 12 : 10
+                                }
+                            }
                         }
                     }
                 }
             });
 
-          
+            // Top Products Chart
             <% if (topProducts && topProducts.length > 0) { %>
                 const topProductsCtx = document.getElementById('topProductsChart').getContext('2d');
                 const productNames = <%- JSON.stringify(topProducts.map(p => p.productDetails.productName.substring(0, 15) + (p.productDetails.productName.length > 15 ? '...' : ''))) %>;
@@ -503,13 +824,26 @@
                         scales: {
                             y: {
                                 beginAtZero: true
+                            },
+                            x: {
+                                ticks: {
+                                    maxRotation: window.innerWidth > 576 ? 45 : 90,
+                                    font: {
+                                        size: window.innerWidth > 576 ? 10 : 8
+                                    }
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                display: window.innerWidth > 576
                             }
                         }
                     }
                 });
             <% } %>
 
-            
+            // Top Categories Chart
             <% if (topCategories && topCategories.length > 0) { %>
                 const topCategoriesCtx = document.getElementById('topCategoriesChart').getContext('2d');
                 const categoryNames = <%- JSON.stringify(topCategories.map(c => c.categoryName)) %>;
@@ -540,12 +874,23 @@
                     },
                     options: {
                         responsive: true,
-                        maintainAspectRatio: false
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: window.innerWidth > 768 ? 'right' : 'bottom',
+                                labels: {
+                                    boxWidth: window.innerWidth > 576 ? 12 : 8,
+                                    font: {
+                                        size: window.innerWidth > 576 ? 12 : 10
+                                    }
+                                }
+                            }
+                        }
                     }
                 });
             <% } %>
 
-       
+            // Top Coupons Chart
             <% if (topCoupons && topCoupons.length > 0) { %>
                 const topCouponsCtx = document.getElementById('topCouponsChart').getContext('2d');
                 const couponCodes = <%- JSON.stringify(topCoupons.map(c => c.couponDetails.code)) %>;
@@ -569,11 +914,31 @@
                         scales: {
                             y: {
                                 beginAtZero: true
+                            },
+                            x: {
+                                ticks: {
+                                    maxRotation: window.innerWidth > 576 ? 45 : 90,
+                                    font: {
+                                        size: window.innerWidth > 576 ? 10 : 8
+                                    }
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                display: window.innerWidth > 576
                             }
                         }
                     }
                 });
             <% } %>
+
+            // Handle window resize for chart responsiveness
+            window.addEventListener('resize', function() {
+                Chart.helpers.each(Chart.instances, function(instance) {
+                    instance.resize();
+                });
+            });
         });
     </script>
 </body>

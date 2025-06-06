@@ -8,47 +8,258 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
+        /* Base styles */
         .content-wrapper {
             margin-left: 250px;
             padding: 20px;
             margin-top: 60px;
             background-color: #f8f9fa;
             min-height: calc(100vh - 60px);
+            transition: margin-left 0.3s ease;
         }
+
         .table th, .table td {
             vertical-align: middle;
+            white-space: nowrap;
         }
+
         .modal-content {
             border-radius: 10px;
         }
+
         .btn-sm {
             padding: 5px 10px;
+        }
+
+        /* Action buttons container */
+        .action-buttons {
+            display: flex;
+            gap: 5px;
+            flex-wrap: nowrap;
+        }
+
+        /* Card layout for mobile */
+        .coupon-card {
+            display: none;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            padding: 15px;
+            background: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .coupon-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .coupon-code {
+            font-weight: bold;
+            font-size: 1.1em;
+            color: #007bff;
+        }
+
+        .coupon-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .detail-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .detail-label {
+            font-size: 0.8em;
+            color: #6c757d;
+            margin-bottom: 2px;
+        }
+
+        .detail-value {
+            font-weight: 500;
+        }
+
+        /* Responsive breakpoints */
+        
+        /* Large tablets and small desktops */
+        @media (max-width: 1200px) {
+            .content-wrapper {
+                margin-left: 200px;
+            }
+            
+            .table th, .table td {
+                font-size: 0.9em;
+                padding: 8px;
+            }
+        }
+
+        /* Tablets */
+        @media (max-width: 992px) {
+            .content-wrapper {
+                margin-left: 0;
+                padding: 15px;
+                margin-top: 60px;
+            }
+            
+            .table-responsive {
+                font-size: 0.85em;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+                gap: 3px;
+            }
+            
+            .action-buttons .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        /* Small tablets and large phones */
+        @media (max-width: 768px) {
+            .content-wrapper {
+                padding: 10px;
+            }
+            
+            /* Hide table, show cards */
+            .table-responsive {
+                display: none;
+            }
+            
+            .coupon-card {
+                display: block;
+            }
+            
+            .modal-dialog {
+                margin: 10px;
+                max-width: calc(100% - 20px);
+            }
+            
+            .modal-body {
+                padding: 15px;
+            }
+            
+            .btn {
+                font-size: 0.9em;
+            }
+            
+            h2 {
+                font-size: 1.5em;
+                margin-bottom: 20px;
+            }
+        }
+
+        /* Mobile phones */
+        @media (max-width: 576px) {
+            .content-wrapper {
+                padding: 8px;
+            }
+            
+            .coupon-details {
+                grid-template-columns: 1fr;
+            }
+            
+            .action-buttons {
+                flex-direction: row;
+                justify-content: space-around;
+            }
+            
+            .action-buttons .btn {
+                flex: 1;
+                margin: 0 2px;
+                padding: 8px 4px;
+                font-size: 0.8em;
+            }
+            
+            .pagination {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            .pagination .page-item {
+                margin: 2px;
+            }
+            
+            .modal-body .form-control,
+            .modal-body .form-select {
+                font-size: 16px; /* Prevents zoom on iOS */
+            }
+            
+            h2 {
+                font-size: 1.3em;
+                text-align: center;
+            }
+        }
+
+        /* Extra small devices */
+        @media (max-width: 400px) {
+            .content-wrapper {
+                padding: 5px;
+            }
+            
+            .coupon-card {
+                padding: 10px;
+            }
+            
+            .action-buttons .btn {
+                padding: 6px 2px;
+                font-size: 0.75em;
+            }
+            
+            .btn-primary {
+                width: 100%;
+                margin-bottom: 15px;
+            }
+        }
+
+        /* Landscape orientation adjustments */
+        @media (max-height: 500px) and (orientation: landscape) {
+            .content-wrapper {
+                margin-top: 50px;
+                padding: 10px;
+            }
+            
+            .modal-dialog {
+                max-height: 90vh;
+                overflow-y: auto;
+            }
         }
     </style>
 </head>
 <%- include('../partials/admin/header') %>
 <body>
-      <%- include('../partials/admin/sidebar', { activePage: 'coupons' }) %>
+    <%- include('../partials/admin/sidebar', { activePage: 'coupons' }) %>
 
     <div class="content-wrapper">
-        <h2 class="mb-4">Coupons Management</h2>
-        <button class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#addCouponModal">
-            <i class="fas fa-plus"></i> Add New Coupon
-        </button>
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
+            <h2 class="mb-2 mb-md-0">Coupons Management</h2>
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addCouponModal">
+                <i class="fas fa-plus"></i> <span class="d-none d-sm-inline">Add New Coupon</span><span class="d-sm-none">Add</span>
+            </button>
+        </div>
 
+        <!-- Desktop/Tablet Table View -->
         <div class="table-responsive">
             <table class="table table-bordered table-hover">
                 <thead class="table-dark">
                     <tr>
                         <th>Code</th>
-                        <th>Description</th>
+                        <th class="d-none d-lg-table-cell">Description</th>
                         <th>Discount</th>
-                        <th>Min Purchase</th>
-                        <th>Max Discount</th>
-                        <th>Start Date</th>
-                        <th>End Date</th>
-                        <th>Usage Limit</th>
-                        <th>Used Count</th>
+                        <th class="d-none d-md-table-cell">Min Purchase</th>
+                        <th class="d-none d-lg-table-cell">Max Discount</th>
+                        <th class="d-none d-md-table-cell">Start Date</th>
+                        <th class="d-none d-md-table-cell">End Date</th>
+                        <th class="d-none d-lg-table-cell">Usage Limit</th>
+                        <th class="d-none d-lg-table-cell">Used Count</th>
                         <th>Status</th>
                         <th>Actions</th>
                     </tr>
@@ -56,32 +267,34 @@
                 <tbody>
                     <% coupons.forEach(coupon => { %>
                         <tr>
-                            <td><%= coupon.code %></td>
-                            <td><%= coupon.description %></td>
+                            <td><strong><%= coupon.code %></strong></td>
+                            <td class="d-none d-lg-table-cell"><%= coupon.description %></td>
                             <td>
                                 <%= coupon.discountType === 'percentage' ? coupon.discountAmount + '%' : '₹' + coupon.discountAmount %>
                             </td>
-                            <td>₹<%= coupon.minPurchase %></td>
-                            <td><%= coupon.maxDiscount ? '₹' + coupon.maxDiscount : '-' %></td>
-                            <td><%= new Date(coupon.startDate).toLocaleDateString() %></td>
-                            <td><%= new Date(coupon.endDate).toLocaleDateString() %></td>
-                            <td><%= coupon.usageLimit %></td>
-                            <td><%= coupon.usedCount %></td>
+                            <td class="d-none d-md-table-cell">₹<%= coupon.minPurchase %></td>
+                            <td class="d-none d-lg-table-cell"><%= coupon.maxDiscount ? '₹' + coupon.maxDiscount : '-' %></td>
+                            <td class="d-none d-md-table-cell"><%= new Date(coupon.startDate).toLocaleDateString() %></td>
+                            <td class="d-none d-md-table-cell"><%= new Date(coupon.endDate).toLocaleDateString() %></td>
+                            <td class="d-none d-lg-table-cell"><%= coupon.usageLimit %></td>
+                            <td class="d-none d-lg-table-cell"><%= coupon.usedCount %></td>
                             <td>
                                 <span class="badge <%= coupon.isActive ? 'bg-success' : 'bg-danger' %>">
                                     <%= coupon.isActive ? 'Active' : 'Inactive' %>
                                 </span>
                             </td>
                             <td>
-                                <a href="/admin/coupons/edit/<%= coupon._id %>" class="btn btn-sm btn-warning">
-                                    <i class="fas fa-edit"></i>
-                                </a>
-                                <button class="btn btn-sm btn-info" onclick="toggleStatus('<%= coupon._id %>', <%= coupon.isActive %>)">
-                                    <i class="fas <%= coupon.isActive ? 'fa-ban' : 'fa-check' %>"></i>
-                                </button>
-                                <button class="btn btn-sm btn-danger" onclick="deleteCoupon('<%= coupon._id %>')">
-                                    <i class="fas fa-trash"></i>
-                                </button>
+                                <div class="action-buttons">
+                                    <a href="/admin/coupons/edit/<%= coupon._id %>" class="btn btn-sm btn-warning" title="Edit">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <button class="btn btn-sm btn-info" onclick="toggleStatus('<%= coupon._id %>', <%= coupon.isActive %>)" title="<%= coupon.isActive ? 'Deactivate' : 'Activate' %>">
+                                        <i class="fas <%= coupon.isActive ? 'fa-ban' : 'fa-check' %>"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-danger" onclick="deleteCoupon('<%= coupon._id %>')" title="Delete">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
                             </td>
                         </tr>
                     <% }) %>
@@ -89,12 +302,79 @@
             </table>
         </div>
 
-        
-        <nav aria-label="Page navigation">
-            <ul class="pagination justify-content-center">
+        <!-- Mobile Card View -->
+        <div class="mobile-cards">
+            <% coupons.forEach(coupon => { %>
+                <div class="coupon-card">
+                    <div class="coupon-card-header">
+                        <div class="coupon-code"><%= coupon.code %></div>
+                        <span class="badge <%= coupon.isActive ? 'bg-success' : 'bg-danger' %>">
+                            <%= coupon.isActive ? 'Active' : 'Inactive' %>
+                        </span>
+                    </div>
+                    
+                    <div class="coupon-details">
+                        <div class="detail-item">
+                            <span class="detail-label">Description</span>
+                            <span class="detail-value"><%= coupon.description %></span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Discount</span>
+                            <span class="detail-value">
+                                <%= coupon.discountType === 'percentage' ? coupon.discountAmount + '%' : '₹' + coupon.discountAmount %>
+                            </span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Min Purchase</span>
+                            <span class="detail-value">₹<%= coupon.minPurchase %></span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Max Discount</span>
+                            <span class="detail-value"><%= coupon.maxDiscount ? '₹' + coupon.maxDiscount : '-' %></span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Start Date</span>
+                            <span class="detail-value"><%= new Date(coupon.startDate).toLocaleDateString() %></span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">End Date</span>
+                            <span class="detail-value"><%= new Date(coupon.endDate).toLocaleDateString() %></span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Usage Limit</span>
+                            <span class="detail-value"><%= coupon.usageLimit %></span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Used Count</span>
+                            <span class="detail-value"><%= coupon.usedCount %></span>
+                        </div>
+                    </div>
+                    
+                    <div class="action-buttons">
+                        <a href="/admin/coupons/edit/<%= coupon._id %>" class="btn btn-sm btn-warning">
+                            <i class="fas fa-edit"></i> Edit
+                        </a>
+                        <button class="btn btn-sm btn-info" onclick="toggleStatus('<%= coupon._id %>', <%= coupon.isActive %>)">
+                            <i class="fas <%= coupon.isActive ? 'fa-ban' : 'fa-check' %>"></i> 
+                            <%= coupon.isActive ? 'Deactivate' : 'Activate' %>
+                        </button>
+                        <button class="btn btn-sm btn-danger" onclick="deleteCoupon('<%= coupon._id %>')">
+                            <i class="fas fa-trash"></i> Delete
+                        </button>
+                    </div>
+                </div>
+            <% }) %>
+        </div>
+
+        <!-- Pagination -->
+        <nav aria-label="Page navigation" class="mt-4">
+            <ul class="pagination justify-content-center flex-wrap">
                 <% if (pagination.hasPrevPage) { %>
                     <li class="page-item">
-                        <a class="page-link" href="?page=<%= pagination.page - 1 %>&limit=<%= pagination.limit %>">Previous</a>
+                        <a class="page-link" href="?page=<%= pagination.page - 1 %>&limit=<%= pagination.limit %>">
+                            <span class="d-none d-sm-inline">Previous</span>
+                            <span class="d-sm-none">Prev</span>
+                        </a>
                     </li>
                 <% } %>
                 <% for (let i = 1; i <= pagination.totalPages; i++) { %>
@@ -104,15 +384,19 @@
                 <% } %>
                 <% if (pagination.hasNextPage) { %>
                     <li class="page-item">
-                        <a class="page-link" href="?page=<%= pagination.page + 1 %>&limit=<%= pagination.limit %>">Next</a>
+                        <a class="page-link" href="?page=<%= pagination.page + 1 %>&limit=<%= pagination.limit %>">
+                            <span class="d-none d-sm-inline">Next</span>
+                            <span class="d-sm-none">Next</span>
+                        </a>
                     </li>
                 <% } %>
             </ul>
         </nav>
     </div>
 
+    <!-- Add Coupon Modal -->
     <div class="modal fade" id="addCouponModal" tabindex="-1" aria-labelledby="addCouponModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
+        <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="addCouponModalLabel">Add New Coupon</h5>
@@ -120,46 +404,58 @@
                 </div>
                 <div class="modal-body">
                     <form id="addCouponForm">
-                        <div class="mb-3">
-                            <label for="code" class="form-label">Coupon Code</label>
-                            <input type="text" class="form-control" id="code" name="code" required>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="code" class="form-label">Coupon Code</label>
+                                <input type="text" class="form-control" id="code" name="code" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="discountType" class="form-label">Discount Type</label>
+                                <select class="form-select" id="discountType" name="discountType" required>
+                                    <option value="percentage">Percentage</option>
+                                    <option value="fixed">Fixed Amount</option>
+                                </select>
+                            </div>
                         </div>
+                        
                         <div class="mb-3">
                             <label for="description" class="form-label">Description</label>
-                            <textarea class="form-control" id="description" name="description" required></textarea>
+                            <textarea class="form-control" id="description" name="description" rows="2" required></textarea>
                         </div>
-                        <div class="mb-3">
-                            <label for="discountType" class="form-label">Discount Type</label>
-                            <select class="form-select" id="discountType" name="discountType" required>
-                                <option value="percentage">Percentage</option>
-                                <option value="fixed">Fixed Amount</option>
-                            </select>
+                        
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label for="discountAmount" class="form-label">Discount Amount / Percentage</label>
+                                <input type="number" class="form-control" id="discountAmount" name="discountAmount" required min="0">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="minPurchase" class="form-label">Minimum Purchase</label>
+                                <input type="number" class="form-control" id="minPurchase" name="minPurchase" min="0">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="maxDiscount" class="form-label">Max Discount (Optional)</label>
+                                <input type="number" class="form-control" id="maxDiscount" name="maxDiscount">
+                            </div>
                         </div>
-                        <div class="mb-3">
-                            <label for="discountAmount" class="form-label">Discount Amount / Percentage</label>
-                            <input type="number" class="form-control" id="discountAmount" name="discountAmount" required min="0">
+                        
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label for="startDate" class="form-label">Start Date</label>
+                                <input type="date" class="form-control" id="startDate" name="startDate" required>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="endDate" class="form-label">End Date</label>
+                                <input type="date" class="form-control" id="endDate" name="endDate" required>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="usageLimit" class="form-label">Usage Limit</label>
+                                <input type="number" class="form-control" id="usageLimit" name="usageLimit" min="1" value="1">
+                            </div>
                         </div>
-                        <div class="mb-3">
-                            <label for="minPurchase" class="form-label">Minimum Purchase</label>
-                            <input type="number" class="form-control" id="minPurchase" name="minPurchase" min="0">
+                        
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">Add Coupon</button>
                         </div>
-                        <div class="mb-3">
-                            <label for="maxDiscount" class="form-label">Max Discount (Optional)</label>
-                            <input type="number" class="form-control" id="maxDiscount" name="maxDiscount">
-                        </div>
-                        <div class="mb-3">
-                            <label for="startDate" class="form-label">Start Date</label>
-                            <input type="date" class="form-control" id="startDate" name="startDate" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="endDate" class="form-label">End Date</label>
-                            <input type="date" class="form-control" id="endDate" name="endDate" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="usageLimit" class="form-label">Usage Limit</label>
-                            <input type="number" class="form-control" id="usageLimit" name="usageLimit" min="1" value="1">
-                        </div>
-                        <button type="submit" class="btn btn-primary">Add Coupon</button>
                     </form>
                 </div>
             </div>

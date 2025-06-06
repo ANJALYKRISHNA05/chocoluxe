@@ -1,94 +1,1006 @@
-<%- include('../partials/user/header') %>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CHOCOLUXE - Order History</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4a2c2a;
+            --accent: #d1a876;
+            --background: #f5e8d4;
+            --card-bg: #fff9e6;
+            --muted: #888;
+        }
 
-<div class="container-fluid mt-5">
-    <div class="row">
-      
-        <div class="col-md-3">
+        * {
+            box-sizing: border-box;
+        }
+
+        body, html {
+            height: 100%;
+            margin: 0;
+            background-color: var(--background);
+            font-family: 'Nunito Sans', sans-serif;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* Navbar Styles */
+        .navbar {
+            background-color: var(--primary);
+            padding: 15px 20px;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            flex-wrap: wrap;
+        }
+
+        .navbar .brand {
+            font-size: 1.5rem;
+            font-weight: 700;
+            flex: 1;
+        }
+
+        .navbar .brand small {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 400;
+            color: var(--accent);
+        }
+
+        .navbar .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 25px;
+        }
+
+        .navbar .nav-icons {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .navbar a {
+            color: white;
+            text-decoration: none;
+            font-size: 1rem;
+            transition: color 0.3s;
+        }
+
+        .navbar a:hover {
+            color: var(--accent);
+        }
+
+        .navbar .search-bar {
+            width: 200px;
+            font-size: 0.9rem;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 4px;
+        }
+
+        .navbar .menu-toggle {
+            display: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            background: none;
+            border: none;
+            color: white;
+            padding: 5px;
+        }
+
+        .user-menu {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .user-dropdown {
+            display: none;
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background-color: var(--primary);
+            border: 1px solid var(--accent);
+            border-radius: 5px;
+            padding: 10px;
+            z-index: 1000;
+            min-width: 180px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .user-dropdown a {
+            display: flex;
+            align-items: center;
+            padding: 10px 15px;
+            color: white;
+            font-size: 0.9rem;
+            gap: 10px;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+
+        .user-dropdown a:hover {
+            background-color: #5a3c3a;
+            color: var(--accent);
+        }
+
+        .user-menu.active .user-dropdown {
+            display: block;
+        }
+
+        /* Content Container */
+        .content-container {
+            display: flex;
+            flex: 1;
+            padding: 20px;
+            gap: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /* Sidebar Styles */
+        .sidebar-container {
+            width: 280px;
+            flex-shrink: 0;
+        }
+
+        .sidebar {
+            background-color: white;
+            border-radius: 8px;
+            padding: 24px;
+            width: 100%;
+            height: fit-content;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar .user-profile {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 32px;
+            text-align: center;
+        }
+
+        .sidebar .username {
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 4px;
+        }
+
+        .sidebar .email {
+            font-size: 12px;
+            color: var(--muted);
+        }
+
+        .sidebar nav ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .sidebar nav ul li {
+            margin-bottom: 8px;
+        }
+
+        .sidebar nav ul li a {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            border-radius: 6px;
+            color: var(--muted);
+            text-decoration: none;
+            transition: all 0.2s;
+            font-size: 14px;
+        }
+
+        .sidebar nav ul li a.active,
+        .sidebar nav ul li a.bg-primary.bg-opacity-10 {
+            background-color: #eff6ff;
+            color: #2563eb;
+        }
+
+        .sidebar nav ul li a:hover {
+            background-color: #f9fafb;
+            color: var(--primary);
+        }
+
+        .sidebar nav ul li a i {
+            margin-right: 12px;
+            font-size: 16px;
+            width: 20px;
+            text-align: center;
+        }
+
+        .sidebar .logout a:hover {
+            color: #ef4444;
+            background-color: #fef2f2;
+        }
+
+        /* Mobile Sidebar Overlay */
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+
+        .sidebar-mobile {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: -100%;
+            width: 280px;
+            height: 100%;
+            background-color: white;
+            z-index: 1000;
+            transition: left 0.3s ease;
+            overflow-y: auto;
+        }
+
+        .sidebar-mobile.active {
+            left: 0;
+        }
+
+        .sidebar-mobile .sidebar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            border-bottom: 1px solid #e5e7eb;
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .sidebar-mobile .sidebar-header h3 {
+            margin: 0;
+            font-size: 1.2rem;
+        }
+
+        .sidebar-mobile .close-sidebar {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        /* Mobile Menu Button */
+        .mobile-menu-btn {
+            background-color: var(--primary);
+            color: white;
+            border: 2px solid var(--primary);
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .mobile-menu-btn:hover {
+            background-color: var(--accent);
+            border-color: var(--accent);
+            color: white;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(74, 44, 42, 0.2);
+        }
+
+        .mobile-menu-btn:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(74, 44, 42, 0.2);
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        /* Orders Card Styles */
+        .orders-card {
+            background-color: var(--card-bg);
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(74, 44, 42, 0.1);
+            padding: 30px;
+            border: none;
+        }
+
+        .orders-title {
+            color: var(--primary);
+            font-weight: 700;
+            margin-bottom: 25px;
+            font-size: 1.8rem;
+        }
+
+        .search-form {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .search-input {
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            padding: 12px 15px;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+
+        .search-input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(209, 168, 118, 0.25);
+            outline: none;
+        }
+
+        .btn-search {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-search:hover {
+            background-color: #5a3c3a;
+            color: white;
+        }
+
+        .btn-clear {
+            background-color: var(--muted);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s;
+            text-decoration: none;
+        }
+
+        .btn-clear:hover {
+            background-color: #666;
+            color: white;
+        }
+
+        /* Order Cards for Mobile */
+        .order-card {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e5e7eb;
+        }
+
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .order-id {
+            font-weight: 600;
+            color: var(--primary);
+            font-size: 1.1rem;
+        }
+
+        .order-status {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .status-delivered {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .status-pending {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .status-returned {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .status-shipped {
+            background-color: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .order-products {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .product-image {
+            width: 50px;
+            height: 50px;
+            border-radius: 8px;
+            object-fit: cover;
+            border: 2px solid var(--accent);
+        }
+
+        .order-details {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .order-date {
+            color: var(--muted);
+            font-size: 0.9rem;
+        }
+
+        .order-amount {
+            font-weight: 600;
+            color: var(--primary);
+            font-size: 1.1rem;
+        }
+
+        .btn-view-details {
+            background-color: transparent;
+            color: var(--primary);
+            border: 1px solid var(--primary);
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-view-details:hover {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        /* Table Styles for Desktop */
+        .orders-table {
+            background-color: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .orders-table th {
+            background-color: var(--primary);
+            color: white;
+            font-weight: 600;
+            padding: 15px;
+            border: none;
+        }
+
+        .orders-table td {
+            padding: 15px;
+            vertical-align: middle;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .orders-table tr:hover {
+            background-color: #f9fafb;
+        }
+
+        /* Pagination */
+        .pagination-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 25px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .pagination-info {
+            color: var(--muted);
+            font-size: 0.9rem;
+        }
+
+        .pagination {
+            margin: 0;
+        }
+
+        .page-link {
+            color: var(--primary);
+            border: 1px solid var(--primary);
+            padding: 8px 16px;
+            margin: 0 2px;
+            border-radius: 6px;
+            transition: all 0.3s;
+        }
+
+        .page-link:hover {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .page-item.disabled .page-link {
+            color: var(--muted);
+            border-color: var(--muted);
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--muted);
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            color: var(--accent);
+        }
+
+        .empty-state h5 {
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+
+        .alert {
+            border-radius: 8px;
+            border: none;
+            padding: 15px 20px;
+            margin-bottom: 20px;
+        }
+
+        .alert-info {
+            background-color: #e3f2fd;
+            color: #0277bd;
+        }
+
+        /* Footer */
+        .footer {
+            background-color: var(--primary);
+            color: white;
+            padding: 20px 0;
+            margin-top: auto;
+        }
+
+        .footer .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .footer .row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .footer a {
+            color: var(--accent);
+            margin: 0 10px;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.3s;
+        }
+
+        .footer a:hover {
+            color: white;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .content-container {
+                padding: 15px;
+                gap: 15px;
+            }
+
+            .sidebar-container {
+                width: 250px;
+            }
+
+            .orders-card {
+                padding: 25px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .navbar .nav-links,
+            .navbar .nav-icons {
+                display: none;
+            }
+
+            .navbar .menu-toggle {
+                display: block;
+            }
+
+            .navbar .search-bar {
+                width: 150px;
+            }
+
+            .content-container {
+                flex-direction: column;
+                padding: 15px;
+            }
+
+            .sidebar-container {
+                display: none;
+            }
+
+            .sidebar-overlay.active {
+                display: block;
+            }
+
+            .sidebar-mobile {
+                display: block;
+            }
+
+            .orders-card {
+                padding: 20px;
+            }
+
+            .orders-title {
+                font-size: 1.5rem;
+                text-align: center;
+            }
+
+            /* Hide table on mobile, show cards */
+            .table-responsive {
+                display: none;
+            }
+
+            .mobile-orders {
+                display: block;
+            }
+
+            .search-form {
+                padding: 15px;
+            }
+
+            .pagination-container {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .navbar {
+                padding: 10px 15px;
+            }
+
+            .navbar .brand {
+                font-size: 1.2rem;
+            }
+
+            .navbar .brand small {
+                font-size: 0.7rem;
+            }
+
+            .navbar .search-bar {
+                width: 120px;
+                font-size: 0.8rem;
+                padding: 6px 10px;
+            }
+
+            .content-container {
+                padding: 10px;
+            }
+
+            .orders-card {
+                padding: 15px;
+                border-radius: 10px;
+            }
+
+            .orders-title {
+                font-size: 1.3rem;
+            }
+
+            .order-card {
+                padding: 15px;
+            }
+
+            .search-form {
+                padding: 10px;
+            }
+
+            .mobile-menu-btn {
+                padding: 8px 14px;
+                font-size: 0.85rem;
+            }
+
+            .footer .row {
+                flex-direction: column;
+                text-align: center;
+                gap: 10px;
+            }
+
+            .footer a {
+                font-size: 0.8rem;
+                margin: 0 5px;
+            }
+        }
+
+        /* Utility Classes */
+        .d-none-mobile {
+            display: block;
+        }
+
+        .mobile-orders {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .d-none-mobile {
+                display: none;
+            }
+
+            .mobile-orders {
+                display: block;
+            }
+        }
+    </style>
+</head>
+<body>
+    <%- include('../partials/user/header') %>
+    
+    <!-- Mobile Sidebar Overlay -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeMobileSidebar()"></div>
+    
+    <!-- Mobile Sidebar -->
+    <div class="sidebar-mobile" id="mobileSidebar">
+        <div class="sidebar-header">
+            <h3>Menu</h3>
+            <button class="close-sidebar" onclick="closeMobileSidebar()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="sidebar">
             <%- include('../partials/user/sidebar', { activeTab: 'orders' }) %>
         </div>
-
-  
-        <div class="col-md-9">
-            <h2 class="mb-4">Order History</h2>
-         
-            <form class="mb-4" method="GET" action="/user/orders">
-                <div class="input-group">
-                    <input type="text" class="form-control" name="search" placeholder="Search by Order ID, Product Name, or Status" value="<%= search || '' %>">
-                    <button class="btn btn-primary" type="submit">Search</button>
-                    <% if (search) { %>
-                        <a href="/user/orders?page=1&limit=<%= limit %>" class="btn btn-secondary ms-2">Clear Search</a>
-                    <% } %>
+    </div>
+    
+    <div class="content-container">
+        <div class="sidebar-container d-none-mobile">
+            <%- include('../partials/user/sidebar', { activeTab: 'orders' }) %>
+        </div>
+        
+        <div class="main-content">
+            <!-- Mobile Menu Button -->
+            <div class="d-block d-md-none mb-3">
+                <button class="mobile-menu-btn" onclick="openMobileSidebar()">
+                    <i class="fas fa-bars"></i> Menu
+                </button>
+            </div>
+            
+            <div class="orders-card">
+                <h2 class="orders-title">Order History</h2>
+                
+                <!-- Search Form -->
+                <div class="search-form">
+                    <form method="GET" action="/user/orders">
+                        <div class="input-group">
+                            <input type="text" class="form-control search-input" name="search" 
+                                   placeholder="Search by Order ID, Product Name, or Status" 
+                                   value="<%= search || '' %>">
+                            <button class="btn btn-search" type="submit">
+                                <i class="fas fa-search me-2"></i>Search
+                            </button>
+                            <% if (search) { %>
+                                <a href="/user/orders?page=1&limit=<%= limit %>" class="btn btn-clear ms-2">
+                                    <i class="fas fa-times me-2"></i>Clear
+                                </a>
+                            <% } %>
+                        </div>
+                    </form>
                 </div>
-            </form>
 
-            <% if (message) { %>
-                <div class="alert alert-info" role="alert">
-                    <%= message %>
-                </div>
-            <% } %>
+                <% if (message) { %>
+                    <div class="alert alert-info" role="alert">
+                        <%= message %>
+                    </div>
+                <% } %>
 
-            <% if (orders.length > 0) { %>
-                <div class="table-responsive">
-                    <table class="table table-bordered table-hover">
-                        <thead class="thead-light">
-                            <tr>
-                                <th>Order ID</th>
-                                <th>Products</th>
-                                <th>Order Date</th>
-                                <th>Amount</th>
-                                <th>Status</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <% orders.forEach(order => { %>
+                <% if (orders.length > 0) { %>
+                    <!-- Desktop Table View -->
+                    <div class="table-responsive d-none-mobile">
+                        <table class="table orders-table">
+                            <thead>
                                 <tr>
-                                    <td><%= order.orderId %></td>
-                                    <td>
-                                        <% order.items.forEach(item => { %>
-                                            <% if (item.product && item.product.variants) { %>
-                                                <% const variant = item.product.variants.find(v => v.sku === item.sku); %>
-                                                <% if (variant && variant.productImage && variant.productImage.length > 0) { %>
-                                                    <img src="<%= variant.productImage[0] %>" alt="<%= item.product.productName %>" style="width: 50px; height: 50px; object-fit: cover; margin-right: 10px;">
-                                                <% } else { %>
-                                                    <span>No image available</span>
-                                                <% } %>
-                                            <% } %>
-                                        <% }) %>
-                                    </td>
-                                    <td><%= new Date(order.createdAt).toLocaleDateString() %></td>
-                                    <td>₹<%= order.total.toFixed(2) %></td>
-                                    <td>
-                                        <span class="badge <%= order.status === 'Delivered' ? 'bg-success' : order.status === 'Pending' ? 'bg-warning' : order.status === 'Returned' ? 'bg-danger' : 'bg-info' %>">
-                                            <%= order.status %>
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <a href="/order-details/<%= order.orderId %>" class="btn btn-sm btn-outline-primary">View Details</a>
-                                    </td>
+                                    <th>Order ID</th>
+                                    <th>Products</th>
+                                    <th>Order Date</th>
+                                    <th>Amount</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
                                 </tr>
-                            <% }) %>
-                        </tbody>
-                    </table>
-                </div>
-                <div class="d-flex justify-content-between align-items-center mt-3">
-                    <p>Showing <%= (page - 1) * limit + 1 %> - <%= Math.min(page * limit, totalOrders) %> of <%= totalOrders %> orders</p>
-                    <nav>
-                        <ul class="pagination">
-                            <li class="page-item <%= page === 1 ? 'disabled' : '' %>">
-                                <a class="page-link" href="/user/orders?page=<%= page - 1 %>&limit=<%= limit %><%= search ? '&search=' + search : '' %>">Previous</a>
-                            </li>
-                            <li class="page-item <%= page * limit >= totalOrders ? 'disabled' : '' %>">
-                                <a class="page-link" href="/user/orders?page=<%= page + 1 %>&limit=<%= limit %><%= search ? '&search=' + search : '' %>">Next</a>
-                            </li>
-                        </ul>
-                    </nav>
-                </div>
-            <% } else { %>
-                <p>No orders found.</p>
-            <% } %>
+                            </thead>
+                            <tbody>
+                                <% orders.forEach(order => { %>
+                                    <tr>
+                                        <td class="order-id"><%= order.orderId %></td>
+                                        <td>
+                                            <div class="order-products">
+                                                <% order.items.forEach(item => { %>
+                                                    <% if (item.product && item.product.variants) { %>
+                                                        <% const variant = item.product.variants.find(v => v.sku === item.sku); %>
+                                                        <% if (variant && variant.productImage && variant.productImage.length > 0) { %>
+                                                            <img src="<%= variant.productImage[0] %>" alt="<%= item.product.productName %>" class="product-image">
+                                                        <% } %>
+                                                    <% } %>
+                                                <% }) %>
+                                            </div>
+                                        </td>
+                                        <td><%= new Date(order.createdAt).toLocaleDateString() %></td>
+                                        <td class="order-amount">₹<%= order.total.toFixed(2) %></td>
+                                        <td>
+                                            <span class="order-status <%= order.status === 'Delivered' ? 'status-delivered' : order.status === 'Pending' ? 'status-pending' : order.status === 'Returned' ? 'status-returned' : 'status-shipped' %>">
+                                                <%= order.status %>
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <a href="/order-details/<%= order.orderId %>" class="btn-view-details">
+                                                <i class="fas fa-eye"></i> View Details
+                                            </a>
+                                        </td>
+                                    </tr>
+                                <% }) %>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Mobile Card View -->
+                    <div class="mobile-orders">
+                        <% orders.forEach(order => { %>
+                            <div class="order-card">
+                                <div class="order-header">
+                                    <div class="order-id">#<%= order.orderId %></div>
+                                    <span class="order-status <%= order.status === 'Delivered' ? 'status-delivered' : order.status === 'Pending' ? 'status-pending' : order.status === 'Returned' ? 'status-returned' : 'status-shipped' %>">
+                                        <%= order.status %>
+                                    </span>
+                                </div>
+                                
+                                <div class="order-products">
+                                    <% order.items.forEach(item => { %>
+                                        <% if (item.product && item.product.variants) { %>
+                                            <% const variant = item.product.variants.find(v => v.sku === item.sku); %>
+                                            <% if (variant && variant.productImage && variant.productImage.length > 0) { %>
+                                                <img src="<%= variant.productImage[0] %>" alt="<%= item.product.productName %>" class="product-image">
+                                            <% } %>
+                                        <% } %>
+                                    <% }) %>
+                                </div>
+                                
+                                <div class="order-details">
+                                    <div class="order-date">
+                                        <i class="fas fa-calendar me-2"></i>
+                                        <%= new Date(order.createdAt).toLocaleDateString() %>
+                                    </div>
+                                    <div class="order-amount">₹<%= order.total.toFixed(2) %></div>
+                                </div>
+                                
+                                <div class="text-center">
+                                    <a href="/order-details/<%= order.orderId %>" class="btn-view-details">
+                                        <i class="fas fa-eye"></i> View Details
+                                    </a>
+                                </div>
+                            </div>
+                        <% }) %>
+                    </div>
+
+                    <!-- Pagination -->
+                    <div class="pagination-container">
+                        <div class="pagination-info">
+                            Showing <%= (page - 1) * limit + 1 %> - <%= Math.min(page * limit, totalOrders) %> of <%= totalOrders %> orders
+                        </div>
+                        <nav>
+                            <ul class="pagination">
+                                <li class="page-item <%= page === 1 ? 'disabled' : '' %>">
+                                    <a class="page-link" href="/user/orders?page=<%= page - 1 %>&limit=<%= limit %><%= search ? '&search=' + search : '' %>">
+                                        <i class="fas fa-chevron-left me-2"></i>Previous
+                                    </a>
+                                </li>
+                                <li class="page-item <%= page * limit >= totalOrders ? 'disabled' : '' %>">
+                                    <a class="page-link" href="/user/orders?page=<%= page + 1 %>&limit=<%= limit %><%= search ? '&search=' + search : '' %>">
+                                        Next<i class="fas fa-chevron-right ms-2"></i>
+                                    </a>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+                <% } else { %>
+                    <div class="empty-state">
+                        <i class="fas fa-shopping-bag"></i>
+                        <h5>No orders found</h5>
+                        <p>You haven't placed any orders yet or no orders match your search criteria.</p>
+                    </div>
+                <% } %>
+            </div>
         </div>
     </div>
-</div>
+    
+    <%- include('../partials/user/footer') %>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function toggleMenu() {
+            const navbar = document.querySelector('.navbar');
+            navbar.classList.toggle('active');
+        }
 
-<%- include('../partials/user/footer') %>
+        function toggleUserMenu() {
+            const userMenu = document.querySelector('.user-menu');
+            userMenu.classList.toggle('active');
+        }
+
+        function openMobileSidebar() {
+            const overlay = document.getElementById('sidebarOverlay');
+            const sidebar = document.getElementById('mobileSidebar');
+            overlay.classList.add('active');
+            sidebar.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeMobileSidebar() {
+            const overlay = document.getElementById('sidebarOverlay');
+            const sidebar = document.getElementById('mobileSidebar');
+            overlay.classList.remove('active');
+            sidebar.classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        // Close user menu when clicking outside
+        document.addEventListener('click', function(event) {
+            const userMenu = document.querySelector('.user-menu');
+            const isClickInside = userMenu.contains(event.target);
+            if (!isClickInside && userMenu.classList.contains('active')) {
+                userMenu.classList.remove('active');
+            }
+        });
+
+        // Close mobile sidebar on window resize
+        window.addEventListener('resize', function() {
+            if (window.innerWidth > 768) {
+                closeMobileSidebar();
+            }
+        });
+
+        // Handle escape key to close mobile sidebar
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeMobileSidebar();
+            }
+        });
+    </script>
+</body>
+</html>

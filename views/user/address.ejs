@@ -1,158 +1,924 @@
-<%- include('../partials/user/header') %>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CHOCOLUXE - My Addresses</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        :root {
+            --primary: #4a2c2a;
+            --accent: #d1a876;
+            --background: #f5e8d4;
+            --card-bg: #fff9e6;
+            --muted: #888;
+        }
 
-<div class="container my-5">
-    <div class="row">
-      
-        <div class="col-md-3 mb-4">
+        * {
+            box-sizing: border-box;
+        }
+
+        body, html {
+            height: 100%;
+            margin: 0;
+            background-color: var(--background);
+            font-family: 'Nunito Sans', sans-serif;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* Navbar Styles */
+        .navbar {
+            background-color: var(--primary);
+            padding: 15px 20px;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            flex-wrap: wrap;
+        }
+
+        .navbar .brand {
+            font-size: 1.5rem;
+            font-weight: 700;
+            flex: 1;
+        }
+
+        .navbar .brand small {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 400;
+            color: var(--accent);
+        }
+
+        .navbar .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 25px;
+        }
+
+        .navbar .nav-icons {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .navbar a {
+            color: white;
+            text-decoration: none;
+            font-size: 1rem;
+            transition: color 0.3s;
+        }
+
+        .navbar a:hover {
+            color: var(--accent);
+        }
+
+        .navbar .search-bar {
+            width: 200px;
+            font-size: 0.9rem;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 4px;
+        }
+
+        .navbar .menu-toggle {
+            display: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            background: none;
+            border: none;
+            color: white;
+            padding: 5px;
+        }
+
+        .user-menu {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .user-dropdown {
+            display: none;
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background-color: var(--primary);
+            border: 1px solid var(--accent);
+            border-radius: 5px;
+            padding: 10px;
+            z-index: 1000;
+            min-width: 180px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .user-dropdown a {
+            display: flex;
+            align-items: center;
+            padding: 10px 15px;
+            color: white;
+            font-size: 0.9rem;
+            gap: 10px;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+
+        .user-dropdown a:hover {
+            background-color: #5a3c3a;
+            color: var(--accent);
+        }
+
+        .user-menu.active .user-dropdown {
+            display: block;
+        }
+
+        /* Content Container */
+        .content-container {
+            display: flex;
+            flex: 1;
+            padding: 20px;
+            gap: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /* Sidebar Styles */
+        .sidebar-container {
+            width: 280px;
+            flex-shrink: 0;
+        }
+
+        .sidebar {
+            background-color: white;
+            border-radius: 8px;
+            padding: 24px;
+            width: 100%;
+            height: fit-content;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar .user-profile {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 32px;
+            text-align: center;
+        }
+
+        .sidebar .username {
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 4px;
+        }
+
+        .sidebar .email {
+            font-size: 12px;
+            color: var(--muted);
+        }
+
+        .sidebar nav ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .sidebar nav ul li {
+            margin-bottom: 8px;
+        }
+
+        .sidebar nav ul li a {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            border-radius: 6px;
+            color: var(--muted);
+            text-decoration: none;
+            transition: all 0.2s;
+            font-size: 14px;
+        }
+
+        .sidebar nav ul li a.active,
+        .sidebar nav ul li a.bg-primary.bg-opacity-10 {
+            background-color: #eff6ff;
+            color: #2563eb;
+        }
+
+        .sidebar nav ul li a:hover {
+            background-color: #f9fafb;
+            color: var(--primary);
+        }
+
+        .sidebar nav ul li a i {
+            margin-right: 12px;
+            font-size: 16px;
+            width: 20px;
+            text-align: center;
+        }
+
+        .sidebar .logout a:hover {
+            color: #ef4444;
+            background-color: #fef2f2;
+        }
+
+        /* Mobile Sidebar Overlay */
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+
+        .sidebar-mobile {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: -100%;
+            width: 280px;
+            height: 100%;
+            background-color: white;
+            z-index: 1000;
+            transition: left 0.3s ease;
+            overflow-y: auto;
+        }
+
+        .sidebar-mobile.active {
+            left: 0;
+        }
+
+        .sidebar-mobile .sidebar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            border-bottom: 1px solid #e5e7eb;
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .sidebar-mobile .sidebar-header h3 {
+            margin: 0;
+            font-size: 1.2rem;
+        }
+
+        .sidebar-mobile .close-sidebar {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        /* Mobile Menu Button */
+        .mobile-menu-btn {
+            background-color: var(--primary);
+            color: white;
+            border: 2px solid var(--primary);
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .mobile-menu-btn:hover {
+            background-color: var(--accent);
+            border-color: var(--accent);
+            color: white;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(74, 44, 42, 0.2);
+        }
+
+        .mobile-menu-btn:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(74, 44, 42, 0.2);
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        /* Address Card Styles */
+        .address-card {
+            background-color: var(--card-bg);
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(74, 44, 42, 0.1);
+            padding: 30px;
+            border: none;
+        }
+
+        .address-title {
+            color: var(--primary);
+            font-weight: 700;
+            margin-bottom: 25px;
+            font-size: 1.8rem;
+        }
+
+        .add-address-btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .add-address-btn:hover {
+            background-color: #5a3c3a;
+            color: white;
+            transform: translateY(-1px);
+        }
+
+        .address-item {
+            background-color: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            transition: all 0.3s;
+            height: 100%;
+        }
+
+        .address-item:hover {
+            box-shadow: 0 4px 12px rgba(74, 44, 42, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .address-name {
+            color: var(--primary);
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 1.1rem;
+        }
+
+        .address-badge {
+            background-color: var(--muted);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            margin-left: 8px;
+        }
+
+        .address-badge.default {
+            background-color: var(--accent);
+        }
+
+        .address-text {
+            color: #555;
+            margin-bottom: 5px;
+            line-height: 1.4;
+        }
+
+        .address-phone {
+            color: var(--muted);
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+        }
+
+        .address-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .btn-edit {
+            background-color: transparent;
+            color: var(--primary);
+            border: 1px solid var(--primary);
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .btn-edit:hover {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-default {
+            background-color: transparent;
+            color: var(--accent);
+            border: 1px solid var(--accent);
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            transition: all 0.3s;
+        }
+
+        .btn-default:hover {
+            background-color: var(--accent);
+            color: white;
+        }
+
+        .btn-delete {
+            background-color: transparent;
+            color: #dc3545;
+            border: 1px solid #dc3545;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .btn-delete:hover {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--muted);
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            color: var(--accent);
+        }
+
+        .empty-state h5 {
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+
+        .alert {
+            border-radius: 8px;
+            border: none;
+            padding: 15px 20px;
+            margin-bottom: 20px;
+        }
+
+        .alert-info {
+            background-color: #e3f2fd;
+            color: #0277bd;
+        }
+
+        /* Footer */
+        .footer {
+            background-color: var(--primary);
+            color: white;
+            padding: 20px 0;
+            margin-top: auto;
+        }
+
+        .footer .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .footer .row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .footer a {
+            color: var(--accent);
+            margin: 0 10px;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.3s;
+        }
+
+        .footer a:hover {
+            color: white;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .content-container {
+                padding: 15px;
+                gap: 15px;
+            }
+
+            .sidebar-container {
+                width: 250px;
+            }
+
+            .address-card {
+                padding: 25px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .navbar .nav-links,
+            .navbar .nav-icons {
+                display: none;
+            }
+
+            .navbar .menu-toggle {
+                display: block;
+            }
+
+            .navbar .search-bar {
+                width: 150px;
+            }
+
+            .content-container {
+                flex-direction: column;
+                padding: 15px;
+            }
+
+            .sidebar-container {
+                display: none;
+            }
+
+            .sidebar-overlay.active {
+                display: block;
+            }
+
+            .sidebar-mobile {
+                display: block;
+            }
+
+            .address-card {
+                padding: 20px;
+            }
+
+            .address-title {
+                font-size: 1.5rem;
+                text-align: center;
+                margin-bottom: 20px;
+            }
+
+            .address-header {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+
+            .address-actions {
+                justify-content: center;
+            }
+
+            .empty-state {
+                padding: 40px 15px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .navbar {
+                padding: 10px 15px;
+            }
+
+            .navbar .brand {
+                font-size: 1.2rem;
+            }
+
+            .navbar .brand small {
+                font-size: 0.7rem;
+            }
+
+            .navbar .search-bar {
+                width: 120px;
+                font-size: 0.8rem;
+                padding: 6px 10px;
+            }
+
+            .content-container {
+                padding: 10px;
+            }
+
+            .address-card {
+                padding: 15px;
+                border-radius: 10px;
+            }
+
+            .address-title {
+                font-size: 1.3rem;
+            }
+
+            .address-item {
+                padding: 15px;
+                margin-bottom: 15px;
+            }
+
+            .address-actions {
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            .btn-edit,
+            .btn-default,
+            .btn-delete {
+                width: 100%;
+                justify-content: center;
+                padding: 8px 12px;
+            }
+
+            .add-address-btn {
+                width: 100%;
+                justify-content: center;
+                padding: 12px 20px;
+            }
+
+            .mobile-menu-btn {
+                padding: 8px 14px;
+                font-size: 0.85rem;
+            }
+
+            .footer .row {
+                flex-direction: column;
+                text-align: center;
+                gap: 10px;
+            }
+
+            .footer a {
+                font-size: 0.8rem;
+                margin: 0 5px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .address-header {
+                gap: 10px;
+            }
+
+            .empty-state {
+                padding: 30px 10px;
+            }
+
+            .empty-state i {
+                font-size: 2.5rem;
+            }
+        }
+
+        /* Utility Classes */
+        .d-none-mobile {
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            .d-none-mobile {
+                display: none;
+            }
+
+            .address-header {
+                display: flex !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <%- include('../partials/user/header') %>
+    
+    <!-- Mobile Sidebar Overlay -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeMobileSidebar()"></div>
+    
+    <!-- Mobile Sidebar -->
+    <div class="sidebar-mobile" id="mobileSidebar">
+        <div class="sidebar-header">
+            <h3>Menu</h3>
+            <button class="close-sidebar" onclick="closeMobileSidebar()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="sidebar">
+            <%- include('../partials/user/sidebar', { activeTab: 'address' }) %>
+        </div>
+    </div>
+    
+    <div class="content-container">
+        <div class="sidebar-container d-none-mobile">
             <%- include('../partials/user/sidebar', { activeTab: 'address' }) %>
         </div>
         
-       
-        <div class="col-md-9">
-            <div class="card border-0 shadow-sm">
-                <div class="card-body p-4">
-                    <div class="d-flex justify-content-between align-items-center mb-4">
-                        <h4 class="mb-0">My Addresses</h4>
-                        <a href="/user/address/add" class="btn btn-dark">
-                            <i class="fas fa-plus me-2"></i> Add New Address
-                        </a>
+        <div class="main-content">
+            <!-- Mobile Menu Button -->
+            <div class="d-block d-md-none mb-3">
+                <button class="mobile-menu-btn" onclick="openMobileSidebar()">
+                    <i class="fas fa-bars"></i> Menu
+                </button>
+            </div>
+            
+            <div class="address-card">
+                <div class="d-flex justify-content-between align-items-center mb-4 address-header">
+                    <h4 class="address-title mb-0">My Addresses</h4>
+                    <a href="/user/address/add" class="add-address-btn">
+                        <i class="fas fa-plus"></i> Add New Address
+                    </a>
+                </div>
+                
+                <% if (message) { %>
+                    <div class="alert alert-info alert-dismissible fade show" role="alert">
+                        <%= message %>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
-                    
-                    <% if (message) { %>
-                        <div class="alert alert-info alert-dismissible fade show" role="alert">
-                            <%= message %>
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                        </div>
-                    <% } %>
-                    
-                    <% if (addresses && addresses.length > 0) { %>
-                        <div class="row">
-                            <% addresses.forEach(address => { %>
-                                <div class="col-md-6 mb-4">
-                                    <div class="card h-100 border-light">
-                                        <div class="card-body">
-                                            <div class="d-flex justify-content-between align-items-start mb-2">
-                                                <div>
-                                                    <h5 class="mb-1">
-                                                        <%= address.name %> 
-                                                        <span class="badge bg-secondary ms-2"><%= address.addressType %></span>
-                                                        <% if (address.isDefault) { %>
-                                                            <span class="badge bg-primary ms-1">Default</span>
-                                                        <% } %>
-                                                    </h5>
-                                                </div>
-                                            </div>
-                                            <p class="mb-1"><%= address.address %></p>
-                                            <p class="mb-1"><%= address.city %>, <%= address.state %> - <%= address.pincode %></p>
-                                            <p class="mb-2"><i class="fas fa-phone-alt me-2"></i><%= address.phone %></p>
-                                            
-                                            <div class="d-flex mt-3">
-                                                <a href="/user/address/edit/<%= address._id %>" class="btn btn-sm btn-outline-dark me-2">
-                                                    <i class="fas fa-edit"></i> Edit
-                                                </a>
-                                                
-                                                <% if (!address.isDefault) { %>
-                                                    <button class="btn btn-sm btn-outline-primary me-2 set-default-btn" 
-                                                            data-address-id="<%= address._id %>">
-                                                        Set Default
-                                                    </button>
+                <% } %>
+                
+                <% if (addresses && addresses.length > 0) { %>
+                    <div class="row">
+                        <% addresses.forEach(address => { %>
+                            <div class="col-md-6 mb-4">
+                                <div class="address-item">
+                                    <div class="d-flex justify-content-between align-items-start mb-2">
+                                        <div>
+                                            <h5 class="address-name">
+                                                <%= address.name %> 
+                                                <span class="address-badge"><%= address.addressType %></span>
+                                                <% if (address.isDefault) { %>
+                                                    <span class="address-badge default">Default</span>
                                                 <% } %>
-                                                
-                                                <button class="btn btn-sm btn-outline-danger delete-address-btn" 
-                                                        data-address-id="<%= address._id %>">
-                                                    <i class="fas fa-trash"></i> Delete
-                                                </button>
-                                            </div>
+                                            </h5>
                                         </div>
                                     </div>
+                                    <p class="address-text"><%= address.address %></p>
+                                    <p class="address-text"><%= address.city %>, <%= address.state %> - <%= address.pincode %></p>
+                                    <p class="address-phone"><i class="fas fa-phone-alt me-2"></i><%= address.phone %></p>
+                                    
+                                    <div class="address-actions">
+                                        <a href="/user/address/edit/<%= address._id %>" class="btn-edit">
+                                            <i class="fas fa-edit"></i> Edit
+                                        </a>
+                                        
+                                        <% if (!address.isDefault) { %>
+                                            <button class="btn-default set-default-btn" 
+                                                    data-address-id="<%= address._id %>">
+                                                Set Default
+                                            </button>
+                                        <% } %>
+                                        
+                                        <button class="btn-delete delete-address-btn" 
+                                                data-address-id="<%= address._id %>">
+                                            <i class="fas fa-trash"></i> Delete
+                                        </button>
+                                    </div>
                                 </div>
-                            <% }) %>
-                        </div>
-                    <% } else { %>
-                        <div class="text-center py-5">
-                            <i class="fas fa-map-marker-alt fa-3x text-muted mb-3"></i>
-                            <h5>No addresses found</h5>
-                            <p class="text-muted">Add a new address to continue shopping</p>
-                            <a href="/user/address/add" class="btn btn-dark mt-2">
-                                <i class="fas fa-plus me-2"></i> Add New Address
-                            </a>
-                        </div>
-                    <% } %>
-                </div>
+                            </div>
+                        <% }) %>
+                    </div>
+                <% } else { %>
+                    <div class="empty-state">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <h5>No addresses found</h5>
+                        <p>Add a new address to continue shopping</p>
+                        <a href="/user/address/add" class="add-address-btn mt-3">
+                            <i class="fas fa-plus"></i> Add New Address
+                        </a>
+                    </div>
+                <% } %>
             </div>
         </div>
     </div>
-</div>
+    
+    <!-- Hidden Forms -->
+    <form id="deleteAddressForm" action="/user/address/delete" method="POST" style="display:none;">
+        <input type="hidden" name="addressId" id="deleteAddressId">
+    </form>
 
+    <form id="setDefaultForm" action="/user/address/set-default" method="POST" style="display:none;">
+        <input type="hidden" name="addressId" id="setDefaultAddressId">
+    </form>
+    
+    <%- include('../partials/user/footer') %>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function toggleMenu() {
+            const navbar = document.querySelector('.navbar');
+            navbar.classList.toggle('active');
+        }
 
-<form id="deleteAddressForm" action="/user/address/delete" method="POST" style="display:none;">
-    <input type="hidden" name="addressId" id="deleteAddressId">
-</form>
+        function toggleUserMenu() {
+            const userMenu = document.querySelector('.user-menu');
+            userMenu.classList.toggle('active');
+        }
 
-<form id="setDefaultForm" action="/user/address/set-default" method="POST" style="display:none;">
-    <input type="hidden" name="addressId" id="setDefaultAddressId">
-</form>
+        function openMobileSidebar() {
+            const overlay = document.getElementById('sidebarOverlay');
+            const sidebar = document.getElementById('mobileSidebar');
+            overlay.classList.add('active');
+            sidebar.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
 
+        function closeMobileSidebar() {
+            const overlay = document.getElementById('sidebarOverlay');
+            const sidebar = document.getElementById('mobileSidebar');
+            overlay.classList.remove('active');
+            sidebar.classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
 
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-      
-        const deleteButtons = document.querySelectorAll('.delete-address-btn');
-        deleteButtons.forEach(button => {
-            button.addEventListener('click', function() {
-                const addressId = this.getAttribute('data-address-id');
-                
-                Swal.fire({
-                    title: 'Are you sure?',
-                    text: "You won't be able to revert this!",
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#dc3545',
-                    cancelButtonColor: '#6c757d',
-                    confirmButtonText: 'Yes, delete it!'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        document.getElementById('deleteAddressId').value = addressId;
-                        document.getElementById('deleteAddressForm').submit();
-                    }
+        // Close user menu when clicking outside
+        document.addEventListener('click', function(event) {
+            const userMenu = document.querySelector('.user-menu');
+            const isClickInside = userMenu.contains(event.target);
+            if (!isClickInside && userMenu.classList.contains('active')) {
+                userMenu.classList.remove('active');
+            }
+        });
+
+        // Close mobile sidebar on window resize
+        window.addEventListener('resize', function() {
+            if (window.innerWidth > 768) {
+                closeMobileSidebar();
+            }
+        });
+
+        // Handle escape key to close mobile sidebar
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeMobileSidebar();
+            }
+        });
+
+        // Address management functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            // Delete address functionality
+            const deleteButtons = document.querySelectorAll('.delete-address-btn');
+            deleteButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const addressId = this.getAttribute('data-address-id');
+                    
+                    Swal.fire({
+                        title: 'Are you sure?',
+                        text: "You won't be able to revert this!",
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#dc3545',
+                        cancelButtonColor: '#6c757d',
+                        confirmButtonText: 'Yes, delete it!'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            document.getElementById('deleteAddressId').value = addressId;
+                            document.getElementById('deleteAddressForm').submit();
+                        }
+                    });
                 });
             });
-        });
-        
-      
-        const defaultButtons = document.querySelectorAll('.set-default-btn');
-        defaultButtons.forEach(button => {
-            button.addEventListener('click', function() {
-                const addressId = this.getAttribute('data-address-id');
-                
-                Swal.fire({
-                    title: 'Set as default?',
-                    text: "This will be used as your default shipping address",
-                    icon: 'question',
-                    showCancelButton: true,
-                    confirmButtonColor: '#007bff',
-                    cancelButtonColor: '#6c757d',
-                    confirmButtonText: 'Yes, set as default'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        document.getElementById('setDefaultAddressId').value = addressId;
-                        document.getElementById('setDefaultForm').submit();
-                    }
+            
+            // Set default address functionality
+            const defaultButtons = document.querySelectorAll('.set-default-btn');
+            defaultButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const addressId = this.getAttribute('data-address-id');
+                    
+                    Swal.fire({
+                        title: 'Set as default?',
+                        text: "This will be used as your default shipping address",
+                        icon: 'question',
+                        showCancelButton: true,
+                        confirmButtonColor: '#007bff',
+                        cancelButtonColor: '#6c757d',
+                        confirmButtonText: 'Yes, set as default'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            document.getElementById('setDefaultAddressId').value = addressId;
+                            document.getElementById('setDefaultForm').submit();
+                        }
+                    });
                 });
             });
+            
+            // Show success message if exists
+            <% if (message) { %>
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success',
+                    text: '<%= message %>',
+                    timer: 3000,
+                    timerProgressBar: true
+                });
+            <% } %>
         });
-        
-       
-        <% if (message) { %>
-            Swal.fire({
-                icon: 'success',
-                title: 'Success',
-                text: '<%= message %>',
-                timer: 3000,
-                timerProgressBar: true
-            });
-        <% } %>
-    });
-</script>
-
-<%- include('../partials/user/footer') %>
+    </script>
+</body>
+</html>

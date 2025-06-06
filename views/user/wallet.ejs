@@ -3,27 +3,335 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Your Wallet - Chocoluxe</title>
+    <title>Your Wallet - CHOCOLUXE</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body {
-            background-color: #f8f9fa;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        :root {
+            --primary: #4a2c2a;
+            --accent: #d1a876;
+            --background: #f5e8d4;
+            --card-bg: #fff9e6;
+            --muted: #888;
         }
-        .wallet-container {
-            max-width: 1000px;
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body, html {
+            height: 100%;
+            margin: 0;
+            background-color: var(--background);
+            font-family: 'Nunito Sans', sans-serif;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* Navbar Styles */
+        .navbar {
+            background-color: var(--primary);
+            padding: 15px 20px;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            flex-wrap: wrap;
+        }
+
+        .navbar .brand {
+            font-size: 1.5rem;
+            font-weight: 700;
+            flex: 1;
+        }
+
+        .navbar .brand small {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 400;
+            color: var(--accent);
+        }
+
+        .navbar .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 25px;
+        }
+
+        .navbar .nav-icons {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .navbar a {
+            color: white;
+            text-decoration: none;
+            font-size: 1rem;
+            transition: color 0.3s;
+        }
+
+        .navbar a:hover {
+            color: var(--accent);
+        }
+
+        .navbar .search-bar {
+            width: 200px;
+            font-size: 0.9rem;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 4px;
+        }
+
+        .navbar .menu-toggle {
+            display: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            background: none;
+            border: none;
+            color: white;
+            padding: 5px;
+        }
+
+        .user-menu {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .user-dropdown {
+            display: none;
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background-color: var(--primary);
+            border: 1px solid var(--accent);
+            border-radius: 5px;
+            padding: 10px;
+            z-index: 1000;
+            min-width: 180px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .user-dropdown a {
+            display: flex;
+            align-items: center;
+            padding: 10px 15px;
+            color: white;
+            font-size: 0.9rem;
+            gap: 10px;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+
+        .user-dropdown a:hover {
+            background-color: #5a3c3a;
+            color: var(--accent);
+        }
+
+        .user-menu.active .user-dropdown {
+            display: block;
+        }
+
+        /* Content Container */
+        .content-container {
+            display: flex;
+            flex: 1;
+            padding: 20px;
+            gap: 20px;
+            max-width: 1200px;
             margin: 0 auto;
-            padding: 2rem 1rem;
+            width: 100%;
         }
+
+        /* Sidebar Styles */
+        .sidebar-container {
+            width: 280px;
+            flex-shrink: 0;
+        }
+
+        .sidebar {
+            background-color: white;
+            border-radius: 8px;
+            padding: 24px;
+            width: 100%;
+            height: fit-content;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar .user-profile {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 32px;
+            text-align: center;
+        }
+
+        .sidebar .username {
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 4px;
+        }
+
+        .sidebar .email {
+            font-size: 12px;
+            color: var(--muted);
+        }
+
+        .sidebar nav ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .sidebar nav ul li {
+            margin-bottom: 8px;
+        }
+
+        .sidebar nav ul li a {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            border-radius: 6px;
+            color: var(--muted);
+            text-decoration: none;
+            transition: all 0.2s;
+            font-size: 14px;
+        }
+
+        .sidebar nav ul li a.active,
+        .sidebar nav ul li a.bg-primary.bg-opacity-10 {
+            background-color: #eff6ff;
+            color: #2563eb;
+        }
+
+        .sidebar nav ul li a:hover {
+            background-color: #f9fafb;
+            color: var(--primary);
+        }
+
+        .sidebar nav ul li a i {
+            margin-right: 12px;
+            font-size: 16px;
+            width: 20px;
+            text-align: center;
+        }
+
+        .sidebar .logout a:hover {
+            color: #ef4444;
+            background-color: #fef2f2;
+        }
+
+        /* Mobile Sidebar Overlay */
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+
+        .sidebar-mobile {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: -100%;
+            width: 280px;
+            height: 100%;
+            background-color: white;
+            z-index: 1000;
+            transition: left 0.3s ease;
+            overflow-y: auto;
+        }
+
+        .sidebar-mobile.active {
+            left: 0;
+        }
+
+        .sidebar-mobile .sidebar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            border-bottom: 1px solid #e5e7eb;
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .sidebar-mobile .sidebar-header h3 {
+            margin: 0;
+            font-size: 1.2rem;
+        }
+
+        .sidebar-mobile .close-sidebar {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        /* Mobile Menu Button */
+        .mobile-menu-btn {
+            background-color: var(--primary);
+            color: white;
+            border: 2px solid var(--primary);
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+        }
+
+        .mobile-menu-btn:hover {
+            background-color: var(--accent);
+            border-color: var(--accent);
+            color: white;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(74, 44, 42, 0.2);
+        }
+
+        .mobile-menu-btn:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(74, 44, 42, 0.2);
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        /* Wallet Container */
+        .wallet-container {
+            width: 100%;
+        }
+
         .section-title {
             position: relative;
             padding-bottom: 0.5rem;
             margin-bottom: 2rem;
             text-align: center;
-            font-weight: 600;
-            color: #4b2e2e;
+            font-weight: 700;
+            color: var(--primary);
+            font-size: 1.8rem;
         }
+
         .section-title::after {
             content: '';
             position: absolute;
@@ -32,15 +340,17 @@
             bottom: 0;
             width: 60px;
             height: 3px;
-            background-color: #d4a373;
+            background-color: var(--accent);
             border-radius: 2px;
         }
+
+        /* Wallet Card */
         .wallet-card {
-            background: linear-gradient(135deg, #4b2e2e, #2c1b1b);
+            background: linear-gradient(135deg, var(--primary), #2c1b1b);
             color: white;
-            border-radius: 12px;
+            border-radius: 15px;
             padding: 2rem;
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+            box-shadow: 0 10px 20px rgba(74, 44, 42, 0.15);
             position: relative;
             min-height: 200px;
             display: flex;
@@ -48,71 +358,166 @@
             justify-content: space-between;
             transition: transform 0.3s ease;
         }
+
         .wallet-card:hover {
             transform: translateY(-5px);
         }
+
         .chip {
             position: absolute;
             top: 20px;
             right: 20px;
             width: 50px;
             height: 35px;
-            background: linear-gradient(135deg, #d4a373, #b8860b);
+            background: linear-gradient(135deg, var(--accent), #b8860b);
             border-radius: 6px;
         }
+
         .card-brand {
             font-size: 1.5rem;
             font-weight: bold;
             letter-spacing: 1px;
         }
+
         .balance-amount {
             font-size: 2.25rem;
             font-weight: 700;
         }
-        .transaction-tabs {
-            border-bottom: 1px solid #dee2e6;
+
+        /* Overview Card */
+        .overview-card {
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(74, 44, 42, 0.1);
+            padding: 1.5rem;
+            height: 100%;
+        }
+
+        .overview-title {
+            color: var(--primary);
+            font-weight: 600;
             margin-bottom: 1.5rem;
         }
-        .transaction-tab {
-            padding: 0.75rem 1.5rem;
-            cursor: pointer;
-            color: #6c757d;
-            font-weight: 500;
-            transition: all 0.3s ease;
+
+        .overview-item {
+            margin-bottom: 1rem;
         }
-        .transaction-tab.active {
-            color: #4b2e2e;
-            border-bottom: 2px solid #d4a373;
+
+        .overview-label {
+            color: var(--muted);
+            font-size: 0.85rem;
+            margin-bottom: 0.25rem;
         }
+
+        .overview-value {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .overview-value.credit {
+            color: #28a745;
+        }
+
+        .overview-value.debit {
+            color: #dc3545;
+        }
+
+        /* Referral Section */
+        .referral-section {
+            margin-top: 2rem;
+        }
+
+        .referral-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(74, 44, 42, 0.1);
+            padding: 1.5rem;
+        }
+
+        .referral-title {
+            color: var(--primary);
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .referral-button {
+            background-color: var(--accent);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .referral-button:hover {
+            background-color: #b8860b;
+            transform: translateY(-1px);
+        }
+
+        /* Transaction Card */
         .transaction-card {
             background: white;
-            border-radius: 12px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(74, 44, 42, 0.1);
             overflow: hidden;
+            margin-top: 2rem;
         }
+
+        .transaction-header {
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .transaction-title {
+            color: var(--primary);
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .transaction-tabs {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .transaction-tab {
+            padding: 8px 16px;
+            cursor: pointer;
+            color: var(--muted);
+            font-weight: 500;
+            border-radius: 20px;
+            transition: all 0.3s ease;
+            background-color: white;
+            border: 1px solid #e5e7eb;
+        }
+
+        .transaction-tab.active {
+            color: white;
+            background-color: var(--primary);
+            border-color: var(--primary);
+        }
+
         .transaction-list {
             max-height: 400px;
             overflow-y: auto;
         }
-        .transaction-header {
-            background: #f8f9fa;
-            padding: 1rem;
-            font-weight: 500;
-        }
+
         .transaction-item {
-            padding: 1rem;
+            padding: 1rem 1.5rem;
             border-bottom: 1px solid #e9ecef;
             transition: background 0.3s ease;
         }
+
         .transaction-item:hover {
-            background: #f1f3f5;
+            background: #f8f9fa;
         }
-        .credit {
-            color: #28a745;
+
+        .transaction-item:last-child {
+            border-bottom: none;
         }
-        .debit {
-            color: #dc3545;
-        }
+
         .status-badge {
             padding: 0.25rem 0.75rem;
             border-radius: 12px;
@@ -120,243 +525,535 @@
             text-transform: uppercase;
             font-weight: 500;
         }
+
         .status-credit {
             background: rgba(40, 167, 69, 0.1);
             color: #28a745;
         }
+
         .status-debit {
             background: rgba(220, 53, 69, 0.1);
             color: #dc3545;
         }
+
+        .transaction-amount {
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .transaction-amount.credit {
+            color: #28a745;
+        }
+
+        .transaction-amount.debit {
+            color: #dc3545;
+        }
+
         .empty-transactions {
             padding: 3rem;
             text-align: center;
-            color: #6c757d;
+            color: var(--muted);
         }
-        .transaction-list::-webkit-scrollbar {
-            width: 6px;
+
+        .empty-transactions i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: var(--accent);
+            opacity: 0.5;
         }
-        .transaction-list::-webkit-scrollbar-track {
-            background: #f1f3f5;
+
+        /* Alert Styles */
+        .alert {
             border-radius: 10px;
-        }
-        .transaction-list::-webkit-scrollbar-thumb {
-            background: #adb5bd;
-            border-radius: 10px;
-        }
-        .referral-section {
-            margin-top: 2rem;
-        }
-        .referral-card {
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-            padding: 1.5rem;
-        }
-        .referral-button {
-            background-color: #d4a373;
-            color: white;
             border: none;
-            padding: 0.5rem 1rem;
-            border-radius: 8px;
-            transition: background-color 0.3s;
+            padding: 15px 20px;
+            margin-bottom: 20px;
         }
-        .referral-button:hover {
-            background-color: #b8860b;
+
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
         }
-        @media (max-width: 768px) {
-            .wallet-container {
-                padding: 1rem;
+
+        /* Modal Styles */
+        .modal-content {
+            border-radius: 10px;
+            border: none;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .modal-header {
+            background-color: var(--primary);
+            color: white;
+            border-top-left-radius: 10px;
+            border-top-right-radius: 10px;
+            padding: 15px 20px;
+        }
+
+        .modal-title {
+            font-weight: 600;
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .modal-footer {
+            padding: 15px 20px;
+            border-top: 1px solid #dee2e6;
+        }
+
+        /* Footer */
+        .footer {
+            background-color: var(--primary);
+            color: white;
+            padding: 20px 0;
+            margin-top: auto;
+        }
+
+        .footer .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .footer .row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .footer a {
+            color: var(--accent);
+            margin: 0 10px;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.3s;
+        }
+
+        .footer a:hover {
+            color: white;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .content-container {
+                padding: 15px;
+                gap: 15px;
             }
+
+            .sidebar-container {
+                width: 250px;
+            }
+
+            .wallet-card {
+                padding: 1.5rem;
+            }
+
+            .section-title {
+                font-size: 1.6rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .navbar .nav-links,
+            .navbar .nav-icons {
+                display: none;
+            }
+
+            .navbar .menu-toggle {
+                display: block;
+            }
+
+            .navbar .search-bar {
+                width: 150px;
+            }
+
+            .content-container {
+                flex-direction: column;
+                padding: 15px;
+            }
+
+            .sidebar-container {
+                display: none;
+            }
+
+            .sidebar-overlay.active {
+                display: block;
+            }
+
+            .sidebar-mobile {
+                display: block;
+            }
+
+            .section-title {
+                font-size: 1.4rem;
+            }
+
             .wallet-card {
                 padding: 1.5rem;
                 min-height: 180px;
             }
+
             .balance-amount {
                 font-size: 1.75rem;
             }
+
+            .transaction-header {
+                padding: 1rem;
+            }
+
+            .transaction-tabs {
+                justify-content: center;
+            }
+
+            .transaction-item {
+                padding: 1rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .navbar {
+                padding: 10px 15px;
+            }
+
+            .navbar .brand {
+                font-size: 1.2rem;
+            }
+
+            .navbar .brand small {
+                font-size: 0.7rem;
+            }
+
+            .navbar .search-bar {
+                width: 120px;
+                font-size: 0.8rem;
+                padding: 6px 10px;
+            }
+
+            .content-container {
+                padding: 10px;
+            }
+
+            .section-title {
+                font-size: 1.3rem;
+            }
+
+            .wallet-card {
+                padding: 1.25rem;
+                min-height: 160px;
+            }
+
+            .balance-amount {
+                font-size: 1.5rem;
+            }
+
+            .card-brand {
+                font-size: 1.2rem;
+            }
+
+            .overview-card,
+            .referral-card {
+                padding: 1rem;
+            }
+
+            .mobile-menu-btn {
+                padding: 8px 14px;
+                font-size: 0.85rem;
+            }
+
+            .footer .row {
+                flex-direction: column;
+                text-align: center;
+                gap: 10px;
+            }
+
+            .footer a {
+                font-size: 0.8rem;
+                margin: 0 5px;
+            }
+        }
+
+        /* Utility Classes */
+        .d-none-mobile {
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            .d-none-mobile {
+                display: none;
+            }
+        }
+
+        /* Scrollbar Styles */
+        .transaction-list::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .transaction-list::-webkit-scrollbar-track {
+            background: #f1f3f5;
+            border-radius: 10px;
+        }
+
+        .transaction-list::-webkit-scrollbar-thumb {
+            background: #adb5bd;
+            border-radius: 10px;
         }
     </style>
 </head>
 <body>
     <%- include('../partials/user/header.ejs') %>
 
-    <div class="container-fluid py-5">
-        <div class="row g-4">
-            <div class="col-lg-3 col-md-4">
-                <%- include('../partials/user/sidebar', { activeTab: 'wallet' }) %>
+    <!-- Mobile Sidebar Overlay -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeMobileSidebar()"></div>
+
+    <!-- Mobile Sidebar -->
+    <div class="sidebar-mobile" id="mobileSidebar">
+        <div class="sidebar-header">
+            <h3>Menu</h3>
+            <button class="close-sidebar" onclick="closeMobileSidebar()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="sidebar">
+            <%- include('../partials/user/sidebar', { activeTab: 'wallet' }) %>
+        </div>
+    </div>
+
+    <div class="content-container">
+        <div class="sidebar-container d-none-mobile">
+            <%- include('../partials/user/sidebar', { activeTab: 'wallet' }) %>
+        </div>
+        
+        <div class="main-content">
+            <!-- Mobile Menu Button -->
+            <div class="d-block d-md-none">
+                <button class="mobile-menu-btn" onclick="openMobileSidebar()">
+                    <i class="fas fa-bars"></i> Menu
+                </button>
             </div>
-            <div class="col-lg-9 col-md-8">
-                <div class="wallet-container">
-                    <h1 class="section-title fs-2">Your Chocoluxe Wallet</h1>
+            
+            <div class="wallet-container">
+                <h1 class="section-title">Your Chocoluxe Wallet</h1>
 
-                    <% 
-                    const recentRefunds = wallet.transactions.filter(t => {
-                        return t.transactionType === 'credit' && 
-                               t.description && 
-                               t.description.includes('Refund for order') &&
-                               (new Date() - new Date(t.createdAt)) < (24 * 60 * 60 * 1000);
-                    });
-                    if (recentRefunds.length > 0) { 
-                    %>
-                    <div id="refundAlert" class="alert alert-success alert-dismissible fade show mb-4" role="alert">
-                        <div class="d-flex align-items-start">
-                            <i class="fas fa-info-circle text-success me-2 mt-1"></i>
-                            <div>
-                                <h5 class="alert-heading">Refund Credited</h5>
-                                <p>Your refund has been successfully credited to your wallet.</p>
-                            </div>
+                <% 
+                const recentRefunds = wallet.transactions.filter(t => {
+                    return t.transactionType === 'credit' && 
+                           t.description && 
+                           t.description.includes('Refund for order') &&
+                           (new Date() - new Date(t.createdAt)) < (24 * 60 * 60 * 1000);
+                });
+                if (recentRefunds.length > 0) { 
+                %>
+                <div id="refundAlert" class="alert alert-success alert-dismissible fade show" role="alert">
+                    <div class="d-flex align-items-start">
+                        <i class="fas fa-info-circle text-success me-2 mt-1"></i>
+                        <div>
+                            <h5 class="alert-heading">Refund Credited</h5>
+                            <p>Your refund has been successfully credited to your wallet.</p>
                         </div>
-                        <button type="button" class="btn-close" onclick="closeRefundAlert()" aria-label="Close"></button>
                     </div>
-                    <% } %>
+                    <button type="button" class="btn-close" onclick="closeRefundAlert()" aria-label="Close"></button>
+                </div>
+                <% } %>
 
-                    <div class="row g-4 mb-5">
-                        <div class="col-md-8">
-                            <div class="wallet-card">
-                                <div class="chip"></div>
-                                <div class="d-flex justify-content-between align-items-start">
-                                    <div>
-                                        <div class="card-brand">CHOCOLUXE</div>
-                                        <small class="text-muted">E-Wallet</small>
-                                    </div>
-                                </div>
+                <div class="row g-4 mb-4">
+                    <div class="col-md-8">
+                        <div class="wallet-card">
+                            <div class="chip"></div>
+                            <div class="d-flex justify-content-between align-items-start">
                                 <div>
-                                    <small class="text-muted d-block mb-1">Available Balance</small>
-                                    <div class="balance-amount">₹<%= wallet.balance.toFixed(2) %></div>
-                                </div>
-                                <div class="d-flex justify-content-between align-items-end">
-                                    <div class="fw-medium"><%= user.username %></div>
-                                    <small class="text-muted">Secured by Chocoluxe</small>
+                                    <div class="card-brand">CHOCOLUXE</div>
+                                    <small class="text-muted">E-Wallet</small>
                                 </div>
                             </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="card shadow-sm">
-                                <div class="card-body">
-                                    <h5 class="card-title mb-4">Wallet Overview</h5>
-                                    <div class="mb-3">
-                                        <small class="text-muted">Total Credits</small>
-                                        <div class="fs-5 fw-medium text-success">
-                                            +₹<%= wallet.transactions
-                                                .filter(t => t.transactionType === 'credit')
-                                                .reduce((sum, t) => sum + t.transactionAmount, 0)
-                                                .toFixed(2) %>
-                                        </div>
-                                    </div>
-                                    <div class="mb-3">
-                                        <small class="text-muted">Total Debits</small>
-                                        <div class="fs-5 fw-medium text-danger">
-                                            -₹<%= wallet.transactions
-                                                .filter(t => t.transactionType === 'debit')
-                                                .reduce((sum, t) => sum + t.transactionAmount, 0)
-                                                .toFixed(2) %>
-                                        </div>
-                                    </div>
-                                    <div class="border-top pt-3">
-                                        <small class="text-muted">Transactions</small>
-                                        <div class="fs-5 fw-medium">
-                                            <%= wallet.transactions.length %> total
-                                        </div>
-                                    </div>
-                                </div>
+                            <div>
+                                <small class="text-muted d-block mb-1">Available Balance</small>
+                                <div class="balance-amount">₹<%= wallet.balance.toFixed(2) %></div>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-end">
+                                <div class="fw-medium"><%= user.username %></div>
+                                <small class="text-muted">Secured by Chocoluxe</small>
                             </div>
                         </div>
                     </div>
-
-                    <div class="referral-section">
-                        <div class="referral-card">
-                            <h5 class="mb-3">Referral Program</h5>
-                            <p>Invite friends and earn rewards!</p>
-                            <button type="button" class="referral-button" data-bs-toggle="modal" data-bs-target="#referralModal">
-                                View Referral Details
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="modal fade" id="referralModal" tabindex="-1" aria-labelledby="referralModalLabel" aria-hidden="true">
-                        <div class="modal-dialog modal-dialog-centered">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h5 class="modal-title" id="referralModalLabel">Your Referral Details</h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                </div>
-                                <div class="modal-body">
-                                    <div class="mb-3">
-                                        <strong>Your Referral Code:</strong>
-                                        <span class="badge bg-primary ms-2"><%= referralCode %></span>
-                                        <button class="btn btn-sm btn-outline-secondary ms-2" onclick="copyReferralCode()">Copy</button>
-                                    </div>
-                                    <div class="mb-3">
-                                        <strong>Total Referral Bonus Earned:</strong>
-                                        <span class="text-success">₹<%= referralBonus.toFixed(2) %></span>
-                                    </div>
-                                    <p>Share your referral code with friends! When they sign up using your code, they get ₹50, and you get ₹100 credited to your wallet.</p>
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <div class="col-md-4">
+                        <div class="overview-card">
+                            <h5 class="overview-title">Wallet Overview</h5>
+                            <div class="overview-item">
+                                <div class="overview-label">Total Credits</div>
+                                <div class="overview-value credit">
+                                    +₹<%= wallet.transactions
+                                        .filter(t => t.transactionType === 'credit')
+                                        .reduce((sum, t) => sum + t.transactionAmount, 0)
+                                        .toFixed(2) %>
                                 </div>
                             </div>
-                        </div>
-                    </div>
-
-                    <div class="transaction-card">
-                        <div class="transaction-header d-flex justify-content-between align-items-center">
-                            <h5 class="mb-0">Transaction History</h5>
-                            <div class="transaction-tabs d-flex">
-                                <div class="transaction-tab active" data-filter="all">All</div>
-                                <div class="transaction-tab" data-filter="credit">Credits</div>
-                                <div class="transaction-tab" data-filter="debit">Debits</div>
-                            </div>
-                        </div>
-                        <div class="transaction-list">
-                            <% if (wallet.transactions && wallet.transactions.length > 0) { %>
-                                <% wallet.transactions.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).forEach(transaction => { %>
-                                    <div class="transaction-item" data-type="<%= transaction.transactionType %>">
-                                        <div class="d-flex justify-content-between align-items-start">
-                                            <div>
-                                                <div class="d-flex align-items-center gap-2 mb-1">
-                                                    <span class="status-badge status-<%= transaction.transactionType %>">
-                                                        <%= transaction.transactionType %>
-                                                    </span>
-                                                    <span class="fw-medium">
-                                                        <%= transaction.description || (transaction.transactionType === 'credit' ? 'Wallet Credit' : 'Purchase') %>
-                                                    </span>
-                                                </div>
-                                                <small class="text-muted">
-                                                    <%= new Date(transaction.createdAt).toLocaleString('en-US', {
-                                                        year: 'numeric',
-                                                        month: 'short',
-                                                        day: 'numeric',
-                                                        hour: '2-digit',
-                                                        minute: '2-digit'
-                                                    }) %>
-                                                </small>
-                                            </div>
-                                            <div class="transaction-amount <%= transaction.transactionType === 'credit' ? 'credit' : 'debit' %> fw-medium">
-                                                <%= transaction.transactionType === 'credit' ? '+' : '-' %>₹<%= transaction.transactionAmount.toFixed(2) %>
-                                            </div>
-                                        </div>
-                                    </div>
-                                <% }) %>
-                            <% } else { %>
-                                <div class="empty-transactions">
-                                    <i class="fas fa-wallet fa-3x mb-3 opacity-25"></i>
-                                    <h5 class="mb-2">No transactions yet</h5>
-                                    <p>Your transaction history will appear here.</p>
+                            <div class="overview-item">
+                                <div class="overview-label">Total Debits</div>
+                                <div class="overview-value debit">
+                                    -₹<%= wallet.transactions
+                                        .filter(t => t.transactionType === 'debit')
+                                        .reduce((sum, t) => sum + t.transactionAmount, 0)
+                                        .toFixed(2) %>
                                 </div>
-                            <% } %>
+                            </div>
+                            <div class="overview-item border-top pt-3">
+                                <div class="overview-label">Transactions</div>
+                                <div class="overview-value">
+                                    <%= wallet.transactions.length %> total
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
+
+                <div class="referral-section">
+                    <div class="referral-card">
+                        <h5 class="referral-title">Referral Program</h5>
+                        <p>Invite friends and earn rewards!</p>
+                        <button type="button" class="referral-button" data-bs-toggle="modal" data-bs-target="#referralModal">
+                            View Referral Details
+                        </button>
+                    </div>
+                </div>
+
+                <div class="transaction-card">
+                    <div class="transaction-header">
+                        <h5 class="transaction-title">Transaction History</h5>
+                        <div class="transaction-tabs">
+                            <div class="transaction-tab active" data-filter="all">All</div>
+                            <div class="transaction-tab" data-filter="credit">Credits</div>
+                            <div class="transaction-tab" data-filter="debit">Debits</div>
+                        </div>
+                    </div>
+                    <div class="transaction-list">
+                        <% if (wallet.transactions && wallet.transactions.length > 0) { %>
+                            <% wallet.transactions.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).forEach(transaction => { %>
+                                <div class="transaction-item" data-type="<%= transaction.transactionType %>">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div class="flex-grow-1">
+                                            <div class="d-flex align-items-center gap-2 mb-1 flex-wrap">
+                                                <span class="status-badge status-<%= transaction.transactionType %>">
+                                                    <%= transaction.transactionType %>
+                                                </span>
+                                                <span class="fw-medium">
+                                                    <%= transaction.description || (transaction.transactionType === 'credit' ? 'Wallet Credit' : 'Purchase') %>
+                                                </span>
+                                            </div>
+                                            <small class="text-muted">
+                                                <%= new Date(transaction.createdAt).toLocaleString('en-US', {
+                                                    year: 'numeric',
+                                                    month: 'short',
+                                                    day: 'numeric',
+                                                    hour: '2-digit',
+                                                    minute: '2-digit'
+                                                }) %>
+                                            </small>
+                                        </div>
+                                        <div class="transaction-amount <%= transaction.transactionType === 'credit' ? 'credit' : 'debit' %> ms-3">
+                                            <%= transaction.transactionType === 'credit' ? '+' : '-' %>₹<%= transaction.transactionAmount.toFixed(2) %>
+                                        </div>
+                                    </div>
+                                </div>
+                            <% }) %>
+                        <% } else { %>
+                            <div class="empty-transactions">
+                                <i class="fas fa-wallet"></i>
+                                <h5 class="mb-2">No transactions yet</h5>
+                                <p>Your transaction history will appear here.</p>
+                            </div>
+                        <% } %>
+                    </div>
+                </div>
             </div>
-        </div> 
+        </div>
+    </div>
+
+    <!-- Referral Modal -->
+    <div class="modal fade" id="referralModal" tabindex="-1" aria-labelledby="referralModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="referralModalLabel">Your Referral Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <strong>Your Referral Code:</strong>
+                        <span class="badge bg-primary ms-2"><%= referralCode %></span>
+                        <button class="btn btn-sm btn-outline-secondary ms-2" onclick="copyReferralCode()">Copy</button>
+                    </div>
+                    <div class="mb-3">
+                        <strong>Total Referral Bonus Earned:</strong>
+                        <span class="text-success">₹<%= referralBonus.toFixed(2) %></span>
+                    </div>
+                    <p>Share your referral code with friends! When they sign up using your code, they get ₹50, and you get ₹100 credited to your wallet.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <%- include('../partials/user/footer.ejs') %>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+        function toggleMenu() {
+            const navbar = document.querySelector('.navbar');
+            navbar.classList.toggle('active');
+        }
+
+        function toggleUserMenu() {
+            const userMenu = document.querySelector('.user-menu');
+            userMenu.classList.toggle('active');
+        }
+
+        function openMobileSidebar() {
+            const overlay = document.getElementById('sidebarOverlay');
+            const sidebar = document.getElementById('mobileSidebar');
+            overlay.classList.add('active');
+            sidebar.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeMobileSidebar() {
+            const overlay = document.getElementById('sidebarOverlay');
+            const sidebar = document.getElementById('mobileSidebar');
+            overlay.classList.remove('active');
+            sidebar.classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        // Close user menu when clicking outside
+        document.addEventListener('click', function(event) {
+            const userMenu = document.querySelector('.user-menu');
+            if (userMenu) {
+                const isClickInside = userMenu.contains(event.target);
+                if (!isClickInside && userMenu.classList.contains('active')) {
+                    userMenu.classList.remove('active');
+                }
+            }
+        });
+
+        // Close mobile sidebar on window resize
+        window.addEventListener('resize', function() {
+            if (window.innerWidth > 768) {
+                closeMobileSidebar();
+            }
+        });
+
+        // Handle escape key to close mobile sidebar
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeMobileSidebar();
+            }
+        });
+
         document.addEventListener('DOMContentLoaded', () => {
             const tabs = document.querySelectorAll('.transaction-tab');
             const transactionItems = document.querySelectorAll('.transaction-item');
