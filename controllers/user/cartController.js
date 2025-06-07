@@ -855,6 +855,18 @@ const calculateDeliveryCharge = (subtotal) => {
 };
 
 const calculateCartTotals = async (cart, userId) => {
+  if (!cart) {
+    return {
+      cartTotal: 0,
+      totalSavings: 0,
+      subtotal: 0,
+      itemCount: 0,
+      discount: 0,
+      appliedCoupon: null,
+      deliveryCharge: 0
+    };
+  }
+
   let cartTotal = 0;
   let totalSavings = 0;
   let subtotal = 0;
