@@ -75,7 +75,7 @@ const addCoupon = async (req, res) => {
 
     // Remove leading spaces but allow spaces between words
     const cleanedCode = code.trimStart()
-    
+
     // Validate coupon code format (alphanumeric and spaces allowed)
     if (code && !/^[A-Za-z0-9\s]+$/.test(cleanedCode)) {
       errors.code = "Coupon code must contain only letters, numbers, and spaces"
@@ -153,7 +153,7 @@ const addCoupon = async (req, res) => {
 
     // Create and save the new coupon
     const newCoupon = new Coupon({
-      code: code.trim().toUpperCase(),
+      code: cleanedCode.toUpperCase(),
       description: description.trim(),
       discountType,
       discountAmount: Number(discountAmount),
@@ -242,15 +242,18 @@ const updateCoupon = async (req, res) => {
       errors.endDate = "End date is required"
     }
 
-    // Validate coupon code format if provided
-    if (code && !/^[A-Za-z0-9]+$/.test(code.trim())) {
-      errors.code = "Coupon code must contain only letters and numbers (no spaces or special characters)"
+    // Clean the code by removing leading spaces but allow spaces between words
+    const cleanedCode = code ? code.trimStart() : ""
+
+    // Validate coupon code format if provided - FIXED: Now allows spaces like in addCoupon
+    if (code && !/^[A-Za-z0-9\s]+$/.test(cleanedCode)) {
+      errors.code = "Coupon code must contain only letters, numbers, and spaces"
     }
 
     // Check if coupon code already exists (excluding current coupon)
-    if (code) {
+    if (code && !errors.code) {
       const existingCoupon = await Coupon.findOne({
-        code: code.trim().toUpperCase(),
+        code: cleanedCode.toUpperCase(),
         _id: { $ne: couponId },
       })
 
@@ -316,7 +319,7 @@ const updateCoupon = async (req, res) => {
     const updatedCoupon = await Coupon.findByIdAndUpdate(
       couponId,
       {
-        ...(code && { code: code.trim().toUpperCase() }),
+        ...(code && { code: cleanedCode.toUpperCase() }),
         description: description.trim(),
         discountType,
         discountAmount: Number(discountAmount),

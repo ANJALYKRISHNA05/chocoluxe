@@ -57,12 +57,12 @@
               <% if (variant.effectiveOffer > 0) { %>
                 <span class="sale-price fs-2">₹<%= variant.offerPrice.toFixed(2) %></span>
                 <span class="regular-price text-decoration-line-through ms-2">₹<%= variant.originalPrice.toFixed(2) %></span>
-                <span class="offer-badge badge bg-success ms-2"><%= variant.effectiveOffer %>% OFF</span>
+                <span class="offer-badge"><%= variant.effectiveOffer %>% OFF</span>
               <% } else if (variant.salePrice < variant.regularPrice) { %>
                 <span class="sale-price fs-2">₹<%= variant.salePrice.toFixed(2) %></span>
                 <span class="regular-price text-decoration-line-through ms-2">₹<%= variant.regularPrice.toFixed(2) %></span>
                 <% const discount = Math.round((variant.regularPrice - variant.salePrice) / variant.regularPrice * 100); %>
-                <span class="discount-badge badge bg-success ms-2"><%= discount %>% OFF</span>
+                <span class="offer-badge"><%= discount %>% OFF</span>
               <% } else { %>
                 <span class="regular-price fs-2">₹<%= variant.regularPrice.toFixed(2) %></span>
               <% } %>
@@ -106,10 +106,12 @@
                             <% if (variant.effectiveOffer > 0) { %>
                               <span class="sale-price">₹<%= variant.offerPrice.toFixed(2) %></span>
                               <span class="regular-price text-decoration-line-through">₹<%= variant.originalPrice.toFixed(2) %></span>
-                              <span class="offer-badge badge bg-success ms-2"><%= variant.effectiveOffer %>% OFF</span>
+                              <span class="offer-badge"><%= variant.effectiveOffer %>% OFF</span>
                             <% } else if (variant.salePrice < variant.regularPrice) { %>
                               <span class="sale-price">₹<%= variant.salePrice.toFixed(2) %></span>
                               <span class="regular-price text-decoration-line-through">₹<%= variant.regularPrice.toFixed(2) %></span>
+                              <% const discount = Math.round((variant.regularPrice - variant.salePrice) / variant.regularPrice * 100); %>
+                              <span class="offer-badge"><%= discount %>% OFF</span>
                             <% } else { %>
                               <span class="regular-price">₹<%= variant.regularPrice.toFixed(2) %></span>
                             <% } %>
@@ -176,10 +178,12 @@
                         <% if (variant.effectiveOffer > 0) { %>
                           <span class="sale-price">₹<%= variant.offerPrice.toFixed(2) %></span>
                           <span class="regular-price text-decoration-line-through ms-2">₹<%= variant.originalPrice.toFixed(2) %></span>
-                          <span class="offer-badge badge bg-success ms-2"><%= variant.effectiveOffer %>% OFF</span>
+                          <span class="offer-badge"><%= variant.effectiveOffer %>% OFF</span>
                         <% } else if (variant.salePrice < variant.regularPrice) { %>
                           <span class="sale-price">₹<%= variant.salePrice.toFixed(2) %></span>
                           <span class="regular-price text-decoration-line-through ms-2">₹<%= variant.regularPrice.toFixed(2) %></span>
+                          <% const discount = Math.round((variant.regularPrice - variant.salePrice) / variant.regularPrice * 100); %>
+                          <span class="offer-badge"><%= discount %>% OFF</span>
                         <% } else { %>
                           <span class="regular-price">₹<%= variant.regularPrice.toFixed(2) %></span>
                         <% } %>
@@ -299,14 +303,14 @@
             priceContainer.innerHTML = `
               <span class="sale-price fs-2">₹${offerPrice.toFixed(2)}</span>
               <span class="regular-price text-decoration-line-through ms-2">₹${originalPrice.toFixed(2)}</span>
-              <span class="offer-badge badge bg-success ms-2">${effectiveOffer}% OFF</span>
+              <span class="offer-badge">${effectiveOffer}% OFF</span>
             `;
           } else if (salePrice < regularPrice) {
             const discount = Math.round((regularPrice - salePrice) / regularPrice * 100);
             priceContainer.innerHTML = `
               <span class="sale-price fs-2">₹${salePrice.toFixed(2)}</span>
               <span class="regular-price text-decoration-line-through ms-2">₹${regularPrice.toFixed(2)}</span>
-              <span class="discount-badge badge bg-success ms-2">${discount}% OFF</span>
+              <span class="offer-badge">${discount}% OFF</span>
             `;
           } else {
             priceContainer.innerHTML = `<span class="regular-price fs-2">₹${regularPrice.toFixed(2)}</span>`;
@@ -648,13 +652,18 @@
       font-size: 1.2rem;
     }
     
-    .discount-badge, .offer-badge {
+    .offer-badge {
       font-size: 0.75rem; 
       padding: 0.3rem 0.6rem; 
-      background-color: #c1ceae;
+      background-color: #cec8b0;
+      color: #000;
       border-radius: 20px;
       letter-spacing: 0.5px;
-      line-height: 1; 
+      line-height: 1;
+      font-weight: 600;
+      display: inline-block;
+      margin-left: 0.5rem;
+      vertical-align: middle;
     }
     
     .product-description {
@@ -755,10 +764,13 @@
     .variant-card .offer-badge {
       font-size: 0.65rem; 
       padding: 0.25rem 0.5rem;
-      background-color: #c1ceae;
+      background-color: #aca38bbc;
       border-radius: 15px; 
       letter-spacing: 0.5px;
       line-height: 1;
+      display: inline-block;
+      margin-top: 0.25rem;
+      margin-left: 0;
     }
     
     .stock-info {
@@ -1005,7 +1017,7 @@
         font-size: 1.8rem;
       }
       
-      .discount-badge, .offer-badge {
+      .offer-badge {
         font-size: 0.65rem; 
         padding: 0.25rem 0.5rem; 
         border-radius: 15px;

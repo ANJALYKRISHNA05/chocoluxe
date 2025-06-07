@@ -199,7 +199,7 @@
                     <div class="form-col mb-3">
                         <label for="code" class="form-label">Coupon Code*</label>
                         <input type="text" class="form-control" id="code" name="code" value="<%= coupon.code %>" required>
-                        <div class="invalid-feedback" id="code-error">Please enter a valid coupon code (letters and numbers only).</div>
+                        <div class="invalid-feedback" id="code-error">Please enter a valid coupon code (letters, numbers, and spaces allowed).</div>
                     </div>
                     <div class="form-col mb-3">
                         <label for="discountType" class="form-label">Discount Type*</label>
@@ -352,11 +352,15 @@
                 document.getElementById('code-error').textContent = 'Coupon code is required';
                 errors.code = 'Coupon code is required';
                 isValid = false;
-            } else if (!/^[A-Za-z0-9]+$/.test(code.trim())) {
-                document.getElementById('code').classList.add('is-invalid');
-                document.getElementById('code-error').textContent = 'Coupon code must contain only letters and numbers';
-                errors.code = 'Coupon code must contain only letters and numbers';
-                isValid = false;
+            } else {
+                // FIXED: Remove leading spaces but allow spaces between words, matching addCoupon validation
+                const cleanedCode = code.trimStart();
+                if (!/^[A-Za-z0-9\s]+$/.test(cleanedCode)) {
+                    document.getElementById('code').classList.add('is-invalid');
+                    document.getElementById('code-error').textContent = 'Coupon code must contain only letters, numbers, and spaces';
+                    errors.code = 'Coupon code must contain only letters, numbers, and spaces';
+                    isValid = false;
+                }
             }
 
             const description = formData.get('description');
