@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -11,7 +10,6 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <style>
-    
     body {
       font-family: 'Nunito Sans', sans-serif;
       background-color: #fcf9f7;
@@ -25,7 +23,6 @@
       padding: 3rem 0;
     }
 
-   
     .page-title {
       font-family: 'Playfair Display', serif;
       color: #33261d;
@@ -46,7 +43,6 @@
       background: linear-gradient(90deg, #8b5a2b, transparent);
     }
 
-   
     .cart-item {
       border: none;
       border-radius: 12px;
@@ -113,7 +109,6 @@
       margin-left: 0.5rem;
     }
 
- 
     .quantity-selector {
       width: 120px;
       border-radius: 8px;
@@ -141,7 +136,6 @@
       color: #fff;
     }
 
-  
     .remove-item {
       background-color: #fff;
       border: 1px solid #dc3545;
@@ -162,7 +156,6 @@
       box-shadow: 0 5px 10px rgba(220, 53, 69, 0.25);
     }
 
-  
     .cart-summary {
       border: none;
       border-radius: 12px;
@@ -221,7 +214,6 @@
       cursor: not-allowed;
     }
 
-    
     .coupon-section {
       margin-bottom: 1.5rem;
     }
@@ -324,7 +316,6 @@
       color: #6d4621;
     }
 
- 
     .empty-cart {
       text-align: center;
       padding: 4rem 0;
@@ -385,7 +376,6 @@
       box-shadow: 0 8px 15px rgba(139, 90, 43, 0.25);
     }
 
-   
     .error-message {
       color: #dc3545;
       font-weight: 600;
@@ -396,7 +386,6 @@
       font-size: 0.9rem;
     }
 
-  
     @media (max-width: 991px) {
       .cart-summary {
         margin-top: 2rem;
@@ -604,30 +593,6 @@
   <%- include('../partials/user/footer') %>
 
   <script>
-    function updateCartBadge(count) {
-      const badge = document.querySelector('.cart-badge');
-      if (badge) {
-        if (count > 0) {
-          badge.textContent = count;
-          badge.style.display = 'inline-block';
-        } else {
-          badge.style.display = 'none';
-        }
-      }
-    }
-
-    function fetchCartItemCount() {
-      fetch('/cart/item-count', {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json' }
-      })
-      .then(response => response.json())
-      .then(data => {
-        updateCartBadge(data.itemCount || 0);
-      })
-      .catch(error => console.error('Error fetching cart count:', error));
-    }
-
     function calculateDeliveryCharge(subtotal) {
       if (subtotal >= 1000) {
         return 0; 
@@ -656,10 +621,7 @@
       if (totalSavingsElement) totalSavingsElement.textContent = `₹${data.totalSavings.toFixed(2)}`;
       if (couponDiscountElement) couponDiscountElement.textContent = `₹${data.discount.toFixed(2)}`;
       
-    
       const discountedSubtotal = data.subtotal - data.discount;
-      
-
       const deliveryCharge = calculateDeliveryCharge(discountedSubtotal);
       if (deliveryChargeElement) {
         if (deliveryCharge === 0) {
@@ -669,29 +631,26 @@
         }
       }
       
-      
       const total = discountedSubtotal + deliveryCharge;
       if (cartTotalElement) cartTotalElement.textContent = `₹${total.toFixed(2)}`;
       
-     
-      updateCartBadge(data.itemCount);
-      
+      // Update cart badge using global function
+      if (typeof window.updateCartBadge === 'function') {
+        window.updateCartBadge(data.itemCount);
+      }
 
       if (data.appliedCoupon) {
         couponInput.disabled = true;
         applyButton.disabled = true;
         
-     
         const couponHtml = `
           <span>Applied: ${data.appliedCoupon.code} (${data.appliedCoupon.discountType === 'percentage' ? data.appliedCoupon.discountAmount + '%' : '₹' + data.appliedCoupon.discountAmount} off)</span>
           <button class="remove-coupon" onclick="removeCoupon()"><i class="fas fa-times"></i></button>
         `;
         
         if (appliedCouponDiv) {
-         
           appliedCouponDiv.innerHTML = couponHtml;
         } else {
-         
           const newCouponDiv = document.createElement('div');
           newCouponDiv.className = 'applied-coupon';
           newCouponDiv.innerHTML = couponHtml;
@@ -811,7 +770,6 @@
           }
 
           if (!response.ok) {
-          
             const errorData = await response.json();
             throw new Error(errorData.message || 'Network response was not ok');
           }
@@ -846,7 +804,6 @@
           }
         } catch (error) {
           console.error('Error updating quantity:', error);
-        
           const errorMessage = error.message || 'An error occurred while updating quantity';
           Swal.fire('Error', errorMessage, 'error');
         } finally {
@@ -922,28 +879,19 @@
       });
     });
 
-    document.addEventListener('DOMContentLoaded', function() {
-      fetchCartItemCount();
-    });
-
-   
     async function validateCouponAndProceed() {
-   
       const appliedCouponDiv = document.querySelector('.applied-coupon');
       
       if (!appliedCouponDiv) {
-        
         window.location.href = '/checkout';
         return;
       }
       
       try {
-        
         const proceedButton = document.querySelector('.proceed-checkout');
         const originalButtonText = proceedButton.innerHTML;
         proceedButton.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Validating...';
         proceedButton.disabled = true;
-        
         
         const response = await fetch('/cart/validate-coupon', {
           method: 'GET',
@@ -953,10 +901,8 @@
         const data = await response.json();
         
         if (data.success) {
-          
           window.location.href = '/checkout';
         } else {
-          
           proceedButton.innerHTML = originalButtonText;
           proceedButton.disabled = false;
           
@@ -964,11 +910,9 @@
           messageDiv.innerHTML = `<i class="fas fa-exclamation-circle me-2"></i>${data.message}`;
           messageDiv.style.display = 'block';
           
-         
           if (data.couponRemoved) {
             updateCartSummary(data);
             
-           
             Swal.fire({
               title: 'Coupon Removed',
               text: data.message,
@@ -987,13 +931,18 @@
         messageDiv.innerHTML = '<i class="fas fa-exclamation-circle me-2"></i>An error occurred while validating the coupon. Please try again.';
         messageDiv.style.display = 'block';
         
-       
         const proceedButton = document.querySelector('.proceed-checkout');
         proceedButton.innerHTML = '<i class="fas fa-credit-card me-2"></i>Proceed to Checkout';
         proceedButton.disabled = false;
       }
     }
 
+    document.addEventListener('DOMContentLoaded', function() {
+      // Fetch initial cart count when page loads
+      if (typeof window.fetchCartItemCount === 'function') {
+        window.fetchCartItemCount();
+      }
+    });
   </script>
 </body>
 </html>

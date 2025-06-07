@@ -42,7 +42,6 @@
             line-height: 1.6;
         }
         
-        /* Header Styles - FIXED FOR CONSISTENT APPEARANCE */
         .header {
             position: sticky !important;
             top: 0 !important;
@@ -75,7 +74,6 @@
             width: 100% !important;
         }
         
-        /* Brand Styles */
         .brand-container {
             display: flex !important;
             align-items: center !important;
@@ -127,7 +125,6 @@
             margin-top: 2px !important;
         }
         
-        /* Navigation Styles */
         .nav-content {
             display: flex !important;
             align-items: center !important;
@@ -182,7 +179,6 @@
             color: var(--primary) !important;
         }
         
-        /* Search Bar */
         .search-container {
             position: relative;
             display: flex !important;
@@ -220,7 +216,6 @@
             pointer-events: none !important;
         }
         
-        /* Action Icons - FIXED FOR CONSISTENT COLORS */
         .nav-actions {
             display: flex !important;
             align-items: center !important;
@@ -251,7 +246,6 @@
             text-decoration: none !important;
         }
         
-        /* FORCE ICON COLORS - This fixes the white icon issue */
         .action-btn i {
             font-size: 1.1rem !important;
             color: var(--text-light) !important;
@@ -263,7 +257,6 @@
             color: var(--accent-light) !important;
         }
         
-        /* Ensure icons stay consistent across all pages */
         .action-btn .fas,
         .action-btn .fa-heart,
         .action-btn .fa-shopping-cart {
@@ -302,7 +295,7 @@
             text-decoration: none !important;
         }
         
-        /* Badge Styles */
+        /* FIXED BADGE STYLES - REMOVED display: none !important */
         .badge {
             position: absolute !important;
             top: -5px !important;
@@ -312,7 +305,7 @@
             border-radius: 50% !important;
             width: 22px !important;
             height: 22px !important;
-            display: none !important;
+            display: flex !important; /* CHANGED FROM display: none !important */
             align-items: center !important;
             justify-content: center !important;
             font-size: 0.75rem !important;
@@ -321,6 +314,14 @@
             animation: pulse 2s infinite;
             z-index: 5 !important;
             border: 1px solid rgba(255,255,255,0.3) !important;
+            opacity: 0; /* Use opacity instead of display none */
+            visibility: hidden; /* Use visibility instead of display none */
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        
+        .badge.show {
+            opacity: 1 !important;
+            visibility: visible !important;
         }
         
         @keyframes pulse {
@@ -329,7 +330,6 @@
             100% { transform: scale(1); }
         }
         
-        /* User Menu - FIXED STYLES */
         .user-menu {
             position: relative !important;
         }
@@ -359,7 +359,6 @@
             font-size: 1.1rem !important;
         }
         
-        /* FIXED USER DROPDOWN - Ensure text is always visible */
         .user-dropdown {
             position: absolute !important;
             top: 55px !important;
@@ -395,7 +394,6 @@
             transform: translateY(0) !important;
         }
         
-        /* FIXED DROPDOWN ITEMS - Force text visibility */
         .dropdown-item {
             display: flex !important;
             align-items: center !important;
@@ -426,7 +424,6 @@
             text-align: center !important;
         }
         
-        /* FORCE TEXT VISIBILITY */
         .dropdown-item span {
             font-weight: 500 !important;
             white-space: nowrap !important;
@@ -438,7 +435,6 @@
             visibility: visible !important;
         }
         
-        /* Mobile Menu Toggle */
         .mobile-toggle {
             display: none !important;
             background: none !important;
@@ -466,7 +462,6 @@
             color: var(--accent) !important;
         }
         
-        /* Mobile Menu */
         .mobile-menu {
             position: fixed !important;
             top: 0 !important;
@@ -583,7 +578,6 @@
             color: var(--accent) !important;
         }
         
-        /* Responsive Design */
         @media (max-width: 1200px) {
             .navbar-container {
                 padding: 1rem 1.5rem !important;
@@ -649,7 +643,6 @@
                 height: 40px !important;
             }
             
-            /* Ensure dropdown is still visible on mobile */
             .user-dropdown {
                 right: -10px !important;
                 min-width: 200px !important;
@@ -701,7 +694,6 @@
                 font-size: 1.3rem !important;
             }
             
-            /* Adjust dropdown for small screens */
             .user-dropdown {
                 right: -20px !important;
                 min-width: 180px !important;
@@ -713,7 +705,6 @@
             }
         }
         
-        /* Extra small screens */
         @media (max-width: 375px) {
             .navbar-container {
                 padding: 0.6rem !important;
@@ -747,7 +738,6 @@
             }
         }
         
-        /* Accessibility */
         @media (prefers-reduced-motion: reduce) {
             * {
                 animation-duration: 0.01ms !important;
@@ -756,7 +746,6 @@
             }
         }
         
-        /* Focus styles for accessibility */
         .nav-link:focus,
         .action-btn:focus,
         .login-btn:focus,
@@ -799,13 +788,13 @@
                     <!-- Wishlist -->
                     <a href="/wishlist" class="action-btn" title="Wishlist">
                         <i class="fas fa-heart"></i>
-                        <span class="badge wishlist-badge" id="wishlistBadge"></span>
+                        <span class="badge wishlist-badge" id="wishlistBadge">0</span>
                     </a>
                     
                     <!-- Cart -->
                     <a href="/cart" class="action-btn" title="Shopping Cart">
                         <i class="fas fa-shopping-cart"></i>
-                        <span class="badge cart-badge" id="cartBadge"></span>
+                        <span class="badge cart-badge" id="cartBadge">0</span>
                     </a>
                     
                     <!-- User Menu -->
@@ -895,12 +884,12 @@
             <a href="/wishlist" class="mobile-action-btn">
                 <i class="fas fa-heart"></i>
                 <span>Wishlist</span>
-                <span class="badge wishlist-badge mobile-wishlist-badge"></span>
+                <span class="badge wishlist-badge mobile-wishlist-badge">0</span>
             </a>
             <a href="/cart" class="mobile-action-btn">
                 <i class="fas fa-shopping-cart"></i>
                 <span>Shopping Cart</span>
-                <span class="badge cart-badge mobile-cart-badge"></span>
+                <span class="badge cart-badge mobile-cart-badge">0</span>
             </a>
             <a href="/user/profile" class="mobile-action-btn">
                 <i class="fas fa-user-circle"></i>
@@ -932,6 +921,80 @@
 </div>
 
 <script>
+    // FIXED GLOBAL BADGE UPDATE FUNCTIONS
+    window.updateCartBadge = function(count) {
+        console.log('Updating cart badge with count:', count);
+        const badges = document.querySelectorAll('.cart-badge');
+        badges.forEach(badge => {
+            badge.textContent = count > 99 ? '99+' : count;
+            if (count > 0) {
+                badge.classList.add('show');
+            } else {
+                badge.classList.remove('show');
+            }
+        });
+    };
+    
+    window.updateWishlistBadge = function(count) {
+        console.log('Updating wishlist badge with count:', count);
+        const badges = document.querySelectorAll('.wishlist-badge');
+        badges.forEach(badge => {
+            badge.textContent = count > 99 ? '99+' : count;
+            if (count > 0) {
+                badge.classList.add('show');
+            } else {
+                badge.classList.remove('show');
+            }
+        });
+    };
+    
+    // FIXED FETCH FUNCTIONS
+    window.fetchCartItemCount = function() {
+        <% if (typeof user !== 'undefined' && user) { %>
+        console.log('Fetching cart item count...');
+        fetch('/cart/item-count', {
+            method: 'GET',
+            headers: { 'Content-Type': 'application/json' }
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Cart count response:', data);
+            if (data.success && data.itemCount !== undefined) {
+                window.updateCartBadge(data.itemCount || 0);
+            }
+        })
+        .catch(error => console.error('Error fetching cart count:', error));
+        <% } %>
+    };
+    
+    window.fetchWishlistItemCount = function() {
+        <% if (typeof user !== 'undefined' && user) { %>
+        console.log('Fetching wishlist item count...');
+        fetch('/wishlist/item-count', {
+            method: 'GET',
+            headers: { 'Content-Type': 'application/json' }
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Wishlist count response:', data);
+            if (data.success && data.itemCount !== undefined) {
+                window.updateWishlistBadge(data.itemCount || 0);
+            }
+        })
+        .catch(error => console.error('Error fetching wishlist count:', error));
+        <% } %>
+    };
+
     // Mobile Menu Toggle
     function toggleMobileMenu() {
         const mobileMenu = document.getElementById('mobileMenu');
@@ -977,75 +1040,6 @@
         }
     });
     
-    // Badge Update Functions
-    function updateCartBadge(count) {
-        const badges = document.querySelectorAll('.cart-badge');
-        badges.forEach(badge => {
-            if (count > 0) {
-                badge.textContent = count > 99 ? '99+' : count;
-                badge.style.display = 'flex';
-            } else {
-                badge.style.display = 'none';
-            }
-        });
-    }
-    
-    function updateWishlistBadge(count) {
-        const badges = document.querySelectorAll('.wishlist-badge');
-        badges.forEach(badge => {
-            if (count > 0) {
-                badge.textContent = count > 99 ? '99+' : count;
-                badge.style.display = 'flex';
-            } else {
-                badge.style.display = 'none';
-            }
-        });
-    }
-    
-    // Fetch Cart Item Count
-    function fetchCartItemCount() {
-        <% if (typeof user !== 'undefined' && user) { %>
-        fetch('/cart/item-count', {
-            method: 'GET',
-            headers: { 'Content-Type': 'application/json' }
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            return response.json();
-        })
-        .then(data => {
-            if (data.itemCount !== undefined) {
-                updateCartBadge(data.itemCount || 0);
-            }
-        })
-        .catch(error => console.error('Error fetching cart count:', error));
-        <% } %>
-    }
-    
-    // Fetch Wishlist Item Count
-    function fetchWishlistItemCount() {
-        <% if (typeof user !== 'undefined' && user) { %>
-        fetch('/wishlist/item-count', {
-            method: 'GET',
-            headers: { 'Content-Type': 'application/json' }
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            return response.json();
-        })
-        .then(data => {
-            if (data.itemCount !== undefined) {
-                updateWishlistBadge(data.itemCount || 0);
-            }
-        })
-        .catch(error => console.error('Error fetching wishlist count:', error));
-        <% } %>
-    }
-    
     // Login Required Function
     function requireLogin(event, action) {
         <% if (typeof user === 'undefined' || !user) { %>
@@ -1088,8 +1082,13 @@
     
     // Initialize on DOM Load
     document.addEventListener('DOMContentLoaded', function() {
-        fetchCartItemCount();
-        fetchWishlistItemCount();
+        console.log('DOM loaded, initializing...');
+        // Fetch initial counts
+        setTimeout(() => {
+            window.fetchCartItemCount();
+            window.fetchWishlistItemCount();
+        }, 100);
+        
         initializeSearch();
         
         // Add login requirement for guest users

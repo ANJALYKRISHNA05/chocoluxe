@@ -1157,24 +1157,14 @@
     document.getElementById('filterForm').submit();
   }
 
-  function updateWishlistBadge(count) {
-    const badge = document.querySelector('.wishlist-badge');
-    if (badge) {
-      if (count > 0) {
-        badge.textContent = count;
-        badge.style.display = 'inline-block';
-      } else {
-        badge.style.display = 'none';
-      }
-    }
-  }
-
-  // Wishlist Functionality
+  // Wishlist Functionality - FIXED TO USE GLOBAL FUNCTIONS
   document.querySelectorAll('.wishlist-btn').forEach(button => {
     button.addEventListener('click', async function() {
       const productId = this.getAttribute('data-product-id');
       const variantId = this.getAttribute('data-variant-id');
       const isActive = this.classList.contains('active');
+
+      console.log('Wishlist button clicked:', { productId, variantId, isActive });
 
       try {
         const response = await fetch('/add-to-wishlist', {
@@ -1189,37 +1179,36 @@
         });
 
         const data = await response.json();
+        console.log('Wishlist response:', data);
 
         if (data.success) {
           if (isActive) {
             this.classList.remove('active');
             this.setAttribute('title', 'Add to Wishlist');
-            updateWishlistBadge(data.itemCount);
-            if (typeof Swal !== 'undefined') {
-              Swal.fire({
-                icon: 'success',
-                title: 'Removed from Wishlist',
-                text: 'Product has been removed from your wishlist.',
-                showConfirmButton: false,
-                timer: 1500,
-              });
-            }
           } else {
             this.classList.add('active');
             this.setAttribute('title', 'Remove from Wishlist');
-            updateWishlistBadge(data.itemCount);
-            if (typeof Swal !== 'undefined') {
-              Swal.fire({
-                icon: 'success',
-                title: 'Added to Wishlist',
-                text: data.message,
-                showConfirmButton: false,
-                timer: 1500,
-              });
-            }
+          }
+          
+          // Use global function to update wishlist badge
+          if (typeof window.updateWishlistBadge === 'function') {
+            console.log('Updating wishlist badge with count:', data.itemCount);
+            window.updateWishlistBadge(data.itemCount);
+          } else {
+            console.error('Global updateWishlistBadge function not found');
+          }
+          
+          if (typeof Swal !== 'undefined') {
+            Swal.fire({
+              icon: 'success',
+              title: isActive ? 'Removed from Wishlist' : 'Added to Wishlist',
+              text: data.message,
+              showConfirmButton: false,
+              timer: 1500,
+            });
           }
         } else {
-          if (data.message === 'Please log in to add items to wishlist') {
+          if (data.requireLogin || data.message === 'Please log in to add items to wishlist') {
             if (typeof Swal !== 'undefined') {
               Swal.fire({
                 icon: 'warning',
@@ -1228,7 +1217,7 @@
                 confirmButtonText: 'Login',
               }).then((result) => {
                 if (result.isConfirmed) {
-                  window.location.href = '/user/login';
+                  window.location.href = data.redirectUrl || '/user/login';
                 }
               });
             } else {
@@ -1270,6 +1259,21 @@
     if (window.innerWidth >= 992 && filterSidebar.classList.contains('show')) {
       closeMobileFilter();
     }
+  });
+
+  // Initialize badge counts when page loads
+  document.addEventListener('DOMContentLoaded', function() {
+    console.log('Product listing page loaded, fetching badge counts...');
+    
+    // Fetch initial counts using global functions
+    setTimeout(() => {
+      if (typeof window.fetchCartItemCount === 'function') {
+        window.fetchCartItemCount();
+      }
+      if (typeof window.fetchWishlistItemCount === 'function') {
+        window.fetchWishlistItemCount();
+      }
+    }, 100);
   });
 </script>
 

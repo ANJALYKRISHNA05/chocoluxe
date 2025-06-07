@@ -1,7 +1,6 @@
 <%- include('../partials/user/header') %>
 
 <style>
-    
     .wishlist-section {
         padding: 3rem 0;
         background-color: #fcf9f7;
@@ -291,7 +290,6 @@
         border-radius: 8px;
         padding: 1rem;
     }
-    
 
     @media (max-width: 991px) {
         .wishlist-card .img-container {
@@ -357,10 +355,10 @@
                                     </div>
                                 <% } else { %>
                                     <div class="img-container">
-                                        <img src="<%= item.productImage %>" alt="<%= item.product?.name || 'Product Image' %>" class="img-fluid">
+                                        <img src="<%= item.productImage %>" alt="<%= item.product?.productName || 'Product Image' %>" class="img-fluid">
                                     </div>
                                     <h5 class="card-title">
-                                        <%= item.product.name %>
+                                        <%= item.product.productName %>
                                     </h5>
                                     <div class="variant-info">
                                         <% if (item.variant.flavor) { %>
@@ -411,7 +409,8 @@
                 </div>
             <% } %>
         <% } %>
-    </main>
+    </div>
+</main>
 
 <script>
     document.querySelectorAll('.remove-from-wishlist').forEach(button => {
@@ -444,7 +443,10 @@
                                 showConfirmButton: false
                             }).then(() => {
                                 location.reload();
-                                updateWishlistBadge(data.itemCount);
+                                // Update wishlist badge using global function
+                                if (typeof window.updateWishlistBadge === 'function') {
+                                    window.updateWishlistBadge(data.itemCount);
+                                }
                             });
                         } else {
                             Swal.fire('Error!', data.message, 'error');
@@ -480,8 +482,20 @@
                         showConfirmButton: false
                     }).then(() => {
                         location.reload();
-                        updateCartBadge(data.itemCount);
-                        fetchWishlistItemCount();
+                        // Update both cart and wishlist badges using global functions
+                        if (typeof window.updateCartBadge === 'function') {
+                            window.updateCartBadge(data.itemCount);
+                        }
+                        if (typeof window.updateWishlistBadge === 'function' && data.wishlistItemCount !== undefined) {
+                            window.updateWishlistBadge(data.wishlistItemCount);
+                        }
+                        // Refresh counts from server
+                        if (typeof window.fetchCartItemCount === 'function') {
+                            window.fetchCartItemCount();
+                        }
+                        if (typeof window.fetchWishlistItemCount === 'function') {
+                            window.fetchWishlistItemCount();
+                        }
                     });
                 } else {
                     Swal.fire('Error!', data.message, 'error');
@@ -492,6 +506,16 @@
                 Swal.fire('Error!', 'Failed to add item to cart', 'error');
             });
         });
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // Fetch initial counts when page loads
+        if (typeof window.fetchCartItemCount === 'function') {
+            window.fetchCartItemCount();
+        }
+        if (typeof window.fetchWishlistItemCount === 'function') {
+            window.fetchWishlistItemCount();
+        }
     });
 </script>
 <%- include('../partials/user/footer') %>

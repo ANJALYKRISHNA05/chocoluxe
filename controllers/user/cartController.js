@@ -80,8 +80,9 @@ exports.addToCart = async (req, res) => {
       });
     }
 
-    
+    // Remove from wishlist if exists
     let wishlist = await Wishlist.findOne({ user: userId });
+    let wishlistItemCount = 0;
     if (wishlist) {
       const wishlistItemIndex = wishlist.items.findIndex(
         (item) => item.product.toString() === productId && item.sku === variant.sku
@@ -90,13 +91,13 @@ exports.addToCart = async (req, res) => {
         wishlist.items.splice(wishlistItemIndex, 1);
         await wishlist.save();
       }
+      wishlistItemCount = wishlist.items.length;
     }
 
     if (cart.coupon) {
       if (mongoose.Types.ObjectId.isValid(cart.coupon)) {
         const coupon = await Coupon.findById(cart.coupon);
         if (coupon) {
-         
           const { subtotal } = await calculateCartTotals(cart, userId);
           const discount = await validateAndApplyCoupon(coupon, userId, subtotal, cart);
           if (discount !== null) {
@@ -123,6 +124,7 @@ exports.addToCart = async (req, res) => {
       success: true,
       message: "Product added to cart",
       itemCount,
+      wishlistItemCount,
       cartTotal,
       totalSavings,
       subtotal,
@@ -134,13 +136,6 @@ exports.addToCart = async (req, res) => {
     res.status(500).json({ success: false, message: "Server error" });
   }
 };
-
-
-
-
-
-
-
 
 exports.loadCart = async (req, res) => {
   try {
@@ -161,7 +156,6 @@ exports.loadCart = async (req, res) => {
     let hasInvalidItems = false;
     let hasOutOfStockItems = false;
 
-   
     const availableCoupons = await Coupon.find({
       isActive: true,
       startDate: { $lte: new Date() },
@@ -173,7 +167,6 @@ exports.loadCart = async (req, res) => {
     });
 
     if (cart && cart.items.length > 0) {
-     
       for (const item of cart.items) {
         const product = item.product;
         if (product && !product.isBlocked && product.category?.isListed) {
@@ -239,7 +232,6 @@ exports.loadCart = async (req, res) => {
         };
       });
 
-      
       if (cart.coupon) {
         const coupon = await Coupon.findById(cart.coupon);
         if (coupon) {
@@ -352,30 +344,24 @@ exports.updateCartQuantity = async (req, res) => {
     item.quantity = quantity;
     await cart.save();
 
-    
     if (cart.coupon) {
       const coupon = await Coupon.findById(cart.coupon);
       if (coupon) {
         const { subtotal } = await calculateCartTotals(cart, userId);
         
-       
         if (subtotal < coupon.minPurchase) {
-        
           cart.coupon = null;
           cart.discount = 0;
         } else {
-        
           try {
             const newDiscount = await validateAndApplyCoupon(coupon, userId, subtotal, cart);
             if (newDiscount === null) {
-              
               cart.coupon = null;
               cart.discount = 0;
             } else {
               cart.discount = newDiscount;
             }
           } catch (error) {
-           
             cart.coupon = null;
             cart.discount = 0;
           }
@@ -413,9 +399,6 @@ exports.updateCartQuantity = async (req, res) => {
   }
 };
 
-
-
-
 exports.removeFromCart = async (req, res) => {
   try {
     const { itemId } = req.body;
@@ -452,24 +435,19 @@ exports.removeFromCart = async (req, res) => {
       if (coupon) {
         const { subtotal } = await calculateCartTotals(cart, userId);
         
-      
         if (subtotal < coupon.minPurchase) {
-          
           cart.coupon = null;
           cart.discount = 0;
         } else {
-        
           try {
             const newDiscount = await validateAndApplyCoupon(coupon, userId, subtotal, cart);
             if (newDiscount === null) {
-             
               cart.coupon = null;
               cart.discount = 0;
             } else {
               cart.discount = newDiscount;
             }
           } catch (error) {
-           
             cart.coupon = null;
             cart.discount = 0;
           }
@@ -520,9 +498,6 @@ exports.getCartItemCount = async (req, res) => {
   }
 };
 
-
-
-
 exports.applyCoupon = async (req, res) => {
   try {
     const { couponCode } = req.body;
@@ -553,17 +528,14 @@ exports.applyCoupon = async (req, res) => {
       return res.status(400).json({ success: false, message: "Invalid coupon code" });
     }
     
-  
     if (cart.coupon) {
       const existingCouponId = cart.coupon;
       const userIdString = userId._id ? userId._id.toString() : userId.toString();
       
-     
       if (existingCouponId.toString() !== coupon._id.toString()) {
         const existingCoupon = await Coupon.findById(existingCouponId);
         
         if (existingCoupon) {
-         
           const pendingEntryIndex = existingCoupon.usedBy.findIndex(entry => 
             entry.user.toString() === userIdString && entry.orderCompleted === false
           );
@@ -584,7 +556,6 @@ exports.applyCoupon = async (req, res) => {
       if (discount === null) {
         return res.status(400).json({ success: false, message: "Coupon is not applicable" });
       }
-
 
       cart.coupon = coupon._id;
       cart.discount = discount;
@@ -611,10 +582,6 @@ exports.applyCoupon = async (req, res) => {
   }
 };
 
-
-
-
-
 exports.validateCoupon = async (req, res) => {
   try {
     const userId = req.session.user;
@@ -627,7 +594,6 @@ exports.validateCoupon = async (req, res) => {
       return res.json({ success: true, message: "No coupon applied" });
     }
 
-    
     const coupon = await Coupon.findById(cart.coupon._id);
     if (!coupon) {
       cart.coupon = null;
@@ -649,7 +615,6 @@ exports.validateCoupon = async (req, res) => {
       });
     }
 
-  
     if (!coupon.isActive) {
       cart.coupon = null;
       cart.discount = 0;
@@ -691,7 +656,6 @@ exports.validateCoupon = async (req, res) => {
       });
     }
 
-    
     if (coupon.usedCount >= coupon.usageLimit) {
       cart.coupon = null;
       cart.discount = 0;
@@ -712,7 +676,6 @@ exports.validateCoupon = async (req, res) => {
       });
     }
 
-   
     const userUsed = coupon.usedBy.some((entry) => entry.user.toString() === userId && entry.orderCompleted === true);
     if (userUsed) {
       cart.coupon = null;
@@ -734,7 +697,6 @@ exports.validateCoupon = async (req, res) => {
       });
     }
 
-    
     const { subtotal } = await calculateCartTotals(cart, userId);
     if (subtotal < coupon.minPurchase) {
       cart.coupon = null;
@@ -756,7 +718,6 @@ exports.validateCoupon = async (req, res) => {
       });
     }
 
-   
     return res.json({
       success: true,
       message: "Coupon is valid"
@@ -766,10 +727,6 @@ exports.validateCoupon = async (req, res) => {
     res.status(500).json({ success: false, message: "Server error" });
   }
 };
-
-
-
-
 
 exports.removeCoupon = async (req, res) => {
   try {
@@ -791,21 +748,17 @@ exports.removeCoupon = async (req, res) => {
       return res.status(404).json({ success: false, message: "Cart not found" });
     }
 
-    
     const couponId = cart.coupon;
     
-   
     cart.coupon = null;
     cart.discount = 0;
     await cart.save();
     
-   
     if (couponId) {
       const userIdString = userId._id ? userId._id.toString() : userId.toString();
       const coupon = await Coupon.findById(couponId);
       
       if (coupon) {
-       
         const pendingEntryIndex = coupon.usedBy.findIndex(entry => 
           entry.user.toString() === userIdString && entry.orderCompleted === false
         );
@@ -835,12 +788,7 @@ exports.removeCoupon = async (req, res) => {
   }
 };
 
-
-
-
-
 const calculateDeliveryCharge = (subtotal) => {
-
   if (subtotal >= 1000) {
     return 0;
   } else if (subtotal >= 750) {
@@ -910,10 +858,8 @@ const calculateCartTotals = async (cart, userId) => {
       }
     }
 
-    
     const discountedSubtotal = subtotal - discount;
     const deliveryCharge = calculateDeliveryCharge(discountedSubtotal);
-    
     
     cartTotal = discountedSubtotal + deliveryCharge;
   }
@@ -929,12 +875,7 @@ const calculateCartTotals = async (cart, userId) => {
   };
 };
 
-
-
-
-
 const validateAndApplyCoupon = async (coupon, userId, subtotal, cart) => {
-
   if (!coupon.isActive) {
     cart.coupon = null;
     cart.discount = 0;
@@ -950,11 +891,9 @@ const validateAndApplyCoupon = async (coupon, userId, subtotal, cart) => {
     return null;
   }
 
-  
   if (subtotal < coupon.minPurchase) {
     return null;
   }
-
 
   if (coupon.usedCount >= coupon.usageLimit) {
     cart.coupon = null;
@@ -964,7 +903,6 @@ const validateAndApplyCoupon = async (coupon, userId, subtotal, cart) => {
   }
 
   const userIdString = userId._id ? userId._id.toString() : userId.toString();
-  
 
   const userUsed = coupon.usedBy.some((entry) => {
     const entryUserId = entry.user.toString();
@@ -978,13 +916,11 @@ const validateAndApplyCoupon = async (coupon, userId, subtotal, cart) => {
     await cart.save();
     throw new Error('You have already used this coupon on a previous order');
   } else {
-
     const pendingEntry = coupon.usedBy.find((entry) => {
       const entryUserId = entry.user.toString();
       return entryUserId === userIdString && entry.orderCompleted === false;
     });
     
-  
     if (!pendingEntry) {
       coupon.usedBy.push({ 
         user: new mongoose.Types.ObjectId(userIdString),
@@ -996,7 +932,6 @@ const validateAndApplyCoupon = async (coupon, userId, subtotal, cart) => {
     console.log('User can use this coupon');
   }
 
- 
   let discount = 0;
   if (coupon.discountType === "percentage") {
     discount = (coupon.discountAmount / 100) * subtotal;
@@ -1009,4 +944,3 @@ const validateAndApplyCoupon = async (coupon, userId, subtotal, cart) => {
 
   return discount;
 };
-
