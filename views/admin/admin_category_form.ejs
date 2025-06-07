@@ -12,35 +12,63 @@
                     </div>
                     <div class="card-body">
                         <% if (error) { %>
-                            <div class="alert alert-danger"><%= error %></div>
+                            <div class="alert alert-danger" id="general-error"><%= error %></div>
                         <% } %>
-                        <form action="<%= category ? '/admin/category/edit/' + category._id : '/admin/category/add' %>" method="POST" enctype="multipart/form-data">
+                        
+                        <form id="categoryForm" action="<%= category ? '/admin/category/edit/' + category._id : '/admin/category/add' %>" method="POST" enctype="multipart/form-data" novalidate>
                             <div class="form-group mb-3">
-                                <label for="name">Category Name</label>
-                                <input type="text" class="form-control" id="name" name="name" value="<%= category ? category.name : '' %>" required>
+                                <label for="name">Category Name*</label>
+                                <input type="text" class="form-control <%= errors.name ? 'is-invalid' : '' %>" id="name" name="name" value="<%= category ? category.name : '' %>" required>
+                                <div class="invalid-feedback" id="name-error">
+                                    <%= errors.name || 'Please enter a valid category name (2-50 characters, letters, numbers, spaces, & and - only).' %>
+                                </div>
                             </div>
+                            
                             <div class="form-group mb-3">
-                                <label for="description">Description</label>
-                                <textarea class="form-control" id="description" name="description" rows="4" required><%= category ? category.description : '' %></textarea>
+                                <label for="description">Description*</label>
+                                <textarea class="form-control <%= errors.description ? 'is-invalid' : '' %>" id="description" name="description" rows="4" required><%= category ? category.description : '' %></textarea>
+                                <div class="invalid-feedback" id="description-error">
+                                    <%= errors.description || 'Please enter a description (10-500 characters).' %>
+                                </div>
+                                <div class="form-text">
+                                    <span id="description-count">0</span>/500 characters
+                                </div>
                             </div>
+                            
                             <div class="form-group mb-3">
-                                <label for="categoryOffer">Category Offer (%)</label>
-                                <input type="number" class="form-control" id="categoryOffer" name="categoryOffer" value="<%= category ? category.categoryOffer : 0 %>" min="0" max="100" step="1" required>
+                                <label for="categoryOffer">Category Offer (%)*</label>
+                                <input type="number" class="form-control <%= errors.categoryOffer ? 'is-invalid' : '' %>" id="categoryOffer" name="categoryOffer" value="<%= category ? category.categoryOffer : 0 %>" min="0" max="100" step="1" required>
+                                <div class="invalid-feedback" id="categoryOffer-error">
+                                    <%= errors.categoryOffer || 'Please enter a valid offer percentage (0-100).' %>
+                                </div>
                             </div>
+                            
                             <div class="form-group mb-3">
-                                <label for="image">Category Image</label>
-                                <input type="file" class="form-control" id="image" name="image" accept="image/*">
+                                <label for="image">Category Image<%= category ? '' : '*' %></label>
+                                <input type="file" class="form-control <%= errors.image ? 'is-invalid' : '' %>" id="image" name="image" accept="image/*" <%= category ? '' : 'required' %>>
+                                <div class="invalid-feedback" id="image-error">
+                                    <%= errors.image || 'Please upload a valid image file (JPEG, PNG, GIF, or WebP, max 5MB).' %>
+                                </div>
+                                <div class="form-text">
+                                    Supported formats: JPEG, PNG, GIF, WebP. Maximum size: 5MB.
+                                </div>
                                 <% if (category && category.image) { %>
                                     <div class="mt-2">
                                         <p>Current Image:</p>
-                                        <img src="<%= category.image %>" alt="<%= category.name %>" style="max-width: 100px; max-height: 100px; object-fit: cover;">
+                                        <img src="<%= category.image %>" alt="<%= category.name %>" style="max-width: 100px; max-height: 100px; object-fit: cover; border-radius: 4px;">
                                     </div>
                                 <% } %>
                             </div>
+                            
                             <div class="form-check mb-3">
                                 <input type="checkbox" class="form-check-input" id="isListed" name="isListed" <% if (!category || category.isListed) { %>checked<% } %>>
                                 <label class="form-check-label" for="isListed">Listed</label>
                             </div>
+                            
+                            <div class="alert alert-danger d-none" id="form-error-message">
+                                Please fill in all required fields correctly.
+                            </div>
+                            
                             <div class="d-flex gap-2">
                                 <button type="submit" class="btn btn-primary">
                                     <i class="fas fa-save"></i> <%= category ? 'Update' : 'Add' %> Category
@@ -103,6 +131,38 @@
         background-color: #5a6268;
         border-color: #5a6268;
     }
+    
+    /* Form validation styles */
+    .is-invalid {
+        border-color: #dc3545;
+        padding-right: calc(1.5em + 0.75rem);
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e");
+        background-repeat: no-repeat;
+        background-position: right calc(0.375em + 0.1875rem) center;
+        background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+    }
+
+    .invalid-feedback {
+        display: none;
+        width: 100%;
+        margin-top: 0.25rem;
+        font-size: 0.875em;
+        color: #dc3545;
+    }
+
+    .was-validated .form-control:invalid ~ .invalid-feedback,
+    .was-validated .form-select:invalid ~ .invalid-feedback,
+    .form-control.is-invalid ~ .invalid-feedback,
+    .form-select.is-invalid ~ .invalid-feedback {
+        display: block;
+    }
+    
+    .form-text {
+        font-size: 0.8rem;
+        color: #6c757d;
+        margin-top: 0.25rem;
+    }
+    
     @media (max-width: 768px) {
         .content-wrapper {
             margin-left: 60px;
@@ -119,3 +179,185 @@
         }
     }
 </style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('categoryForm');
+        const nameInput = document.getElementById('name');
+        const descriptionInput = document.getElementById('description');
+        const categoryOfferInput = document.getElementById('categoryOffer');
+        const imageInput = document.getElementById('image');
+        const descriptionCount = document.getElementById('description-count');
+        
+        // Update character count for description
+        function updateDescriptionCount() {
+            const count = descriptionInput.value.length;
+            descriptionCount.textContent = count;
+            descriptionCount.style.color = count > 500 ? '#dc3545' : '#6c757d';
+        }
+        
+        descriptionInput.addEventListener('input', updateDescriptionCount);
+        updateDescriptionCount(); // Initial count
+        
+        // Auto-format category name
+        nameInput.addEventListener('input', function() {
+            // Remove validation error if field becomes valid
+            if (this.classList.contains('is-invalid')) {
+                const value = this.value.trim();
+                if (value.length >= 2 && value.length <= 50 && /^[a-zA-Z0-9\s&-]+$/.test(value)) {
+                    this.classList.remove('is-invalid');
+                }
+            }
+        });
+        
+        // Validate file input
+        imageInput.addEventListener('change', function() {
+            const file = this.files[0];
+            if (file) {
+                const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+                const maxSize = 5 * 1024 * 1024; // 5MB
+                
+                if (!allowedTypes.includes(file.type)) {
+                    this.classList.add('is-invalid');
+                    document.getElementById('image-error').textContent = 'Please upload a valid image file (JPEG, PNG, GIF, or WebP)';
+                } else if (file.size > maxSize) {
+                    this.classList.add('is-invalid');
+                    document.getElementById('image-error').textContent = 'Image file size must not exceed 5MB';
+                } else {
+                    this.classList.remove('is-invalid');
+                }
+            }
+        });
+        
+        // Client-side validation function
+        function validateForm() {
+            let isValid = true;
+            const errors = {};
+            
+            // Reset previous validation state
+            const formElements = form.elements;
+            for (let i = 0; i < formElements.length; i++) {
+                const element = formElements[i];
+                if (element.classList) {
+                    element.classList.remove('is-invalid');
+                }
+            }
+            
+            // Hide general error message
+            document.getElementById('form-error-message').classList.add('d-none');
+            
+            // Validate name
+            const name = nameInput.value.trim();
+            if (!name) {
+                nameInput.classList.add('is-invalid');
+                document.getElementById('name-error').textContent = 'Category name is required';
+                errors.name = 'Category name is required';
+                isValid = false;
+            } else if (name.length < 2) {
+                nameInput.classList.add('is-invalid');
+                document.getElementById('name-error').textContent = 'Category name must be at least 2 characters long';
+                errors.name = 'Category name must be at least 2 characters long';
+                isValid = false;
+            } else if (name.length > 50) {
+                nameInput.classList.add('is-invalid');
+                document.getElementById('name-error').textContent = 'Category name must not exceed 50 characters';
+                errors.name = 'Category name must not exceed 50 characters';
+                isValid = false;
+            } else if (!/^[a-zA-Z0-9\s&-]+$/.test(name)) {
+                nameInput.classList.add('is-invalid');
+                document.getElementById('name-error').textContent = 'Category name can only contain letters, numbers, spaces, & and -';
+                errors.name = 'Category name can only contain letters, numbers, spaces, & and -';
+                isValid = false;
+            }
+            
+            // Validate description
+            const description = descriptionInput.value.trim();
+            if (!description) {
+                descriptionInput.classList.add('is-invalid');
+                document.getElementById('description-error').textContent = 'Description is required';
+                errors.description = 'Description is required';
+                isValid = false;
+            } else if (description.length < 10) {
+                descriptionInput.classList.add('is-invalid');
+                document.getElementById('description-error').textContent = 'Description must be at least 10 characters long';
+                errors.description = 'Description must be at least 10 characters long';
+                isValid = false;
+            } else if (description.length > 500) {
+                descriptionInput.classList.add('is-invalid');
+                document.getElementById('description-error').textContent = 'Description must not exceed 500 characters';
+                errors.description = 'Description must not exceed 500 characters';
+                isValid = false;
+            }
+            
+            // Validate category offer
+            const categoryOffer = categoryOfferInput.value;
+            if (categoryOffer === '' || categoryOffer === null || categoryOffer === undefined) {
+                categoryOfferInput.classList.add('is-invalid');
+                document.getElementById('categoryOffer-error').textContent = 'Category offer is required';
+                errors.categoryOffer = 'Category offer is required';
+                isValid = false;
+            } else {
+                const offer = Number(categoryOffer);
+                if (isNaN(offer)) {
+                    categoryOfferInput.classList.add('is-invalid');
+                    document.getElementById('categoryOffer-error').textContent = 'Category offer must be a valid number';
+                    errors.categoryOffer = 'Category offer must be a valid number';
+                    isValid = false;
+                } else if (offer < 0) {
+                    categoryOfferInput.classList.add('is-invalid');
+                    document.getElementById('categoryOffer-error').textContent = 'Category offer cannot be negative';
+                    errors.categoryOffer = 'Category offer cannot be negative';
+                    isValid = false;
+                } else if (offer > 100) {
+                    categoryOfferInput.classList.add('is-invalid');
+                    document.getElementById('categoryOffer-error').textContent = 'Category offer cannot exceed 100%';
+                    errors.categoryOffer = 'Category offer cannot exceed 100%';
+                    isValid = false;
+                } else if (!Number.isInteger(offer)) {
+                    categoryOfferInput.classList.add('is-invalid');
+                    document.getElementById('categoryOffer-error').textContent = 'Category offer must be a whole number';
+                    errors.categoryOffer = 'Category offer must be a whole number';
+                    isValid = false;
+                }
+            }
+            
+            // Validate image (only for add form)
+            const isEditForm = <%= category ? 'true' : 'false' %>;
+            if (!isEditForm && !imageInput.files[0]) {
+                imageInput.classList.add('is-invalid');
+                document.getElementById('image-error').textContent = 'Category image is required';
+                errors.image = 'Category image is required';
+                isValid = false;
+            }
+            
+            if (!isValid) {
+                document.getElementById('form-error-message').classList.remove('d-none');
+                document.getElementById('form-error-message').textContent = 'Please fill in all required fields correctly.';
+            }
+            
+            return isValid;
+        }
+        
+        // Form submission
+        form.addEventListener('submit', function(e) {
+            if (!validateForm()) {
+                e.preventDefault();
+                return false;
+            }
+        });
+        
+        // Add input event listeners for real-time validation feedback
+        document.querySelectorAll('#categoryForm input, #categoryForm textarea').forEach(element => {
+            element.addEventListener('input', function() {
+                if (this.classList.contains('is-invalid')) {
+                    // Remove error class if field becomes valid
+                    setTimeout(() => {
+                        if (this.checkValidity()) {
+                            this.classList.remove('is-invalid');
+                        }
+                    }, 100);
+                }
+            });
+        });
+    });
+</script>

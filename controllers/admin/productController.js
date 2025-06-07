@@ -72,9 +72,7 @@ exports.addProduct = async (req, res) => {
         variantImages[variantIndex].push(file.path);
       }
     });
-    if(variant.regularPrice>variant.salePrice){
-      errors.push({msg:"regular price should be lesser than sale price"})
-    }
+   
 
     const errors = [];
     parsedVariants = parsedVariants.map((variant, index) => {
@@ -151,9 +149,7 @@ exports.editProduct = async (req, res) => {
       if (newImages.length > 0 && newImages.length < 3) {
         errors.push({ msg: `Variant ${index + 1} must have at least 3 images if updating images` });
       }
-       if(variant.regularPrice>variant.salePrice){
-       errors.push({msg:"regular price should be lesser than sale price"})
-    }
+   
       return {
         ...variant,
         weight: Number(variant.weight),

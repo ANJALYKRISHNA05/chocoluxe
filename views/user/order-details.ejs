@@ -881,7 +881,7 @@
         <div class="status-tracker">
           <div class="status-steps">
             <% 
-              const statuses = ['Pending', 'Confirmed', 'Shipped', 'Delivered', 'Return Requested', 'Returned'];
+              const statuses = ['Pending', 'Confirmed', 'Shipped', 'Delivered'];
               const currentStatusIndex = statuses.indexOf(order.status);
               const cancelled = order.status === 'Cancelled';
             %>
