@@ -18,7 +18,7 @@
             overflow-x: hidden;
         }
 
-        /* Base layout */
+        
         .content {
             margin-left: 250px;
             padding: 20px;
@@ -27,7 +27,7 @@
             transition: margin-left 0.3s ease;
         }
 
-        /* Card styles */
+    
         .card {
             background-color: #fff9e6;
             border: none;
@@ -65,7 +65,6 @@
             margin-bottom: 20px;
         }
 
-        /* Button styles */
         .btn-chocolate {
             background-color: #4a2c2a;
             color: #fff;
@@ -90,7 +89,7 @@
             color: #fff;
         }
 
-        /* Table styles */
+    
         .table {
             background-color: #fff9e6;
             border-radius: 10px;
@@ -114,7 +113,7 @@
             background-color: rgba(209, 168, 118, 0.1);
         }
 
-        /* Chart container */
+    
         .chart-container {
             position: relative;
             height: 300px;
@@ -134,16 +133,14 @@
             margin-bottom: 10px;
         }
 
-        /* Alert styles */
+       
         .alert-light {
             background-color: #fff9e6;
             border-color: #d1a876;
             color: #4a2c2a;
         }
 
-        /* Responsive Design */
-
-        /* Large tablets and small desktops */
+        
         @media (max-width: 1200px) {
             .content {
                 margin-left: 220px;
@@ -159,7 +156,7 @@
             }
         }
 
-        /* Tablets */
+
         @media (max-width: 992px) {
             .content {
                 margin-left: 200px;
@@ -180,7 +177,7 @@
             }
         }
 
-        /* Small tablets and large phones */
+       
         @media (max-width: 768px) {
             .content {
                 margin-left: 70px;
@@ -208,12 +205,12 @@
                 padding: 10px;
             }
             
-            /* Stack filter form elements */
+        
             .filter-form .col-md-3 {
                 margin-bottom: 10px;
             }
             
-            /* Download buttons stack */
+          
             .download-section {
                 flex-direction: column;
                 gap: 10px;
@@ -224,18 +221,18 @@
                 margin-right: 0;
             }
             
-            /* Table responsive improvements */
+         
             .table th, .table td {
                 padding: 6px;
                 font-size: 0.85rem;
             }
             
-            /* Hide less important columns on mobile */
+           
             .table .d-none-mobile {
                 display: none;
             }
             
-            /* Pagination adjustments */
+          
             .pagination {
                 flex-wrap: wrap;
                 justify-content: center;
@@ -246,7 +243,7 @@
             }
         }
 
-        /* Mobile phones */
+    
         @media (max-width: 576px) {
             .content {
                 margin-left: 60px;
@@ -277,13 +274,12 @@
                 height: 200px;
             }
             
-            /* Metrics cards - 2 per row on mobile */
+          
             .metrics-row .col-md-3 {
                 flex: 0 0 50%;
                 max-width: 50%;
             }
             
-            /* Charts - 1 per row on mobile */
             .charts-row .col-md-6,
             .charts-row .col-md-4 {
                 flex: 0 0 100%;
@@ -291,13 +287,13 @@
                 margin-bottom: 15px;
             }
             
-            /* Form elements full width */
+          
             .filter-form .col-md-3 {
                 flex: 0 0 100%;
                 max-width: 100%;
             }
             
-            /* Table improvements for mobile */
+          
             .table-responsive {
                 border-radius: 10px;
                 overflow-x: auto;
@@ -313,20 +309,20 @@
                 white-space: nowrap;
             }
             
-            /* Alert text smaller */
+        
             .alert {
                 font-size: 0.9rem;
                 padding: 10px;
             }
             
-            /* Pagination smaller */
+          
             .pagination .page-link {
                 padding: 0.25rem 0.5rem;
                 font-size: 0.8rem;
             }
         }
 
-        /* Extra small devices */
+      
         @media (max-width: 400px) {
             .content {
                 margin-left: 50px;
@@ -349,7 +345,7 @@
                 height: 180px;
             }
             
-            /* Metrics cards stack on very small screens */
+          
             .metrics-row .col-md-3 {
                 flex: 0 0 100%;
                 max-width: 100%;
@@ -365,7 +361,7 @@
             }
         }
 
-        /* Landscape orientation adjustments */
+        
         @media (max-height: 500px) and (orientation: landscape) {
             .content {
                 margin-top: 50px;
@@ -382,7 +378,6 @@
             }
         }
 
-        /* Print styles */
         @media print {
             .content {
                 margin-left: 0;
@@ -400,7 +395,6 @@
             }
         }
 
-        /* Custom responsive utilities */
         .text-responsive {
             font-size: calc(0.8rem + 0.5vw);
         }
@@ -409,7 +403,6 @@
             min-height: auto;
         }
 
-        /* Improved spacing for mobile */
         @media (max-width: 768px) {
             .mb-4 {
                 margin-bottom: 1rem !important;
@@ -464,7 +457,6 @@
             <%= dateRange.startDate.toLocaleDateString() %> to <%= dateRange.endDate.toLocaleDateString() %>
         </div>
 
-        <!-- Metrics Cards -->
         <div class="row mb-4 metrics-row">
             <div class="col-md-3 col-6">
                 <div class="card card-responsive">
@@ -492,7 +484,7 @@
             </div>
         </div>
 
-        <!-- Main Charts -->
+     
         <div class="row mb-4 charts-row">
             <div class="col-md-6">
                 <div class="card">
@@ -513,7 +505,7 @@
             </div>
         </div>
 
-        <!-- Secondary Charts -->
+      
         <div class="row mb-4 charts-row">
             <div class="col-md-4">
                 <div class="card">
@@ -543,7 +535,7 @@
             </div>
         </div>
 
-        <!-- Best Selling Products Table -->
+     
         <div class="card mb-4">
             <h5 class="card-title">Best Selling Products (Top 5)</h5>
             <div class="table-responsive">
@@ -576,7 +568,7 @@
             </div>
         </div>
 
-        <!-- Best Selling Categories Table -->
+        
         <div class="card mb-4">
             <h5 class="card-title">Best Selling Categories (Top 5)</h5>
             <div class="table-responsive">
@@ -609,7 +601,6 @@
             </div>
         </div>
 
-        <!-- Download Report -->
         <div class="card mb-4">
             <h5 class="card-title">Download Report</h5>
             <div class="d-flex justify-content-center gap-2 py-4 download-section flex-wrap">
@@ -622,7 +613,6 @@
             </div>
         </div>
 
-        <!-- Transaction Details -->
         <div class="card mb-4">
             <h5 class="card-title">Transaction Details</h5>
             <div class="table-responsive">
@@ -666,7 +656,7 @@
                 </table>
             </div>
 
-            <!-- Pagination -->
+          
             <% if (orders && orders.length > 0) { %>
                 <div class="d-flex justify-content-between align-items-center px-3 py-2 flex-wrap">
                     <div class="mb-2 mb-md-0">
@@ -713,11 +703,10 @@
         }
 
         document.addEventListener('DOMContentLoaded', function() {
-            // Chart.js responsive configuration
+        
             Chart.defaults.responsive = true;
             Chart.defaults.maintainAspectRatio = false;
-            
-            // Sales Overview Chart
+          
             const salesOverviewCtx = document.getElementById('salesOverviewChart').getContext('2d');
             new Chart(salesOverviewCtx, {
                 type: 'bar',
@@ -755,7 +744,7 @@
                 }
             });
 
-            // Payment Methods Chart
+           
             const paymentMethodsCtx = document.getElementById('paymentMethodsChart').getContext('2d');
             const paymentMethodNames = <%- JSON.stringify(Object.keys(paymentMethods)) %>;
             const paymentCounts = <%- JSON.stringify(Object.values(paymentMethods).map(p => p.count)) %>;
@@ -800,7 +789,6 @@
                 }
             });
 
-            // Top Products Chart
             <% if (topProducts && topProducts.length > 0) { %>
                 const topProductsCtx = document.getElementById('topProductsChart').getContext('2d');
                 const productNames = <%- JSON.stringify(topProducts.map(p => p.productDetails.productName.substring(0, 15) + (p.productDetails.productName.length > 15 ? '...' : ''))) %>;
@@ -843,7 +831,7 @@
                 });
             <% } %>
 
-            // Top Categories Chart
+            
             <% if (topCategories && topCategories.length > 0) { %>
                 const topCategoriesCtx = document.getElementById('topCategoriesChart').getContext('2d');
                 const categoryNames = <%- JSON.stringify(topCategories.map(c => c.categoryName)) %>;
@@ -890,7 +878,7 @@
                 });
             <% } %>
 
-            // Top Coupons Chart
+         
             <% if (topCoupons && topCoupons.length > 0) { %>
                 const topCouponsCtx = document.getElementById('topCouponsChart').getContext('2d');
                 const couponCodes = <%- JSON.stringify(topCoupons.map(c => c.couponDetails.code)) %>;
@@ -933,7 +921,7 @@
                 });
             <% } %>
 
-            // Handle window resize for chart responsiveness
+          
             window.addEventListener('resize', function() {
                 Chart.helpers.each(Chart.instances, function(instance) {
                     instance.resize();

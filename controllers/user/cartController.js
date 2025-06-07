@@ -80,7 +80,6 @@ exports.addToCart = async (req, res) => {
       });
     }
 
-    // Remove from wishlist if exists
     let wishlist = await Wishlist.findOne({ user: userId });
     let wishlistItemCount = 0;
     if (wishlist) {

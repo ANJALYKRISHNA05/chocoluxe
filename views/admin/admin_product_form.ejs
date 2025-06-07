@@ -1,7 +1,7 @@
 <%- include('../partials/admin/header') %>
 
 <style>
-  /* CSS Variables */
+ 
   :root {
     --primary-color: #6a3e20;
     --secondary-color: #c49b63;
@@ -14,7 +14,7 @@
     --warning-text: #d58512;
   }
 
-  /* Base Layout */
+
   .admin-layout {
     display: flex;
     min-height: 100vh;
@@ -30,7 +30,7 @@
     box-sizing: border-box;
   }
 
-  /* Page Header */
+
   .page-header {
     background-color: white;
     border-radius: 8px;
@@ -48,7 +48,7 @@
     font-size: 1.75rem;
   }
 
-  /* Alert Styles */
+  
   .alert {
     border-radius: 8px;
     margin-bottom: 1.5rem;
@@ -67,7 +67,7 @@
     color: #155724;
   }
 
-  /* Form Container */
+  
   .form-container {
     background-color: white;
     border-radius: 8px;
@@ -76,7 +76,7 @@
     margin-bottom: 1.5rem;
   }
 
-  /* Form Elements */
+
   .form-label {
     font-weight: 600;
     color: var(--dark-color);
@@ -112,7 +112,7 @@
     background-color: rgba(240, 173, 78, 0.08);
   }
 
-  /* Variant Section */
+ 
   .variants-header {
     display: flex;
     justify-content: space-between;
@@ -184,7 +184,6 @@
     opacity: 0.6;
   }
 
-  /* Form Grid Layout */
   .variant-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -197,7 +196,7 @@
     flex-direction: column;
   }
 
-  /* Image Upload Section */
+  
   .image-upload-section {
     grid-column: 1 / -1;
     background-color: white;
@@ -224,7 +223,7 @@
     background-color: rgba(196, 155, 99, 0.1);
   }
 
-  /* Preview Container */
+  
   .preview-container {
     margin-top: 1rem;
     padding: 1rem;
@@ -311,7 +310,7 @@
     transform: scale(1.1);
   }
 
-  /* Buttons */
+  
   .btn {
     border-radius: 6px;
     padding: 0.75rem 1.5rem;
@@ -366,7 +365,7 @@
     flex-wrap: wrap;
   }
 
-  /* Validation Styles */
+  
   .invalid-feedback {
     display: block;
     color: #d58512;
@@ -375,7 +374,7 @@
     font-weight: 500;
   }
 
-  /* Loading Spinner */
+  
   .loading-spinner {
     display: none;
     width: 20px;
@@ -391,7 +390,7 @@
     100% { transform: rotate(360deg); }
   }
 
-  /* Cropper Modal Styles */
+ 
   .modal-content {
     border-radius: 12px;
     box-shadow: 0 10px 30px rgba(0,0,0,0.2);
@@ -485,7 +484,7 @@
     color: white;
   }
 
-  /* Responsive Design */
+ 
   @media (max-width: 1200px) {
     .main-content {
       margin-left: 200px;
@@ -636,19 +635,19 @@
     <%- include('../partials/admin/sidebar', { activePage: 'products' }) %>
 
     <main class="main-content">
-      <!-- Page Header -->
+    
       <div class="page-header">
         <h1 class="page-title"><%= product ? 'Edit Product' : 'Add Product' %></h1>
       </div>
 
-      <!-- Success Messages -->
+     
       <% if (success) { %>
         <div class="alert alert-success">
           <%= success %>
         </div>
       <% } %>
 
-      <!-- Error Messages -->
+      
       <% if (errors && errors.length > 0) { %>
         <div class="alert alert-danger">
           <ul style="margin: 0; padding-left: 1.5rem;">
@@ -659,14 +658,13 @@
         </div>
       <% } %>
 
-      <!-- Product Form -->
       <div class="form-container">
         <form id="productForm" action="<%= product ? '/admin/products/edit/' + product._id : '/admin/products/add' %>" method="POST" enctype="multipart/form-data" novalidate>
           
-          <!-- Hidden field for deleted images -->
+       
           <input type="hidden" id="deletedImages" name="deletedImages" value="[]">
           
-          <!-- Basic Product Information -->
+          
           <div class="variant-grid">
             <div class="form-group">
               <label for="productName" class="form-label">Product Name *</label>
@@ -695,7 +693,7 @@
             <div class="invalid-feedback">Description must be between 10-1000 characters.</div>
           </div>
 
-          <!-- Variants Section -->
+          
           <div class="variants-header">
             <h4 class="variants-title">Product Variants</h4>
             <button type="button" id="addVariant" class="btn btn-success">
@@ -904,7 +902,7 @@
             <% } %>
           </div>
 
-          <!-- Form Actions -->
+       
           <div class="form-actions">
             <button type="submit" class="btn btn-primary" id="submitBtn">
               <span class="loading-spinner"></span>
@@ -921,7 +919,6 @@
     </main>
   </div>
 
-  <!-- Image Cropper Modal -->
   <div class="modal fade" id="cropperModal" tabindex="-1" aria-labelledby="cropperModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
@@ -959,7 +956,7 @@
     </div>
   </div>
 
-  <!-- Scripts -->
+
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -979,10 +976,9 @@
       let isExistingImage = false;
       let croppedImages = {};
 
-      // Initialize Bootstrap modal
+  
       const cropperModal = new bootstrap.Modal(document.getElementById('cropperModal'));
-      
-      // Initialize cropper when modal is shown
+    
       document.getElementById('cropperModal').addEventListener('shown.bs.modal', function () {
         const image = document.getElementById('imageToCrop');
         cropper = new Cropper(image, {
@@ -999,7 +995,7 @@
         });
       });
 
-      // Destroy cropper when modal is hidden
+      
       document.getElementById('cropperModal').addEventListener('hidden.bs.modal', function () {
         if (cropper) {
           cropper.destroy();
@@ -1007,7 +1003,7 @@
         }
       });
 
-      // Crop controls
+   
       document.getElementById('rotateLeft').addEventListener('click', () => {
         if (cropper) cropper.rotate(-90);
       });
@@ -1028,7 +1024,7 @@
         if (cropper) cropper.reset();
       });
 
-      // Crop image handler
+      
       document.getElementById('cropImage').addEventListener('click', () => {
         if (!cropper) return;
 
@@ -1059,42 +1055,42 @@
             return;
           }
 
-          // Store cropped image data
+     
           if (!croppedImages[currentVariantIndex]) {
             croppedImages[currentVariantIndex] = {};
           }
 
           if (isExistingImage) {
-            // For existing images, we need to handle differently
+           
             const imageUrl = URL.createObjectURL(blob);
             
-            // Find the image element and update its source
+           
             const imageElement = document.querySelector(`.preview-image[data-variant-index="${currentVariantIndex}"][data-image-index="${currentImageIndex}"]`);
             if (imageElement) {
               imageElement.src = imageUrl;
               
-              // Store the blob for later submission
+             
               croppedImages[currentVariantIndex][currentImageUrl] = {
                 blob: blob,
                 url: imageUrl
               };
             }
           } else {
-            // For newly uploaded images
+            
             if (currentFileInput && currentFileInput.files[currentImageIndex]) {
-              // Create a new File object from the blob
+             
               const croppedFile = new File([blob], currentFileInput.files[currentImageIndex].name, {
                 type: currentFileInput.files[currentImageIndex].type,
                 lastModified: new Date().getTime()
               });
               
-              // Store the cropped file
+              
               if (!croppedImages[currentVariantIndex].newFiles) {
                 croppedImages[currentVariantIndex].newFiles = {};
               }
               croppedImages[currentVariantIndex].newFiles[currentImageIndex] = croppedFile;
               
-              // Update preview image
+             
               const imageElement = document.querySelector(`.preview-image[data-variant-index="${currentVariantIndex}"][data-is-new="true"][data-file-index="${currentImageIndex}"]`);
               if (imageElement) {
                 imageElement.src = URL.createObjectURL(blob);
@@ -1102,10 +1098,9 @@
             }
           }
 
-          // Close the modal
+        
           cropperModal.hide();
-          
-          // Show success message
+      
           Swal.fire({
             title: 'Success',
             text: 'Image cropped successfully',
@@ -1116,14 +1111,14 @@
         }, 'image/jpeg', 0.9);
       });
 
-      // Real-time validation
+     
       function validateField(field) {
         const value = field.value.trim();
         const fieldName = field.name;
         let isValid = true;
         let message = '';
 
-        // Product name validation
+      
         if (fieldName === 'productName') {
           if (value.length < 3) {
             isValid = false;
@@ -1134,7 +1129,7 @@
           }
         }
 
-        // Description validation
+        
         if (fieldName === 'description') {
           if (value.length < 10) {
             isValid = false;
@@ -1145,7 +1140,7 @@
           }
         }
 
-        // Price validation
+        
         if (fieldName.includes('regularPrice')) {
           const numValue = parseFloat(value);
           if (isNaN(numValue) || numValue <= 0) {
@@ -1162,7 +1157,7 @@
           }
         }
 
-        // Stock validation
+      
         if (fieldName.includes('stock_quantity')) {
           const numValue = parseInt(value);
           if (isNaN(numValue) || numValue < 0) {
@@ -1171,7 +1166,7 @@
           }
         }
 
-        // Offer validation
+      
         if (fieldName.includes('productOffer')) {
           const numValue = parseInt(value);
           if (isNaN(numValue) || numValue < 0 || numValue > 100) {
@@ -1180,7 +1175,7 @@
           }
         }
 
-        // Update field appearance - only show errors, no success styling
+       
         if (isValid) {
           field.classList.remove('is-invalid');
         } else {
@@ -1194,7 +1189,7 @@
         return isValid;
       }
 
-      // Price comparison validation
+      
       function validatePrices(variantSection) {
         const regularPriceInput = variantSection.querySelector('.regular-price');
         const salePriceInput = variantSection.querySelector('.sale-price');
@@ -1218,7 +1213,7 @@
         return true;
       }
 
-      // Image count validation
+   
       function validateImageCount(variantSection) {
         const previewContainer = variantSection.querySelector('.preview-container');
         const imageCount = previewContainer.querySelectorAll('.preview-image').length;
@@ -1231,12 +1226,12 @@
         return imageCount >= 3;
       }
 
-      // Add event listeners for real-time validation
+     
       document.addEventListener('input', (e) => {
         if (e.target.matches('input[type="text"], textarea, input[type="number"]')) {
           validateField(e.target);
           
-          // Special handling for price fields
+        
           if (e.target.classList.contains('regular-price') || e.target.classList.contains('sale-price')) {
             const variantSection = e.target.closest('.variant-section');
             validatePrices(variantSection);
@@ -1250,7 +1245,7 @@
         }
       });
 
-      // Image upload preview handler
+      
       document.getElementById('variantsContainer').addEventListener('change', (e) => {
         if (e.target.classList.contains('image-upload')) {
           const files = e.target.files;
@@ -1259,9 +1254,8 @@
           const previewContainer = variantSection.querySelector('.preview-container');
           const previewImages = previewContainer.querySelector('.preview-images');
           
-          // Validate file types and sizes
           const validFiles = [];
-          const maxSize = 5 * 1024 * 1024; // 5MB
+          const maxSize = 5 * 1024 * 1024; 
           const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
           
           Array.from(files).forEach((file, index) => {
@@ -1286,12 +1280,10 @@
             validFiles.push(file);
           });
           
-          // Create new file list with valid files
           const dt = new DataTransfer();
           validFiles.forEach(file => dt.items.add(file));
           e.target.files = dt.files;
           
-          // Add new preview images
           validFiles.forEach((file, index) => {
             const reader = new FileReader();
             reader.onload = (event) => {
@@ -1323,7 +1315,6 @@
         }
       });
 
-      // Delete image handler
       document.getElementById('variantsContainer').addEventListener('click', (e) => {
         if (e.target.closest('.delete-image-btn')) {
           const button = e.target.closest('.delete-image-btn');
@@ -1344,7 +1335,6 @@
           }).then((result) => {
             if (result.isConfirmed) {
               if (isNew) {
-                // Remove from file input
                 const fileInput = variantSection.querySelector('.image-upload');
                 const dt = new DataTransfer();
                 Array.from(fileInput.files).forEach((file, index) => {
@@ -1354,29 +1344,23 @@
                 });
                 fileInput.files = dt.files;
                 
-                // Remove from cropped images if exists
                 if (croppedImages[variantIndex] && croppedImages[variantIndex].newFiles && croppedImages[variantIndex].newFiles[fileIndex]) {
                   delete croppedImages[variantIndex].newFiles[fileIndex];
                 }
                 
-                // Remove preview
                 button.closest('.image-item').remove();
               } else {
-                // Add to deleted images list
                 deletedImages.push({
                   variantIndex: parseInt(variantIndex),
                   imageUrl: imageUrl
                 });
                 
-                // Update hidden field
                 document.getElementById('deletedImages').value = JSON.stringify(deletedImages);
                 
-                // Remove from cropped images if exists
                 if (croppedImages[variantIndex] && croppedImages[variantIndex][imageUrl]) {
                   delete croppedImages[variantIndex][imageUrl];
                 }
                 
-                // Remove preview
                 button.closest('.image-item').remove();
               }
               
@@ -1386,7 +1370,6 @@
         }
       });
 
-      // Crop image button handler
       document.getElementById('variantsContainer').addEventListener('click', (e) => {
         if (e.target.closest('.crop-image-btn')) {
           const button = e.target.closest('.crop-image-btn');
@@ -1398,11 +1381,9 @@
           const imageToCrop = document.getElementById('imageToCrop');
           
           if (isExistingImage) {
-            // For existing images
             imageToCrop.src = currentImageUrl;
             cropperModal.show();
           } else {
-            // For newly uploaded images
             const fileInput = button.closest('.variant-section').querySelector('.image-upload');
             currentFileInput = fileInput;
             
@@ -1418,74 +1399,96 @@
         }
       });
 
-      // Form submission handler
+
+    
       document.getElementById('productForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         
         const submitBtn = document.getElementById('submitBtn');
         const spinner = submitBtn.querySelector('.loading-spinner');
         
-        // Show loading state
+      
         submitBtn.disabled = true;
         spinner.style.display = 'inline-block';
         
-        // Validate all fields
+    
         let isFormValid = true;
         let errorMessages = [];
         const variantSections = document.querySelectorAll('.variant-section');
-
-        // Validate basic fields
+        
+  
         const requiredFields = document.querySelectorAll('input[required], select[required], textarea[required]');
+        let emptyFieldsCount = 0;
+        
         requiredFields.forEach(field => {
-          if (!validateField(field)) {
+          if (!field.value.trim()) {
+            emptyFieldsCount++;
             isFormValid = false;
-            const fieldLabel = field.closest('.form-group')?.querySelector('.form-label')?.textContent || field.name;
-            errorMessages.push(`${fieldLabel}: Please check this field`);
           }
         });
-
-        // Validate each variant
-        variantSections.forEach((section, index) => {
-          // Validate prices
-          if (!validatePrices(section)) {
-            isFormValid = false;
-            errorMessages.push(`Variant ${index + 1}: Sale price cannot be greater than regular price`);
-          }
-          
-          // Validate image count
-          if (!validateImageCount(section)) {
-            isFormValid = false;
-            errorMessages.push(`Variant ${index + 1}: Please upload at least 3 images`);
-          }
-        });
-
-        if (!isFormValid) {
+        
+     
+        if (emptyFieldsCount > 3) {
           submitBtn.disabled = false;
           spinner.style.display = 'none';
           
-          // Show specific error messages
-          const errorText = errorMessages.length > 0 ? errorMessages.join('\n') : 'Please fix the highlighted errors before submitting.';
-          
           Swal.fire({
             title: 'Please Check Your Input',
-            text: errorText,
+            text: 'Please fill all required fields.',
             icon: 'warning',
             confirmButtonText: 'OK'
           });
           return;
         }
         
-        // Create FormData for submission
+    
+        requiredFields.forEach(field => {
+          if (!validateField(field)) {
+            isFormValid = false;
+            const fieldLabel = field.closest('.form-group')?.querySelector('.form-label')?.textContent.replace('*', '').trim() || field.name;
+            errorMessages.push(`${fieldLabel}: Please check this field`);
+          }
+        });
+        
+     
+        variantSections.forEach((section, index) => {
+   
+          if (!validatePrices(section)) {
+            isFormValid = false;
+            errorMessages.push(`Variant ${index + 1}: Sale price cannot exceed regular price`);
+          }
+          
+       
+          if (!validateImageCount(section)) {
+            isFormValid = false;
+            errorMessages.push(`Variant ${index + 1}: Please upload at least 3 images`);
+          }
+        });
+        
+        if (!isFormValid) {
+          submitBtn.disabled = false;
+          spinner.style.display = 'none';
+          
+          Swal.fire({
+            title: 'Please Check Your Input',
+            html: errorMessages.join('<br>'),
+            icon: 'warning',
+            confirmButtonText: 'OK'
+          });
+          return;
+        }
+        
+ 
         const formData = new FormData(e.target);
         
-        // Add cropped images to form data
+     
         Object.keys(croppedImages).forEach(variantIndex => {
-          // Handle existing images that were cropped
+          
           Object.keys(croppedImages[variantIndex]).forEach(key => {
             if (key !== 'newFiles') {
               const croppedImage = croppedImages[variantIndex][key];
               if (croppedImage && croppedImage.blob) {
-                // Create a unique name for the cropped image
+          
                 const fileName = `cropped_${Date.now()}_${Math.random().toString(36).substring(2, 15)}.jpg`;
                 formData.append(`variants[${variantIndex}][croppedImages]`, croppedImage.blob, fileName);
                 formData.append(`variants[${variantIndex}][croppedImageUrls]`, key);
@@ -1493,19 +1496,18 @@
             }
           });
           
-          // Handle new files that were cropped
+     
           if (croppedImages[variantIndex].newFiles) {
             Object.keys(croppedImages[variantIndex].newFiles).forEach(fileIndex => {
               const croppedFile = croppedImages[variantIndex].newFiles[fileIndex];
               if (croppedFile) {
-                // Replace the original file with the cropped one
+             
                 formData.append(`variants[${variantIndex}][images]`, croppedFile);
               }
             });
           }
         });
-        
-        // Submit form
+ 
         try {
           const response = await fetch(e.target.action, {
             method: 'POST',
@@ -1539,7 +1541,7 @@
         }
       });
 
-      // Add variant handler
+    
       document.getElementById('addVariant').addEventListener('click', () => {
         const container = document.getElementById('variantsContainer');
         const variantSection = document.createElement('div');
@@ -1633,7 +1635,7 @@
         variantIndex++;
       });
 
-      // Remove variant handler
+      
       document.getElementById('variantsContainer').addEventListener('click', (e) => {
         if (e.target.classList.contains('remove-variant') || e.target.closest('.remove-variant')) {
           const button = e.target.classList.contains('remove-variant') ? e.target : e.target.closest('.remove-variant');
@@ -1671,34 +1673,29 @@
         variantSections.forEach((section, index) => {
           section.dataset.index = index;
           
-          // Update variant title
+          
           const title = section.querySelector('.variant-title');
           title.textContent = `Variant ${index + 1}`;
           
-          // Update input names
           const inputs = section.querySelectorAll('input, select');
           inputs.forEach(input => {
             const name = input.name.replace(/variants\[\d+\]/, `variants[${index}]`);
             input.name = name;
           });
           
-          // Update preview container
           const previewContainer = section.querySelector('.preview-container');
           previewContainer.dataset.variantIndex = index;
           
-          // Update preview images
           const previewImages = section.querySelectorAll('.preview-image');
           previewImages.forEach(img => {
             img.dataset.variantIndex = index;
           });
           
-          // Update delete buttons
           const deleteButtons = section.querySelectorAll('.delete-image-btn');
           deleteButtons.forEach(btn => {
             btn.dataset.variantIndex = index;
           });
 
-          // Update crop buttons
           const cropButtons = section.querySelectorAll('.crop-image-btn');
           cropButtons.forEach(btn => {
             btn.dataset.variantIndex = index;
@@ -1708,7 +1705,6 @@
         variantIndex = variantSections.length;
       }
 
-      // Initialize validation on page load
       const allInputs = document.querySelectorAll('input, select, textarea');
       allInputs.forEach(input => {
         if (input.value) {
@@ -1716,7 +1712,6 @@
         }
       });
 
-      // Initialize image counts
       const variantSections = document.querySelectorAll('.variant-section');
       variantSections.forEach(section => {
         validateImageCount(section);

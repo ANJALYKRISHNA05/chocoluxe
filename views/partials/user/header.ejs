@@ -295,7 +295,6 @@
             text-decoration: none !important;
         }
         
-        /* FIXED BADGE STYLES - REMOVED display: none !important */
         .badge {
             position: absolute !important;
             top: -5px !important;
@@ -305,7 +304,7 @@
             border-radius: 50% !important;
             width: 22px !important;
             height: 22px !important;
-            display: flex !important; /* CHANGED FROM display: none !important */
+            display: flex !important; 
             align-items: center !important;
             justify-content: center !important;
             font-size: 0.75rem !important;
@@ -314,8 +313,8 @@
             animation: pulse 2s infinite;
             z-index: 5 !important;
             border: 1px solid rgba(255,255,255,0.3) !important;
-            opacity: 0; /* Use opacity instead of display none */
-            visibility: hidden; /* Use visibility instead of display none */
+            opacity: 0; 
+            visibility: hidden; 
             transition: opacity 0.3s ease, visibility 0.3s ease;
         }
         
@@ -760,7 +759,7 @@
 <header class="header" id="header">
     <nav class="navbar">
         <div class="navbar-container">
-            <!-- Brand -->
+            
             <a href="/" class="brand-container">
                 <div class="brand-text">
                     <div class="brand-name">CHOCOLUXE</div>
@@ -768,36 +767,35 @@
                 </div>
             </a>
             
-            <!-- Desktop Navigation -->
+    
             <div class="nav-content">
                 <ul class="nav-links">
                     <li><a href="/" class="nav-link">Home</a></li>
                     <li><a href="/products" class="nav-link">Products</a></li>
                 </ul>
                 
-                <!-- Search Bar -->
+                
                 <div class="search-container">
                     <i class="fas fa-search search-icon"></i>
                     <input type="text" class="search-bar" placeholder="Search chocolates...">
                 </div>
             </div>
             
-            <!-- Action Buttons -->
+       
             <div class="nav-actions">
                 <% if (user) { %>
-                    <!-- Wishlist -->
+                  
                     <a href="/wishlist" class="action-btn" title="Wishlist">
                         <i class="fas fa-heart"></i>
                         <span class="badge wishlist-badge" id="wishlistBadge">0</span>
                     </a>
                     
-                    <!-- Cart -->
+                  
                     <a href="/cart" class="action-btn" title="Shopping Cart">
                         <i class="fas fa-shopping-cart"></i>
                         <span class="badge cart-badge" id="cartBadge">0</span>
                     </a>
                     
-                    <!-- User Menu -->
                     <div class="user-menu" id="userMenu">
                         <div class="user-avatar" onclick="toggleUserMenu()" title="User Menu">
                             <i class="fas fa-user"></i>
@@ -830,14 +828,12 @@
                         </div>
                     </div>
                 <% } else { %>
-                    <!-- Login Button -->
                     <a href="/user/login" class="login-btn">
                         <i class="fas fa-sign-in-alt"></i>
                         <span>Login</span>
                     </a>
                 <% } %>
                 
-                <!-- Mobile Menu Toggle -->
                 <button class="mobile-toggle" onclick="toggleMobileMenu()" aria-label="Toggle Menu">
                     <i class="fas fa-bars"></i>
                 </button>
@@ -846,7 +842,6 @@
     </nav>
 </header>
 
-<!-- Mobile Menu -->
 <div class="mobile-menu" id="mobileMenu">
     <div class="mobile-menu-header">
         <a href="/" class="brand-container">
@@ -860,7 +855,6 @@
         </button>
     </div>
     
-    <!-- Mobile Search -->
     <div class="mobile-search">
         <div class="search-container">
             <i class="fas fa-search search-icon"></i>
@@ -868,7 +862,6 @@
         </div>
     </div>
     
-    <!-- Mobile Navigation Links -->
     <div class="mobile-nav-links">
         <a href="/" class="mobile-nav-link">
             <i class="fas fa-home"></i> Home
@@ -878,7 +871,6 @@
         </a>
     </div>
     
-    <!-- Mobile Actions -->
     <div class="mobile-actions">
         <% if (user) { %>
             <a href="/wishlist" class="mobile-action-btn">
@@ -921,7 +913,6 @@
 </div>
 
 <script>
-    // FIXED GLOBAL BADGE UPDATE FUNCTIONS
     window.updateCartBadge = function(count) {
         console.log('Updating cart badge with count:', count);
         const badges = document.querySelectorAll('.cart-badge');
@@ -948,7 +939,6 @@
         });
     };
     
-    // FIXED FETCH FUNCTIONS
     window.fetchCartItemCount = function() {
         <% if (typeof user !== 'undefined' && user) { %>
         console.log('Fetching cart item count...');
@@ -995,7 +985,6 @@
         <% } %>
     };
 
-    // Mobile Menu Toggle
     function toggleMobileMenu() {
         const mobileMenu = document.getElementById('mobileMenu');
         const body = document.body;
@@ -1009,13 +998,11 @@
         }
     }
     
-    // User Menu Toggle
     function toggleUserMenu() {
         const userMenu = document.getElementById('userMenu');
         userMenu.classList.toggle('active');
     }
     
-    // Close user menu when clicking outside
     document.addEventListener('click', function(event) {
         const userMenu = document.getElementById('userMenu');
         if (userMenu && !userMenu.contains(event.target)) {
@@ -1023,14 +1010,12 @@
         }
     });
     
-    // Close mobile menu when clicking on links
     document.querySelectorAll('.mobile-nav-link, .mobile-action-btn').forEach(link => {
         link.addEventListener('click', () => {
             toggleMobileMenu();
         });
     });
     
-    // Header scroll effect
     window.addEventListener('scroll', function() {
         const header = document.getElementById('header');
         if (window.scrollY > 100) {
@@ -1040,7 +1025,6 @@
         }
     });
     
-    // Login Required Function
     function requireLogin(event, action) {
         <% if (typeof user === 'undefined' || !user) { %>
         event.preventDefault();
@@ -1065,7 +1049,6 @@
         <% } %>
     }
     
-    // Search Functionality
     function initializeSearch() {
         const searchBars = document.querySelectorAll('.search-bar');
         searchBars.forEach(searchBar => {
@@ -1080,10 +1063,8 @@
         });
     }
     
-    // Initialize on DOM Load
     document.addEventListener('DOMContentLoaded', function() {
         console.log('DOM loaded, initializing...');
-        // Fetch initial counts
         setTimeout(() => {
             window.fetchCartItemCount();
             window.fetchWishlistItemCount();
@@ -1091,7 +1072,6 @@
         
         initializeSearch();
         
-        // Add login requirement for guest users
         <% if (typeof user === 'undefined' || !user) { %>
         const cartLinks = document.querySelectorAll('a[href="/cart"]');
         cartLinks.forEach(link => {
@@ -1105,9 +1085,7 @@
         <% } %>
     });
     
-    // Keyboard Navigation
     document.addEventListener('keydown', function(e) {
-        // Close mobile menu with Escape key
         if (e.key === 'Escape') {
             const mobileMenu = document.getElementById('mobileMenu');
             const userMenu = document.getElementById('userMenu');

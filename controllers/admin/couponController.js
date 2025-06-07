@@ -43,10 +43,10 @@ const addCoupon = async (req, res) => {
       usageLimit,
     } = req.body
 
-    // Validation errors object
+    
     const errors = {}
 
-    // Validate required fields
+
     if (!code || code.trim() === "") {
       errors.code = "Coupon code is required"
     }
@@ -73,15 +73,14 @@ const addCoupon = async (req, res) => {
       errors.endDate = "End date is required"
     }
 
-    // Remove leading spaces but allow spaces between words
     const cleanedCode = code.trimStart()
 
-    // Validate coupon code format (alphanumeric and spaces allowed)
+    
     if (code && !/^[A-Za-z0-9\s]+$/.test(cleanedCode)) {
       errors.code = "Coupon code must contain only letters, numbers, and spaces"
     }
 
-    // Check if coupon code already exists
+  
     if (code && !errors.code) {
       const existingCoupon = await Coupon.findOne({
         code: cleanedCode.toUpperCase(),
@@ -92,7 +91,7 @@ const addCoupon = async (req, res) => {
       }
     }
 
-    // Validate dates
+    
     if (startDate && endDate) {
       const startDateTime = new Date(startDate)
       const endDateTime = new Date(endDate)
@@ -115,7 +114,7 @@ const addCoupon = async (req, res) => {
       }
     }
 
-    // Validate numeric fields
+   
     if (minPurchase && (isNaN(minPurchase) || Number(minPurchase) < 0)) {
       errors.minPurchase = "Minimum purchase must be a non-negative number"
     }
@@ -128,12 +127,12 @@ const addCoupon = async (req, res) => {
       errors.usageLimit = "Usage limit must be a positive number"
     }
 
-    // Validate discount amount vs minimum purchase for fixed discount type
+    
     if (discountType === "fixed" && discountAmount && minPurchase && Number(discountAmount) > Number(minPurchase)) {
       errors.discountAmount = "Discount amount cannot be greater than minimum purchase for fixed discounts"
     }
 
-    // Validate percentage discount (must be between 1 and 100)
+
     if (
       discountType === "percentage" &&
       discountAmount &&
@@ -142,7 +141,7 @@ const addCoupon = async (req, res) => {
       errors.discountAmount = "Percentage discount must be between 1 and 100"
     }
 
-    // If there are validation errors, return them
+
     if (Object.keys(errors).length > 0) {
       return res.status(400).json({
         success: false,
@@ -151,7 +150,7 @@ const addCoupon = async (req, res) => {
       })
     }
 
-    // Create and save the new coupon
+  
     const newCoupon = new Coupon({
       code: cleanedCode.toUpperCase(),
       description: description.trim(),
@@ -216,10 +215,10 @@ const updateCoupon = async (req, res) => {
       usageLimit,
     } = req.body
 
-    // Validation errors object
+    
     const errors = {}
 
-    // Validate required fields
+    
     if (!description || description.trim() === "") {
       errors.description = "Description is required"
     }
@@ -242,15 +241,15 @@ const updateCoupon = async (req, res) => {
       errors.endDate = "End date is required"
     }
 
-    // Clean the code by removing leading spaces but allow spaces between words
+   
     const cleanedCode = code ? code.trimStart() : ""
 
-    // Validate coupon code format if provided - FIXED: Now allows spaces like in addCoupon
+    
     if (code && !/^[A-Za-z0-9\s]+$/.test(cleanedCode)) {
       errors.code = "Coupon code must contain only letters, numbers, and spaces"
     }
 
-    // Check if coupon code already exists (excluding current coupon)
+    
     if (code && !errors.code) {
       const existingCoupon = await Coupon.findOne({
         code: cleanedCode.toUpperCase(),
@@ -262,7 +261,6 @@ const updateCoupon = async (req, res) => {
       }
     }
 
-    // Validate dates
     if (startDate && endDate) {
       const startDateTime = new Date(startDate)
       const endDateTime = new Date(endDate)
@@ -280,7 +278,7 @@ const updateCoupon = async (req, res) => {
       }
     }
 
-    // Validate numeric fields
+ 
     if (minPurchase && (isNaN(minPurchase) || Number(minPurchase) < 0)) {
       errors.minPurchase = "Minimum purchase must be a non-negative number"
     }
@@ -293,12 +291,12 @@ const updateCoupon = async (req, res) => {
       errors.usageLimit = "Usage limit must be a positive number"
     }
 
-    // Validate discount amount vs minimum purchase for fixed discount type
+   
     if (discountType === "fixed" && discountAmount && minPurchase && Number(discountAmount) > Number(minPurchase)) {
       errors.discountAmount = "Discount amount cannot be greater than minimum purchase for fixed discounts"
     }
 
-    // Validate percentage discount (must be between 1 and 100)
+   
     if (
       discountType === "percentage" &&
       discountAmount &&
@@ -307,7 +305,6 @@ const updateCoupon = async (req, res) => {
       errors.discountAmount = "Percentage discount must be between 1 and 100"
     }
 
-    // If there are validation errors, return them
     if (Object.keys(errors).length > 0) {
       return res.status(400).json({
         success: false,

@@ -1,5 +1,5 @@
 <div class="sidebar" id="sidebar">
-    <!-- Close button for mobile -->
+
     <button class="sidebar-close-btn d-lg-none" id="sidebarCloseBtn" aria-label="Close Sidebar">
         <i class="fas fa-times"></i>
     </button>
@@ -40,14 +40,13 @@
     </div>
 </div>
 
-<!-- Hamburger Toggle Button -->
 <button class="hamburger-toggle d-lg-none" id="hamburgerToggle" aria-label="Toggle Sidebar">
     <span class="hamburger-line"></span>
     <span class="hamburger-line"></span>
     <span class="hamburger-line"></span>
 </button>
 
-<!-- Overlay for mobile -->
+
 <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
 <style>
@@ -75,7 +74,7 @@
         min-height: 100vh;
     }
 
-    /* Sidebar */
+    
     .sidebar {
         width: var(--sidebar-width);
         background: linear-gradient(180deg, var(--primary-color) 0%, #3d2422 100%);
@@ -173,7 +172,7 @@
         overflow: hidden;
     }
 
-    /* Sidebar Close Button for Mobile */
+
     .sidebar-close-btn {
         position: absolute;
         top: 15px;
@@ -202,7 +201,7 @@
         font-size: 1rem;
     }
 
-    /* Hamburger Toggle Button */
+    
     .hamburger-toggle {
         position: fixed;
         top: calc(var(--header-height) + 15px);
@@ -236,14 +235,14 @@
         border-radius: 2px;
     }
 
-    /* Hide hamburger when sidebar is expanded */
+    
     .hamburger-toggle.hidden {
         opacity: 0;
         visibility: hidden;
         transform: scale(0.8);
     }
 
-    /* Sidebar Overlay */
+
     .sidebar-overlay {
         position: fixed;
         top: 0;
@@ -262,9 +261,7 @@
         visibility: visible;
     }
 
-    /* Responsive Design */
-
-    /* Large tablets and small desktops */
+    
     @media (max-width: 1200px) {
         :root {
             --sidebar-width: 220px;
@@ -292,7 +289,7 @@
         }
     }
 
-    /* Tablets and Mobile */
+    
     @media (max-width: 768px) {
         .content-wrapper {
             margin-left: 0;
@@ -313,7 +310,7 @@
         }
         
         .nav-items {
-            padding: 60px 0 20px 0; /* Add top padding to account for close button */
+            padding: 60px 0 20px 0; 
         }
         
         .sidebar .nav-item {
@@ -388,7 +385,7 @@
         }
     }
 
-    /* Header */
+    
     .header {
         height: var(--header-height);
         background: linear-gradient(135deg, #4a2c2a, #3d2422);
@@ -406,7 +403,7 @@
         border-bottom: 2px solid var(--accent-color);
     }
 
-    /* Hide close button on large screens */
+    
     @media (min-width: 769px) {
         .sidebar-close-btn {
             display: none !important;
@@ -417,14 +414,14 @@
         }
     }
 
-    /* Hide hamburger on large screens */
+    
     @media (min-width: 769px) {
         .hamburger-toggle {
             display: none !important;
         }
     }
 
-    /* Collapsed sidebar states */
+
     .sidebar-collapsed {
         width: 0;
         padding: 0;
@@ -435,7 +432,7 @@
         margin-left: 0;
     }
 
-    /* Smooth scrollbar for sidebar */
+
     .sidebar::-webkit-scrollbar {
         width: 6px;
     }
@@ -453,7 +450,7 @@
         background: #f4d03f;
     }
 
-    /* Animation for sidebar expansion */
+    
     .sidebar.expanding {
         animation: slideIn 0.3s ease-out;
     }
@@ -489,13 +486,13 @@ document.addEventListener('DOMContentLoaded', function() {
     const sidebarCloseBtn = document.getElementById('sidebarCloseBtn');
     
     if (hamburgerToggle && sidebar && sidebarOverlay) {
-        // Toggle sidebar on hamburger click
+        
         hamburgerToggle.addEventListener('click', function(e) {
             e.stopPropagation();
             toggleSidebar();
         });
         
-        // Close sidebar on close button click
+        
         if (sidebarCloseBtn) {
             sidebarCloseBtn.addEventListener('click', function(e) {
                 e.stopPropagation();
@@ -503,12 +500,12 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
         
-        // Close sidebar when clicking overlay
+    
         sidebarOverlay.addEventListener('click', function() {
             closeSidebar();
         });
         
-        // Close sidebar when clicking outside on mobile
+        
         document.addEventListener('click', function(e) {
             if (window.innerWidth <= 768) {
                 const isClickInsideSidebar = sidebar.contains(e.target);
@@ -520,14 +517,14 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
         
-        // Handle window resize
+        
         window.addEventListener('resize', function() {
             if (window.innerWidth > 768) {
                 closeSidebar();
             }
         });
         
-        // Handle escape key
+        
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape' && sidebar.classList.contains('expanded')) {
                 closeSidebar();
@@ -545,11 +542,11 @@ document.addEventListener('DOMContentLoaded', function() {
     
     function openSidebar() {
         sidebar.classList.add('expanded', 'expanding');
-        hamburgerToggle.classList.add('hidden'); // Hide hamburger when sidebar opens
+        hamburgerToggle.classList.add('hidden'); 
         sidebarOverlay.classList.add('active');
         document.body.style.overflow = 'hidden';
         
-        // Remove animation class after animation completes
+        
         setTimeout(() => {
             sidebar.classList.remove('expanding');
         }, 300);
@@ -558,11 +555,11 @@ document.addEventListener('DOMContentLoaded', function() {
     function closeSidebar() {
         sidebar.classList.add('collapsing');
         sidebar.classList.remove('expanded');
-        hamburgerToggle.classList.remove('hidden'); // Show hamburger when sidebar closes
+        hamburgerToggle.classList.remove('hidden'); 
         sidebarOverlay.classList.remove('active');
         document.body.style.overflow = '';
         
-        // Remove animation class after animation completes
+      
         setTimeout(() => {
             sidebar.classList.remove('collapsing');
         }, 300);

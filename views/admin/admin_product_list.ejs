@@ -1,7 +1,7 @@
 <%- include('../partials/admin/header') %>
 
 <style>
-  /* CSS Variables */
+ 
   :root {
     --primary-color: #6a3e20;
     --secondary-color: #c49b63;
@@ -13,7 +13,6 @@
     --warning-color: #ffc107;
   }
 
-  /* Base Layout */
   .admin-layout {
     display: flex;
     min-height: 100vh;
@@ -29,7 +28,7 @@
     box-sizing: border-box;
   }
 
-  /* Page Header */
+
   .page-header {
     background-color: white;
     border-radius: 8px;
@@ -58,7 +57,7 @@
     flex-wrap: wrap;
   }
 
-  /* Search Form */
+ 
   .search-form {
     min-width: 280px;
     flex: 1;
@@ -115,7 +114,7 @@
     color: #495057;
   }
 
-  /* Add Product Button */
+
   .add-product-btn {
     background-color: var(--secondary-color);
     border: none;
@@ -138,7 +137,7 @@
     box-shadow: 0 4px 8px rgba(0,0,0,0.1);
   }
 
-  /* Table Container */
+  
   .table-container {
     background-color: white;
     border-radius: 8px;
@@ -183,7 +182,7 @@
     background-color: rgba(196, 155, 99, 0.05);
   }
 
-  /* Product Image */
+
   .product-image {
     width: 70px;
     height: 70px;
@@ -210,7 +209,7 @@
     text-align: center;
   }
 
-  /* Product Details */
+ 
   .product-name {
     font-weight: 600;
     color: var(--dark-color);
@@ -231,7 +230,6 @@
     gap: 0.25rem;
   }
 
-  /* Variants */
   .variant-container {
     max-width: 300px;
   }
@@ -270,7 +268,7 @@
     white-space: nowrap;
   }
 
-  /* Status Badge */
+
   .status-badge {
     padding: 5px 10px;
     border-radius: 20px;
@@ -291,7 +289,6 @@
     color: #dc3545;
   }
 
-  /* Action Buttons */
   .action-buttons {
     display: flex;
     flex-direction: column;
@@ -339,7 +336,7 @@
     box-shadow: 0 3px 5px rgba(0,0,0,0.1);
   }
 
-  /* Modal Styles */
+  
   .modal-content {
     border-radius: 8px;
     box-shadow: 0 5px 15px rgba(0,0,0,0.1);
@@ -396,7 +393,7 @@
     cursor: not-allowed;
   }
 
-  /* Pagination */
+ 
   .pagination-wrapper {
     display: flex;
     justify-content: center;
@@ -450,7 +447,7 @@
     opacity: 0.6;
   }
 
-  /* Info Text */
+  
   .products-count {
     text-align: center;
     color: var(--dark-color);
@@ -459,7 +456,7 @@
     margin-top: 1rem;
   }
 
-  /* Responsive Design */
+  
   @media (max-width: 1200px) {
     .main-content {
       margin-left: 200px;
@@ -688,7 +685,7 @@
     <%- include('../partials/admin/sidebar', { activePage: 'products' }) %>
 
     <main class="main-content">
-      <!-- Page Header -->
+    
       <div class="page-header">
         <h1 class="page-title">Products</h1>
         <div class="header-actions">
@@ -712,7 +709,7 @@
         </div>
       </div>
 
-      <!-- Products Table -->
+    
       <div class="table-container">
         <div class="table-responsive">
           <table class="product-table">
@@ -784,7 +781,7 @@
         </div>
       </div>
 
-      <!-- Offer Modal -->
+   
       <div class="modal fade" id="offerModal" tabindex="-1" aria-labelledby="offerModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
           <div class="modal-content">
@@ -805,7 +802,7 @@
         </div>
       </div>
 
-      <!-- Pagination -->
+     
       <% if (totalPages > 1) { %>
         <div class="pagination-wrapper">
           <ul class="pagination">

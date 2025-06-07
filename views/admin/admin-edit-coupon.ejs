@@ -194,7 +194,7 @@
         <div class="form-container">
             <h2 class="page-title">Edit Coupon</h2>
             <form id="editCouponForm" novalidate>
-                <!-- Basic Information -->
+    
                 <div class="form-row">
                     <div class="form-col mb-3">
                         <label for="code" class="form-label">Coupon Code*</label>
@@ -216,8 +216,7 @@
                     <textarea class="form-control" id="description" name="description" rows="2" required><%= coupon.description %></textarea>
                     <div class="invalid-feedback" id="description-error">Please enter a description.</div>
                 </div>
-                
-                <!-- Discount Settings -->
+               
                 <div class="form-row">
                     <div class="form-col mb-3">
                         <label for="discountAmount" class="form-label">Discount Amount / Percentage*</label>
@@ -249,7 +248,7 @@
                     </div>
                 </div>
                 
-                <!-- Validity & Usage -->
+              
                 <div class="form-row">
                     <div class="form-col mb-3">
                         <label for="startDate" class="form-label">Start Date*</label>

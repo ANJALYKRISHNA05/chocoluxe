@@ -59,7 +59,6 @@ exports.addProduct = async (req, res) => {
 
     const errors = []
 
-    // Validate product name uniqueness
     const existingProduct = await Product.findOne({
       productName: { $regex: new RegExp(`^${productName.trim()}$`, "i") },
     })
@@ -68,17 +67,14 @@ exports.addProduct = async (req, res) => {
       errors.push({ msg: "Product name already exists. Please provide another name." })
     }
 
-    // Validate product name
     if (!productName || productName.trim().length < 3) {
       errors.push({ msg: "Product name must be at least 3 characters long." })
     }
 
-    // Validate description
     if (!description || description.trim().length < 10) {
       errors.push({ msg: "Description must be at least 10 characters long." })
     }
 
-    // Validate category
     if (!category) {
       errors.push({ msg: "Please select a category." })
     }
@@ -91,7 +87,6 @@ exports.addProduct = async (req, res) => {
       parsedVariants = []
     }
 
-    // Validate variants
     if (!parsedVariants || parsedVariants.length === 0) {
       errors.push({ msg: "At least one variant is required." })
     }
@@ -106,11 +101,9 @@ exports.addProduct = async (req, res) => {
       }
     })
 
-    // Validate each variant
     parsedVariants = parsedVariants.map((variant, index) => {
       const images = variantImages[index] || []
 
-      // Validate required fields
       if (!variant.flavor) {
         errors.push({ msg: `Variant ${index + 1}: Flavor is required.` })
       }
@@ -130,7 +123,6 @@ exports.addProduct = async (req, res) => {
         errors.push({ msg: `Variant ${index + 1}: Valid sale price is required.` })
       }
 
-      // Validate price relationship
       if (
         variant.regularPrice &&
         variant.salePrice &&
@@ -139,7 +131,6 @@ exports.addProduct = async (req, res) => {
         errors.push({ msg: `Variant ${index + 1}: Sale price should not be greater than regular price.` })
       }
 
-      // Validate offer percentage
       if (
         variant.productOffer &&
         (isNaN(variant.productOffer) || variant.productOffer < 0 || variant.productOffer > 100)
@@ -147,7 +138,6 @@ exports.addProduct = async (req, res) => {
         errors.push({ msg: `Variant ${index + 1}: Offer percentage must be between 0 and 100.` })
       }
 
-      // Validate images
       if (images.length < 3) {
         errors.push({ msg: `Variant ${index + 1}: Minimum 3 images are required.` })
       }
@@ -209,7 +199,6 @@ exports.editProduct = async (req, res) => {
       errors.push({ msg: "Product not found." })
     }
 
-    // Validate product name uniqueness (excluding current product)
     const existingProduct = await Product.findOne({
       productName: { $regex: new RegExp(`^${productName.trim()}$`, "i") },
       _id: { $ne: req.params.id },
@@ -219,17 +208,16 @@ exports.editProduct = async (req, res) => {
       errors.push({ msg: "Product name already exists. Please provide another name." })
     }
 
-    // Validate product name
+
     if (!productName || productName.trim().length < 3) {
       errors.push({ msg: "Product name must be at least 3 characters long." })
     }
 
-    // Validate description
+   
     if (!description || description.trim().length < 10) {
       errors.push({ msg: "Description must be at least 10 characters long." })
     }
 
-    // Validate category
     if (!category) {
       errors.push({ msg: "Please select a category." })
     }
@@ -242,7 +230,7 @@ exports.editProduct = async (req, res) => {
       parsedVariants = []
     }
 
-    // Parse deleted images
+    
     let deletedImagesList = []
     if (deletedImages) {
       try {
@@ -262,19 +250,19 @@ exports.editProduct = async (req, res) => {
       }
     })
 
-    // Validate each variant
+
     parsedVariants = parsedVariants.map((variant, index) => {
       const newImages = variantImages[index] || []
       const existingImages = product.variants[index]?.productImage || []
 
-      // Filter out deleted images
+    
       const remainingImages = existingImages.filter(
         (img) => !deletedImagesList.some((deleted) => deleted.variantIndex == index && deleted.imageUrl === img),
       )
 
       const totalImages = remainingImages.length + newImages.length
 
-      // Validate required fields
+  
       if (!variant.flavor) {
         errors.push({ msg: `Variant ${index + 1}: Flavor is required.` })
       }
@@ -294,7 +282,7 @@ exports.editProduct = async (req, res) => {
         errors.push({ msg: `Variant ${index + 1}: Valid sale price is required.` })
       }
 
-      // Validate price relationship
+      
       if (
         variant.regularPrice &&
         variant.salePrice &&
@@ -303,7 +291,7 @@ exports.editProduct = async (req, res) => {
         errors.push({ msg: `Variant ${index + 1}: Sale price should not be greater than regular price.` })
       }
 
-      // Validate offer percentage
+      
       if (
         variant.productOffer &&
         (isNaN(variant.productOffer) || variant.productOffer < 0 || variant.productOffer > 100)
@@ -311,7 +299,6 @@ exports.editProduct = async (req, res) => {
         errors.push({ msg: `Variant ${index + 1}: Offer percentage must be between 0 and 100.` })
       }
 
-      // Validate total images
       if (totalImages < 3) {
         errors.push({ msg: `Variant ${index + 1}: Minimum 3 images are required.` })
       }
@@ -338,7 +325,6 @@ exports.editProduct = async (req, res) => {
       })
     }
 
-    // Delete images from cloudinary
     for (const deletedImage of deletedImagesList) {
       try {
         const publicId = deletedImage.imageUrl.split("/").pop().split(".")[0]

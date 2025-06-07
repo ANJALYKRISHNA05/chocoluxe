@@ -31,7 +31,7 @@
       min-height: 100vh;
     }
 
-    /* Navbar Styles */
+  
     .navbar {
       background-color: var(--primary);
       padding: 15px 20px;
@@ -137,7 +137,7 @@
       display: block;
     }
 
-    /* Content Container */
+    
     .content-container {
       display: flex;
       flex: 1;
@@ -147,7 +147,7 @@
       width: 100%;
     }
 
-    /* Mobile Sidebar Overlay */
+    
     .sidebar-overlay {
       display: none;
       position: fixed;
@@ -200,7 +200,7 @@
       padding: 5px;
     }
 
-    /* Mobile Menu Button */
+    
     .mobile-menu-btn {
       background-color: var(--primary);
       color: white;
@@ -230,7 +230,7 @@
       box-shadow: 0 0 0 3px rgba(74, 44, 42, 0.2);
     }
 
-    /* Order Container Styles */
+    
     .order-container {
       max-width: 1000px;
       margin: 0 auto;
@@ -393,7 +393,7 @@
       height: 100%;
     }
 
-    /* Status Tracker */
+  
     .status-tracker {
       overflow-x: auto;
       padding: 10px 0;
@@ -478,7 +478,7 @@
       color: var(--primary);
     }
 
-    /* Order Items */
+    
     .order-item {
       border: 1px solid #dee2e6;
       border-radius: 10px;
@@ -555,7 +555,7 @@
       }
     }
 
-    /* Order Summary */
+    
     .order-summary {
       border-top: 1px solid #dee2e6;
       padding-top: 20px;
@@ -584,7 +584,7 @@
       color: var(--primary);
     }
 
-    /* Alerts */
+    
     .alert {
       border-radius: 10px;
       padding: 15px;
@@ -607,7 +607,7 @@
       color: #721c24;
     }
 
-    /* Modal Styles */
+    
     .modal-content {
       border-radius: 10px;
       border: none;
@@ -648,13 +648,13 @@
       outline: none;
     }
 
-    /* Toast Styles */
+    
     .toast {
       border-radius: 8px;
       box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     }
 
-    /* Footer */
+  
     .footer {
       background-color: var(--primary);
       color: white;
@@ -688,7 +688,7 @@
       color: white;
     }
 
-    /* Responsive Design */
+    
     @media (max-width: 1024px) {
       .order-container {
         padding: 25px;
@@ -787,7 +787,7 @@
       }
     }
 
-    /* Utility Classes */
+  
     .d-none-mobile {
       display: block;
     }
@@ -802,10 +802,10 @@
 <body>
   <%- include('../partials/user/header') %>
   
-  <!-- Mobile Sidebar Overlay -->
+  
   <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeMobileSidebar()"></div>
   
-  <!-- Mobile Sidebar -->
+  
   <div class="sidebar-mobile" id="mobileSidebar">
     <div class="sidebar-header">
       <h3>Menu</h3>
@@ -819,7 +819,6 @@
   </div>
 
   <div class="container py-4">
-    <!-- Mobile Menu Button -->
     <div class="d-block d-md-none">
       <button class="mobile-menu-btn" onclick="openMobileSidebar()">
         <i class="fas fa-bars"></i> Menu
@@ -993,7 +992,7 @@
     </div>
   </div>
 
-  <!-- Cancel Modal -->
+  
   <div id="cancelModal" class="modal fade" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
@@ -1015,7 +1014,7 @@
     </div>
   </div>
 
-  <!-- Return Modal -->
+  
   <div id="returnModal" class="modal fade" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
@@ -1067,7 +1066,6 @@
       document.body.style.overflow = 'auto';
     }
 
-    // Close user menu when clicking outside
     document.addEventListener('click', function(event) {
       const userMenu = document.querySelector('.user-menu');
       if (userMenu) {
@@ -1078,14 +1076,12 @@
       }
     });
 
-    // Close mobile sidebar on window resize
     window.addEventListener('resize', function() {
       if (window.innerWidth > 768) {
         closeMobileSidebar();
       }
     });
 
-    // Handle escape key to close mobile sidebar
     document.addEventListener('keydown', function(event) {
       if (event.key === 'Escape') {
         closeMobileSidebar();

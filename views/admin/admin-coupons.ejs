@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
-        /* Base styles */
+     
         .content-wrapper {
             margin-left: 250px;
             padding: 20px;
@@ -31,14 +31,14 @@
             padding: 5px 10px;
         }
 
-        /* Action buttons container */
+     
         .action-buttons {
             display: flex;
             gap: 5px;
             flex-wrap: nowrap;
         }
 
-        /* Card layout for mobile */
+     
         .coupon-card {
             display: none;
             border: 1px solid #dee2e6;
@@ -86,7 +86,7 @@
             font-weight: 500;
         }
 
-        /* Form validation styles */
+   
         .is-invalid {
             border-color: #dc3545;
             padding-right: calc(1.5em + 0.75rem);
@@ -111,7 +111,7 @@
             display: block;
         }
 
-        /* Responsive breakpoints */
+     
         @media (max-width: 1200px) {
             .content-wrapper {
                 margin-left: 200px;
@@ -263,7 +263,7 @@
             </button>
         </div>
 
-        <!-- Desktop/Tablet Table View -->
+       
         <div class="table-responsive">
             <table class="table table-bordered table-hover">
                 <thead class="table-dark">
@@ -319,7 +319,7 @@
             </table>
         </div>
 
-        <!-- Mobile Card View -->
+       
         <div class="mobile-cards">
             <% coupons.forEach(coupon => { %>
                 <div class="coupon-card">
@@ -383,7 +383,7 @@
             <% }) %>
         </div>
 
-        <!-- Pagination -->
+       
         <nav aria-label="Page navigation" class="mt-4">
             <ul class="pagination justify-content-center flex-wrap">
                 <% if (pagination.hasPrevPage) { %>
@@ -411,7 +411,7 @@
         </nav>
     </div>
 
-    <!-- Add Coupon Modal -->
+
     <div class="modal fade" id="addCouponModal" tabindex="-1" aria-labelledby="addCouponModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
@@ -495,13 +495,13 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Set min date for date inputs to today
+  
         document.addEventListener('DOMContentLoaded', function() {
             const today = new Date().toISOString().split('T')[0];
             document.getElementById('startDate').min = today;
             document.getElementById('endDate').min = today;
             
-            // Add event listener to discount type to update validation rules
+           
             document.getElementById('discountType').addEventListener('change', function() {
                 const discountType = this.value;
                 const discountAmountInput = document.getElementById('discountAmount');
@@ -515,7 +515,7 @@
                 }
             });
             
-            // Add event listener to end date to ensure it's after start date
+       
             document.getElementById('endDate').addEventListener('change', function() {
                 const startDate = document.getElementById('startDate').value;
                 if (startDate && this.value < startDate) {
@@ -525,7 +525,7 @@
                 }
             });
             
-            // Add event listener to start date to update end date min
+          
             document.getElementById('startDate').addEventListener('change', function() {
                 const endDateInput = document.getElementById('endDate');
                 endDateInput.min = this.value;
@@ -536,12 +536,12 @@
             });
         });
 
-        // Client-side validation function
+     
         function validateForm(formData) {
             let isValid = true;
             const errors = {};
             
-            // Reset previous validation state
+        
             const formElements = document.getElementById('addCouponForm').elements;
             for (let i = 0; i < formElements.length; i++) {
                 const element = formElements[i];
@@ -550,10 +550,10 @@
                 }
             }
             
-            // Hide general error message
+        
             document.getElementById('form-error-message').classList.add('d-none');
             
-            // Validate required fields
+          
             const code = formData.get('code');
             if (!code || code.trim() === '') {
                 document.getElementById('code').classList.add('is-invalid');
@@ -682,7 +682,7 @@
             e.preventDefault();
             const formData = new FormData(e.target);
             
-            // Client-side validation
+          
             const { isValid } = validateForm(formData);
             
             if (!isValid) {
@@ -706,7 +706,7 @@
                         text: result.message,
                     }).then(() => location.reload());
                 } else {
-                    // Handle server-side validation errors
+              
                     if (result.errors) {
                         Object.keys(result.errors).forEach(field => {
                             const element = document.getElementById(field);
@@ -816,7 +816,7 @@
             });
         }
 
-        // Real-time validation feedback
+   
         document.querySelectorAll('#addCouponForm input, #addCouponForm select, #addCouponForm textarea').forEach(element => {
             element.addEventListener('input', function() {
                 if (this.classList.contains('is-invalid')) {

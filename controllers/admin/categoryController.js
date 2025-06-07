@@ -82,7 +82,6 @@ const categoryController = {
       errors.name = "Category name can only contain letters, numbers, spaces, & and -"
     }
 
-    // Validate description
     if (!description || description.trim() === "") {
       errors.description = "Description is required"
     } else if (description.trim().length < 10) {
@@ -91,7 +90,7 @@ const categoryController = {
       errors.description = "Description must not exceed 500 characters"
     }
 
-    // Validate category offer
+
     if (categoryOffer === undefined || categoryOffer === null || categoryOffer === "") {
       errors.categoryOffer = "Category offer is required"
     } else {
@@ -107,19 +106,19 @@ const categoryController = {
       }
     }
 
-    // Validate image (only for add, not edit since image is optional in edit)
+    
     if (!isEdit && !req.file) {
       errors.image = "Category image is required"
     }
 
-    // Validate image file type if provided
+
     if (req.file) {
       const allowedTypes = ["image/jpeg", "image/jpg", "image/png", "image/gif", "image/webp"]
       if (!allowedTypes.includes(req.file.mimetype)) {
         errors.image = "Please upload a valid image file (JPEG, PNG, GIF, or WebP)"
       }
 
-      // Check file size (5MB limit)
+     
       if (req.file.size > 5 * 1024 * 1024) {
         errors.image = "Image file size must not exceed 5MB"
       }
@@ -135,10 +134,8 @@ const categoryController = {
         const { name, description, categoryOffer } = req.body
         const isListed = req.body.isListed === "on"
 
-        // Validate input data
         const validationErrors = categoryController.validateCategoryData(req, false)
 
-        // Check for duplicate category name
         if (!validationErrors.name && name) {
           const existingCategory = await Category.findOne({
            name: { $regex: new RegExp(`^${name.trim()}$`, "i") },
@@ -150,7 +147,7 @@ const categoryController = {
           }
         }
 
-        // If there are validation errors, return to form with errors
+       
         if (Object.keys(validationErrors).length > 0) {
           return res.render("admin/admin_category_form", {
             error: "Please correct the errors below",
@@ -207,16 +204,16 @@ const categoryController = {
         const isListed = req.body.isListed === "on"
         const categoryId = req.params.id
 
-        // Get existing category
+        
         const existingCategory = await Category.findById(categoryId)
         if (!existingCategory) {
           return res.redirect("/admin/category")
         }
 
-        // Validate input data
+     
         const validationErrors = categoryController.validateCategoryData(req, true)
 
-        // Check for duplicate category name (excluding current category)
+    
         if (!validationErrors.name && name) {
           const duplicateCategory = await Category.findOne({
          
@@ -229,7 +226,7 @@ const categoryController = {
           }
         }
 
-        // If there are validation errors, return to form with errors
+      
         if (Object.keys(validationErrors).length > 0) {
           return res.render("admin/admin_category_form", {
             error: "Please correct the errors below",

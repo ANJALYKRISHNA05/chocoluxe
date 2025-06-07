@@ -1,7 +1,7 @@
 <%- include('../partials/admin/header') %>
 
 <style>
-  /* Base styles */
+  
   .content-wrapper {
     margin-left: 250px;
     padding: 20px;
@@ -116,7 +116,7 @@
     border-color: #3d2a23;
   }
 
-  /* Card layout for mobile */
+  
   .user-card {
     display: none;
     border: 1px solid #dee2e6;
@@ -173,9 +173,7 @@
     border-radius: 5px;
   }
 
-  /* Responsive breakpoints */
   
-  /* Large tablets and small desktops */
   @media (max-width: 1200px) {
     .content-wrapper {
       margin-left: 200px;
@@ -187,7 +185,7 @@
     }
   }
 
-  /* Tablets */
+  
   @media (max-width: 992px) {
     .content-wrapper {
       margin-left: 0;
@@ -204,13 +202,13 @@
     }
   }
 
-  /* Small tablets and large phones */
+  
   @media (max-width: 768px) {
     .content-wrapper {
       padding: 10px;
     }
     
-    /* Hide table, show cards */
+  
     .table-responsive {
       display: none;
     }
@@ -246,7 +244,7 @@
     }
   }
 
-  /* Mobile phones */
+  
   @media (max-width: 576px) {
     .content-wrapper {
       padding: 8px;
@@ -275,7 +273,7 @@
     }
   }
 
-  /* Extra small devices */
+  
   @media (max-width: 400px) {
     .content-wrapper {
       padding: 5px;
@@ -294,7 +292,7 @@
     }
   }
 
-  /* Landscape orientation adjustments */
+  
   @media (max-height: 500px) and (orientation: landscape) {
     .content-wrapper {
       margin-top: 50px;
@@ -351,7 +349,7 @@
             </div>
             
             <div class="card-body">
-              <!-- Desktop/Tablet Table View -->
+        
               <div class="table-responsive">
                 <table id="usersTable" class="table table-bordered table-striped">
                   <thead>
@@ -399,7 +397,7 @@
                 </table>
               </div>
 
-              <!-- Mobile Card View -->
+            
               <div class="mobile-cards">
                 <% if (users && users.length > 0) { %>
                   <% users.forEach((user, index) => { %>
@@ -450,7 +448,7 @@
                 <% } %>
               </div>
               
-              <!-- Pagination -->
+           
               <% if (totalPages > 1) { %>
                 <nav aria-label="Page navigation" class="mt-4">
                   <ul class="pagination flex-wrap">

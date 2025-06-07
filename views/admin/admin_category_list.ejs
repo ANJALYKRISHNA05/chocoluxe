@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
-        /* Base styles */
+    
         .content-wrapper {
             margin-left: 250px;
             padding: 20px;
@@ -36,7 +36,7 @@
             flex-wrap: nowrap;
         }
 
-        /* Card layout for mobile */
+      
         .category-card {
             display: none;
             border: 1px solid #dee2e6;
@@ -107,9 +107,9 @@
             margin-bottom: 20px;
         }
 
-        /* Responsive breakpoints */
+       
         
-        /* Large tablets and small desktops */
+     
         @media (max-width: 1200px) {
             .content-wrapper {
                 margin-left: 200px;
@@ -126,7 +126,7 @@
             }
         }
 
-        /* Tablets */
+
         @media (max-width: 992px) {
             .content-wrapper {
                 margin-left: 0;
@@ -148,19 +148,19 @@
                 justify-content: center;
             }
             
-            /* Hide less important columns on tablets */
+           
             .table .d-md-none {
                 display: none !important;
             }
         }
 
-        /* Small tablets and large phones */
+     
         @media (max-width: 768px) {
             .content-wrapper {
                 padding: 10px;
             }
             
-            /* Hide table, show cards */
+          
             .table-responsive {
                 display: none;
             }
@@ -201,7 +201,7 @@
             }
         }
 
-        /* Mobile phones */
+   
         @media (max-width: 576px) {
             .content-wrapper {
                 padding: 8px;
@@ -249,7 +249,7 @@
             }
             
             .modal-body .form-control {
-                font-size: 16px; /* Prevents zoom on iOS */
+                font-size: 16px; 
             }
             
             h1 {
@@ -259,7 +259,7 @@
             }
         }
 
-        /* Extra small devices */
+        
         @media (max-width: 400px) {
             .content-wrapper {
                 padding: 5px;
@@ -281,7 +281,7 @@
             }
         }
 
-        /* Landscape orientation adjustments */
+        
         @media (max-height: 500px) and (orientation: landscape) {
             .content-wrapper {
                 margin-top: 50px;
@@ -294,7 +294,7 @@
             }
         }
 
-        /* Status badge improvements */
+       
         .status-badge {
             padding: 6px 12px;
             border-radius: 20px;
@@ -312,7 +312,7 @@
             color: #721c24;
         }
 
-        /* Offer badge */
+     
         .offer-badge {
             background-color: #fff3cd;
             color: #856404;
@@ -352,7 +352,7 @@
                         </form>
                     </div>
 
-                    <!-- Desktop/Tablet Table View -->
+               
                     <div class="table-responsive">
                         <table class="table table-striped table-sm">
                             <thead class="table-dark">
@@ -421,7 +421,7 @@
                         </table>
                     </div>
 
-                    <!-- Mobile Card View -->
+               
                     <div class="mobile-cards">
                         <% categories.forEach((category) => { %>
                             <div class="category-card">
@@ -476,7 +476,7 @@
                         <% }) %>
                     </div>
 
-                    <!-- Category Offer Modal -->
+                
                     <div class="modal fade" id="categoryOfferModal" tabindex="-1" aria-labelledby="categoryOfferModalLabel" aria-hidden="true">
                         <div class="modal-dialog">
                             <div class="modal-content">
@@ -509,7 +509,7 @@
                         </div>
                     </div>
 
-                    <!-- Pagination -->
+                  
                     <% if (totalPages > 1) { %>
                         <nav aria-label="Page navigation" class="mt-4">
                             <ul class="pagination justify-content-center flex-wrap">

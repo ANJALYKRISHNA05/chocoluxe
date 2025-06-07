@@ -189,7 +189,7 @@
         const imageInput = document.getElementById('image');
         const descriptionCount = document.getElementById('description-count');
         
-        // Update character count for description
+
         function updateDescriptionCount() {
             const count = descriptionInput.value.length;
             descriptionCount.textContent = count;
@@ -197,11 +197,11 @@
         }
         
         descriptionInput.addEventListener('input', updateDescriptionCount);
-        updateDescriptionCount(); // Initial count
+        updateDescriptionCount(); 
         
-        // Auto-format category name
+        
         nameInput.addEventListener('input', function() {
-            // Remove validation error if field becomes valid
+          
             if (this.classList.contains('is-invalid')) {
                 const value = this.value.trim();
                 if (value.length >= 2 && value.length <= 50 && /^[a-zA-Z0-9\s&-]+$/.test(value)) {
@@ -210,12 +210,12 @@
             }
         });
         
-        // Validate file input
+      
         imageInput.addEventListener('change', function() {
             const file = this.files[0];
             if (file) {
                 const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
-                const maxSize = 5 * 1024 * 1024; // 5MB
+                const maxSize = 5 * 1024 * 1024; 
                 
                 if (!allowedTypes.includes(file.type)) {
                     this.classList.add('is-invalid');
@@ -229,12 +229,12 @@
             }
         });
         
-        // Client-side validation function
+       
         function validateForm() {
             let isValid = true;
             const errors = {};
             
-            // Reset previous validation state
+          
             const formElements = form.elements;
             for (let i = 0; i < formElements.length; i++) {
                 const element = formElements[i];
@@ -243,10 +243,10 @@
                 }
             }
             
-            // Hide general error message
+          
             document.getElementById('form-error-message').classList.add('d-none');
             
-            // Validate name
+        
             const name = nameInput.value.trim();
             if (!name) {
                 nameInput.classList.add('is-invalid');
@@ -270,7 +270,7 @@
                 isValid = false;
             }
             
-            // Validate description
+
             const description = descriptionInput.value.trim();
             if (!description) {
                 descriptionInput.classList.add('is-invalid');
@@ -289,7 +289,7 @@
                 isValid = false;
             }
             
-            // Validate category offer
+            
             const categoryOffer = categoryOfferInput.value;
             if (categoryOffer === '' || categoryOffer === null || categoryOffer === undefined) {
                 categoryOfferInput.classList.add('is-invalid');
@@ -321,7 +321,7 @@
                 }
             }
             
-            // Validate image (only for add form)
+            
             const isEditForm = <%= category ? 'true' : 'false' %>;
             if (!isEditForm && !imageInput.files[0]) {
                 imageInput.classList.add('is-invalid');
@@ -338,19 +338,18 @@
             return isValid;
         }
         
-        // Form submission
+        
         form.addEventListener('submit', function(e) {
             if (!validateForm()) {
                 e.preventDefault();
                 return false;
             }
         });
-        
-        // Add input event listeners for real-time validation feedback
+
         document.querySelectorAll('#categoryForm input, #categoryForm textarea').forEach(element => {
             element.addEventListener('input', function() {
                 if (this.classList.contains('is-invalid')) {
-                    // Remove error class if field becomes valid
+                    
                     setTimeout(() => {
                         if (this.checkValidity()) {
                             this.classList.remove('is-invalid');

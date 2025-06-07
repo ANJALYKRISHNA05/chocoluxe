@@ -1,7 +1,7 @@
 <%- include('../partials/admin/header') %>
 
 <style>
-  /* Base Layout Styles */
+
   .admin-layout {
     display: flex;
     min-height: 100vh;
@@ -15,11 +15,11 @@
     padding: 1.5rem;
     overflow-x: hidden;
     width: calc(100vw - 250px);
-    min-width: 0; /* Prevents flex item from overflowing */
+    min-width: 0; 
     box-sizing: border-box;
   }
 
-  /* Header Styles */
+ 
   .page-header {
     display: flex;
     justify-content: between;
@@ -36,7 +36,7 @@
     margin: 0;
   }
 
-  /* Search Form Styles */
+ 
   .search-card {
     background: #fff;
     border-radius: 0.5rem;
@@ -115,7 +115,7 @@
     font-size: 0.75rem;
   }
 
-  /* Table Styles */
+ 
   .table-container {
     background: #fff;
     border-radius: 0.5rem;
@@ -162,7 +162,7 @@
     background-color: #f8f9fa;
   }
 
-  /* Badge Styles */
+  
   .status-badge {
     padding: 0.25rem 0.5rem;
     border-radius: 0.25rem;
@@ -187,7 +187,7 @@
     color: #721c24;
   }
 
-  /* Pagination Styles */
+
   .pagination-wrapper {
     display: flex;
     justify-content: center;
@@ -242,7 +242,7 @@
     opacity: 0.6;
   }
 
-  /* Info Text */
+ 
   .info-text {
     text-align: center;
     color: #6c757d;
@@ -251,7 +251,7 @@
     width: 100%;
   }
 
-  /* Responsive Design */
+ 
   @media (max-width: 1200px) {
     .main-content {
       margin-left: 200px;
@@ -358,7 +358,7 @@
     }
   }
 
-  /* Extra small mobile devices */
+
   @media (max-width: 480px) {
     .main-content {
       margin-left: 65px;
@@ -381,7 +381,7 @@
     }
   }
 
-  /* Very small mobile devices */
+ 
   @media (max-width: 400px) {
     .main-content {
       margin-left: 60px;
@@ -402,7 +402,7 @@
     }
   }
 
-  /* Ultra small screens */
+  
   @media (max-width: 360px) {
     .main-content {
       margin-left: 55px;
@@ -421,7 +421,7 @@
     }
   }
 
-  /* Ensure content never goes below sidebar on any screen */
+  
   @media (max-width: 320px) {
     .main-content {
       margin-left: 50px;
@@ -430,7 +430,7 @@
     }
   }
 
-  /* Force proper layout on very small screens */
+  
   @media (max-width: 280px) {
     .main-content {
       margin-left: 45px;
@@ -454,12 +454,12 @@
     <%- include('../partials/admin/sidebar', { activePage: 'orders' }) %>
 
     <main class="main-content">
-      <!-- Page Header -->
+   
       <div class="page-header">
         <h1 class="page-title">Orders Management</h1>
       </div>
 
-      <!-- Search Form -->
+     
       <div class="search-card">
         <form method="GET" action="/admin/orders" class="search-form">
           <div class="form-group">
@@ -504,7 +504,7 @@
         </form>
       </div>
 
-      <!-- Orders Table -->
+   
       <div class="table-container">
         <div class="table-responsive">
           <table class="orders-table">
@@ -542,7 +542,7 @@
         </div>
       </div>
 
-      <!-- Pagination -->
+     
       <% if (totalPages > 1) { %>
         <div class="pagination-wrapper">
           <ul class="pagination">
@@ -567,7 +567,7 @@
         </div>
       <% } %>
 
-      <!-- Info Text -->
+  
       <div class="info-text">
         <p>Showing <%= orders.length %> of <%= totalOrders %> orders</p>
       </div>
