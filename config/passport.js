@@ -6,54 +6,66 @@ require("dotenv").config();
 passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    callbackURL: `${process.env.BASE_URL}/user/auth/google/callback`
-,
+    callbackURL: `${process.env.BASE_URL}/user/auth/google/callback`,
     passReqToCallback: true  
 },
 async (req, accessToken, refreshToken, profile, done) => {
     try {
+        // Check if a user exists with the Google ID
         let user = await User.findOne({ googleId: profile.id });
         if (user) {
             return done(null, user);
-        } else {
-          
-            const referralCode = req.session.referralCode;
-            console.log('Google Auth - Referral Code from session:', referralCode);
-            let referredBy = null;
-            
-            if (referralCode) {
-                const referrer = await User.findOne({ referralCode });
-                console.log('Google Auth - Referrer found:', referrer ? 'Yes' : 'No');
-                if (referrer) {
-                    referredBy = referrer._id;
-                    console.log('Google Auth - Referrer ID:', referredBy);
-                   
-                    req.session.googleReferral = {
-                        referralCode,
-                        referrerId: referrer._id,
-                        referrerUsername: referrer.username
-                    };
-                    await new Promise((resolve) => req.session.save(resolve));
-                    console.log('Google Auth - Saved referral info to session');
-                }
+        }
+
+        // Check if a user exists with the same email
+        const email = profile.emails[0].value;
+        user = await User.findOne({ email });
+
+        if (user) {
+            // If user exists but doesn't have a Google ID, link the Google account
+            if (!user.googleId) {
+                user.googleId = profile.id;
+                await user.save();
+                console.log(`Linked Google account to existing user: ${email}`);
             }
-            
-            user = new User({ 
-                username: profile.displayName,
-                email: profile.emails[0].value,
-                googleId: profile.id,
-                referredBy: referredBy
-            });
-            await user.save();
-            
-            
-            req.session.newGoogleUser = {
-                userId: user._id,
-                referredBy: referredBy
-            };
-            
             return done(null, user);
         }
+
+        // If no user exists, create a new one
+        const referralCode = req.session.referralCode;
+        console.log('Google Auth - Referral Code from session:', referralCode);
+        let referredBy = null;
+        
+        if (referralCode) {
+            const referrer = await User.findOne({ referralCode });
+            console.log('Google Auth - Referrer found:', referrer ? 'Yes' : 'No');
+            if (referrer) {
+                referredBy = referrer._id;
+                console.log('Google Auth - Referrer ID:', referredBy);
+                req.session.googleReferral = {
+                    referralCode,
+                    referrerId: referrer._id,
+                    referrerUsername: referrer.username
+                };
+                await new Promise((resolve) => req.session.save(resolve));
+                console.log('Google Auth - Saved referral info to session');
+            }
+        }
+        
+        user = new User({ 
+            username: profile.displayName,
+            email: email,
+            googleId: profile.id,
+            referredBy: referredBy
+        });
+        await user.save();
+        
+        req.session.newGoogleUser = {
+            userId: user._id,
+            referredBy: referredBy
+        };
+        
+        return done(null, user);
     } catch (err) {
         return done(err, null);
     }
