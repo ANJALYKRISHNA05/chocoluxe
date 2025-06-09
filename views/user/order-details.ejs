@@ -393,42 +393,52 @@
       height: 100%;
     }
 
-  
+    /* Updated Status Tracker - Now Vertical */
     .status-tracker {
-      overflow-x: auto;
-      padding: 10px 0;
+      padding: 20px 0;
       margin-bottom: 20px;
     }
 
     .status-steps {
       display: flex;
-      justify-content: space-between;
-      min-width: 600px;
-      padding: 10px 0;
+      flex-direction: column;
+      gap: 20px;
+      padding: 0;
     }
 
     .status-step {
       position: relative;
       display: flex;
-      flex-direction: column;
       align-items: center;
-      flex: 1;
+      gap: 15px;
     }
 
-    .status-step::before {
+    .status-step::after {
       content: '';
       position: absolute;
-      top: 22px;
-      width: 100%;
-      height: 2px;
+      left: 22px;
+      top: 44px;
+      width: 2px;
+      height: 20px;
       background-color: #dee2e6;
-      right: 50%;
       z-index: 0;
     }
 
-    .status-step:first-child::before {
+    .status-step:last-child::after {
       display: none;
     }
+
+    .status-step.active::after {
+      background-color: var(--primary);
+    }
+
+    .status-step.pending.active::after { background-color: #f6ad55; }
+    .status-step.confirmed.active::after { background-color: #4299e1; }
+    .status-step.shipped.active::after { background-color: #9f7aea; }
+    .status-step.delivered.active::after { background-color: #28a745; }
+    .status-step.return-requested.active::after { background-color: #f6ad55; }
+    .status-step.returned.active::after { background-color: #17a2b8; }
+    .status-step.cancelled.active::after { background-color: #dc3545; }
 
     .status-icon {
       width: 44px;
@@ -437,12 +447,12 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      margin-bottom: 0.75rem;
       z-index: 1;
       background-color: #dee2e6;
       color: #6c757d;
       border: 2px solid #fff;
       box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+      flex-shrink: 0;
     }
 
     .status-step.active .status-icon {
@@ -458,20 +468,12 @@
     .status-icon.return-requested { background-color: #f6ad55; }
     .status-icon.returned { background-color: #17a2b8; }
     .status-icon.cancelled { background-color: #dc3545; }
-    .status-step.active::before { background-color: var(--primary); }
-    .status-step.pending.active::before { background-color: #f6ad55; }
-    .status-step.confirmed.active::before { background-color: #4299e1; }
-    .status-step.shipped.active::before { background-color: #9f7aea; }
-    .status-step.delivered.active::before { background-color: #28a745; }
-    .status-step.return-requested.active::before { background-color: #f6ad55; }
-    .status-step.returned.active::before { background-color: #17a2b8; }
-    .status-step.cancelled.active::before { background-color: #dc3545; }
 
     .status-label {
-      font-size: 0.85rem;
+      font-size: 1rem;
       font-weight: 600;
-      text-align: center;
       color: var(--muted);
+      flex: 1;
     }
 
     .status-step.active .status-label {
