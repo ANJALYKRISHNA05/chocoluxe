@@ -1275,7 +1275,7 @@ exports.generateInvoice = async (req, res) => {
       .fontSize(12)
       .font('Helvetica')
       .text(`Date: ${new Date(order.createdAt).toLocaleDateString()}`, 50, 170)
-      .text(`Payment Method: ${order.paymentMethod}`, 50, 190); // Added payment method to invoice
+      .text(`Payment Method: ${order.paymentMethod}`, 50, 190);
 
     doc
       .fontSize(12)

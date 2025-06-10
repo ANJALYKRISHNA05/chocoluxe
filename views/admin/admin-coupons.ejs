@@ -630,11 +630,20 @@
                 document.getElementById('startDate-error').textContent = 'Start date is required';
                 errors.startDate = 'Start date is required';
                 isValid = false;
-            } else if (new Date(startDate) < new Date(new Date().toISOString().split('T')[0])) {
-                document.getElementById('startDate').classList.add('is-invalid');
-                document.getElementById('startDate-error').textContent = 'Start date cannot be in the past';
-                errors.startDate = 'Start date cannot be in the past';
-                isValid = false;
+            } else {
+                // Create proper date comparison without time component
+                const selectedStartDate = new Date(startDate);
+                selectedStartDate.setHours(0, 0, 0, 0);
+                
+                const currentDate = new Date();
+                currentDate.setHours(0, 0, 0, 0);
+                
+                if (selectedStartDate < currentDate) {
+                    document.getElementById('startDate').classList.add('is-invalid');
+                    document.getElementById('startDate-error').textContent = 'Start date cannot be in the past';
+                    errors.startDate = 'Start date cannot be in the past';
+                    isValid = false;
+                }
             }
             
             const endDate = formData.get('endDate');
@@ -643,11 +652,19 @@
                 document.getElementById('endDate-error').textContent = 'End date is required';
                 errors.endDate = 'End date is required';
                 isValid = false;
-            } else if (startDate && new Date(endDate) < new Date(startDate)) {
-                document.getElementById('endDate').classList.add('is-invalid');
-                document.getElementById('endDate-error').textContent = 'End date cannot be earlier than start date';
-                errors.endDate = 'End date cannot be earlier than start date';
-                isValid = false;
+            } else if (startDate) {
+                const selectedStartDate = new Date(startDate);
+                selectedStartDate.setHours(0, 0, 0, 0);
+                
+                const selectedEndDate = new Date(endDate);
+                selectedEndDate.setHours(0, 0, 0, 0);
+                
+                if (selectedEndDate < selectedStartDate) {
+                    document.getElementById('endDate').classList.add('is-invalid');
+                    document.getElementById('endDate-error').textContent = 'End date cannot be earlier than start date';
+                    errors.endDate = 'End date cannot be earlier than start date';
+                    isValid = false;
+                }
             }
             
             const usageLimit = formData.get('usageLimit');

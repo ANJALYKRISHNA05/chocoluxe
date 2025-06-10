@@ -52,11 +52,11 @@ exports.loadSalesReport = async (req, res) => {
         const limit = 10; 
         const skip = (page - 1) * limit;
         
-        // Fixed: Added user population to get email
+      
         const orders = await Order.find({
             createdAt: { $gte: dateRange.startDate, $lte: dateRange.endDate },
             status: { $nin: ['Cancelled', 'Returned'] } 
-        }).populate('user', 'email username') // Populate user with email and username
+        }).populate('user', 'email username') 
         .populate({
             path: 'items.product',
             populate: {
@@ -302,10 +302,10 @@ exports.downloadPdfReport = async (req, res) => {
             endDate.setHours(23, 59, 59, 999);
         }
         
-        // Fixed: Added user population for PDF report
+       
         const orders = await Order.find({
             createdAt: { $gte: startDate, $lte: endDate }
-        }).populate('user', 'email username') // Populate user with email and username
+        }).populate('user', 'email username') 
         .populate({
             path: 'items.product',
             populate: {
@@ -509,10 +509,10 @@ exports.downloadExcelReport = async (req, res) => {
         
         console.log(`Generating Excel report for period: ${startDate.toISOString()} to ${endDate.toISOString()}`);
         
-        // Fixed: Added user population for Excel report
+      
         const orders = await Order.find({
             createdAt: { $gte: startDate, $lte: endDate }
-        }).populate('user', 'email username') // Populate user with email and username
+        }).populate('user', 'email username') 
         .populate({
             path: 'items.product',
             populate: {
@@ -615,7 +615,7 @@ const generateExcelContent = (workbook, filterType, startDate, endDate, salesMet
         fgColor: { argb: 'FFE0E0E0' }
     };
     
-    // Fixed: Properly access email from populated user object
+    
     orders.forEach(order => {
         const userEmail = order.user && order.user.email ? order.user.email : 'N/A';
         
@@ -623,7 +623,7 @@ const generateExcelContent = (workbook, filterType, startDate, endDate, salesMet
             orderId: order.orderId,
             date: new Date(order.createdAt).toLocaleDateString(),
             customer: order.shippingAddress.name,
-            email: userEmail, // Fixed: Use email from populated user
+            email: userEmail, 
             phone: order.shippingAddress.phone || 'N/A',
             paymentMethod: order.paymentMethod,
             status: order.status,
@@ -646,7 +646,7 @@ const generateExcelContent = (workbook, filterType, startDate, endDate, salesMet
         { header: 'Order ID', key: 'orderId', width: 15 },
         { header: 'Date', key: 'date', width: 12 },
         { header: 'Customer', key: 'customer', width: 20 },
-        { header: 'Email', key: 'email', width: 25 }, // Fixed: Added email column here too
+        { header: 'Email', key: 'email', width: 25 }, 
         { header: 'Product', key: 'product', width: 30 },
         { header: 'SKU', key: 'sku', width: 15 },
         { header: 'Category', key: 'category', width: 15 },
@@ -663,7 +663,7 @@ const generateExcelContent = (workbook, filterType, startDate, endDate, salesMet
         fgColor: { argb: 'FFE0E0E0' }
     };
     
-    // Fixed: Properly access email in items sheet
+    
     orders.forEach(order => {
         const userEmail = order.user && order.user.email ? order.user.email : 'N/A';
         
@@ -673,7 +673,7 @@ const generateExcelContent = (workbook, filterType, startDate, endDate, salesMet
                     orderId: order.orderId,
                     date: new Date(order.createdAt).toLocaleDateString(),
                     customer: order.shippingAddress.name,
-                    email: userEmail, // Fixed: Use email from populated user
+                    email: userEmail, 
                     product: item.product.productName,
                     sku: item.sku || 'N/A',
                     category: item.product.category ? item.product.category.name : 'N/A',

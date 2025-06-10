@@ -95,7 +95,15 @@ const addCoupon = async (req, res) => {
     if (startDate && endDate) {
       const startDateTime = new Date(startDate)
       const endDateTime = new Date(endDate)
+      
       const currentDate = new Date()
+      currentDate.setHours(0, 0, 0, 0)
+      
+      const startDateOnly = new Date(startDateTime)
+      startDateOnly.setHours(0, 0, 0, 0)
+      
+      const endDateOnly = new Date(endDateTime)
+      endDateOnly.setHours(0, 0, 0, 0)
 
       if (isNaN(startDateTime.getTime())) {
         errors.startDate = "Invalid start date"
@@ -105,11 +113,11 @@ const addCoupon = async (req, res) => {
         errors.endDate = "Invalid end date"
       }
 
-      if (startDateTime < currentDate) {
+      if (startDateOnly < currentDate) {
         errors.startDate = "Start date cannot be in the past"
       }
 
-      if (endDateTime < startDateTime) {
+      if (endDateOnly < startDateOnly) {
         errors.endDate = "End date cannot be earlier than start date"
       }
     }
@@ -215,6 +223,13 @@ const updateCoupon = async (req, res) => {
       usageLimit,
     } = req.body
 
+    const existingCoupon = await Coupon.findById(couponId);
+    if (!existingCoupon) {
+      return res.status(404).json({
+        success: false,
+        message: "Coupon not found",
+      });
+    }
     
     const errors = {}
 
@@ -251,30 +266,46 @@ const updateCoupon = async (req, res) => {
 
     
     if (code && !errors.code) {
-      const existingCoupon = await Coupon.findOne({
+      const existingCodeCoupon = await Coupon.findOne({
         code: cleanedCode.toUpperCase(),
         _id: { $ne: couponId },
       })
 
-      if (existingCoupon) {
+      if (existingCodeCoupon) {
         errors.code = "Coupon code already exists"
       }
     }
 
     if (startDate && endDate) {
-      const startDateTime = new Date(startDate)
-      const endDateTime = new Date(endDate)
+      const startDateTime = new Date(startDate);
+      const endDateTime = new Date(endDate);
+      
+      const currentDate = new Date();
+      currentDate.setHours(0, 0, 0, 0);
+      
+      const startDateOnly = new Date(startDateTime);
+      startDateOnly.setHours(0, 0, 0, 0);
+      
+      const endDateOnly = new Date(endDateTime);
+      endDateOnly.setHours(0, 0, 0, 0);
+      
+      const existingStartDate = new Date(existingCoupon.startDate);
+      existingStartDate.setHours(0, 0, 0, 0);
 
       if (isNaN(startDateTime.getTime())) {
-        errors.startDate = "Invalid start date"
+        errors.startDate = "Invalid start date";
       }
 
       if (isNaN(endDateTime.getTime())) {
-        errors.endDate = "Invalid end date"
+        errors.endDate = "Invalid end date";
       }
 
-      if (endDateTime < startDateTime) {
-        errors.endDate = "End date cannot be earlier than start date"
+      if (startDateOnly.getTime() !== existingStartDate.getTime() && startDateOnly < currentDate) {
+        errors.startDate = "Start date cannot be in the past";
+      }
+
+      if (endDateOnly < startDateOnly) {
+        errors.endDate = "End date cannot be earlier than start date";
       }
     }
 
