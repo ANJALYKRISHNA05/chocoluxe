@@ -136,7 +136,7 @@
             display: block;
         }
 
-        /* Content Container */
+   
         .content-container {
             display: flex;
             flex: 1;
@@ -147,7 +147,7 @@
             width: 100%;
         }
 
-        /* Sidebar Styles */
+
         .sidebar-container {
             width: 280px;
             flex-shrink: 0;
@@ -228,7 +228,7 @@
             background-color: #fef2f2;
         }
 
-        /* Mobile Sidebar Overlay */
+        
         .sidebar-overlay {
             display: none;
             position: fixed;
@@ -281,7 +281,7 @@
             padding: 5px;
         }
 
-        /* Mobile Menu Button - Custom Styling */
+     
         .mobile-menu-btn {
             background-color: var(--primary);
             color: white;
@@ -314,13 +314,12 @@
             transform: translateY(0);
         }
 
-        /* Main Content */
+     
         .main-content {
             flex: 1;
             min-width: 0;
         }
 
-        /* Profile Card */
         .profile-card {
             background-color: var(--card-bg);
             border-radius: 15px;
@@ -471,7 +470,7 @@
             margin: 5px;
         }
 
-        /* Responsive Design */
+   
         @media (max-width: 1024px) {
             .content-container {
                 padding: 15px;
@@ -633,7 +632,7 @@
             }
         }
 
-        /* Utility Classes */
+
         .hover-bg-light:hover {
             background-color: #f9fafb !important;
         }
@@ -652,10 +651,9 @@
 <body>
     <%- include('../partials/user/header') %>
     
-    <!-- Mobile Sidebar Overlay -->
+   
     <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeMobileSidebar()"></div>
-    
-    <!-- Mobile Sidebar -->
+
     <div class="sidebar-mobile" id="mobileSidebar">
         <div class="sidebar-header">
             <h3>Menu</h3>
@@ -674,7 +672,7 @@
         </div>
         
         <div class="main-content">
-            <!-- Mobile Menu Button with Custom Styling -->
+        
             <div class="d-block d-md-none mb-3">
                 <button class="mobile-menu-btn" onclick="openMobileSidebar()">
                     <i class="fas fa-bars"></i> Menu
@@ -752,7 +750,7 @@
             document.body.style.overflow = 'auto';
         }
 
-        // Close user menu when clicking outside
+     
         document.addEventListener('click', function(event) {
             const userMenu = document.querySelector('.user-menu');
             const isClickInside = userMenu.contains(event.target);
@@ -761,14 +759,13 @@
             }
         });
 
-        // Close mobile sidebar on window resize
         window.addEventListener('resize', function() {
             if (window.innerWidth > 768) {
                 closeMobileSidebar();
             }
         });
 
-        // Handle escape key to close mobile sidebar
+      
         document.addEventListener('keydown', function(event) {
             if (event.key === 'Escape') {
                 closeMobileSidebar();

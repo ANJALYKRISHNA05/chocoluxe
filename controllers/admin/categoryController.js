@@ -71,7 +71,6 @@ const categoryController = {
     const { name, description, categoryOffer } = req.body
     const errors = {}
 
-    // Validate name
     if (!name || name.trim() === "") {
       errors.name = "Category name is required"
     } else if (name.trim().length < 2) {

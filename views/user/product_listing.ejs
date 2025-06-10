@@ -76,7 +76,6 @@
 
               <div class="filter-divider"></div>
 
-              <!-- Category Filter -->
               <div class="filter-group">
                 <h6 class="filter-label">Category</h6>
                 <div class="filter-scrollable">
@@ -95,7 +94,6 @@
 
               <div class="filter-divider"></div>
 
-              <!-- Flavor Filter -->
               <div class="filter-group">
                 <h6 class="filter-label">Flavor</h6>
                 <div class="filter-scrollable">
@@ -114,7 +112,6 @@
 
               <div class="filter-divider"></div>
 
-              <!-- Sugar Level Filter -->
               <div class="filter-group">
                 <h6 class="filter-label">Sugar Level</h6>
                 <div class="filter-scrollable">
@@ -133,7 +130,6 @@
 
               <div class="filter-divider"></div>
 
-              <!-- Weight Filter -->
               <div class="filter-group">
                 <h6 class="filter-label">Weight (grams)</h6>
                 <div class="filter-scrollable">
@@ -152,7 +148,7 @@
 
               <div class="filter-divider"></div>
 
-              <!-- Price Range Filter -->
+             
               <div class="filter-group">
                 <h6 class="filter-label">Price Range</h6>
                 <div class="price-range-inputs">
@@ -172,7 +168,6 @@
 
               <div class="filter-divider"></div>
 
-              <!-- Filter Actions -->
               <div class="filter-actions">
                 <button type="submit" class="btn btn-primary btn-filter">
                   <i class="fas fa-filter me-2"></i>Apply Filters
@@ -186,7 +181,7 @@
         </div>
       </div>
 
-      <!-- Products Content -->
+   
       <div class="col-lg-9">
         <div class="products-content">
           <% if (products.length === 0) { %>
@@ -255,7 +250,7 @@
               <% }); %>
             </div>
 
-            <!-- Pagination -->
+      
             <% if (totalPages > 1) { %>
               <div class="pagination-container">
                 <nav aria-label="Product pagination">
@@ -288,7 +283,7 @@
   </div>
 </section>
 
-<!-- Filter Overlay for Mobile -->
+
 <div class="filter-overlay" id="filterOverlay"></div>
 
 <style>
@@ -335,7 +330,7 @@
     margin: 0 auto;
   }
 
-  /* Responsive Controls */
+  
   .responsive-controls {
     gap: 10px;
   }
@@ -363,7 +358,7 @@
     border-color: #d4a26a;
   }
 
-  /* Filter Sidebar Styles */
+  
   .filter-sidebar {
     background-color: #ffffff;
     border-radius: 12px;
@@ -373,7 +368,7 @@
     position: relative;
   }
 
-  /* Mobile Filter Header */
+  
   .mobile-filter-header {
     background-color: #3a1c1a;
     color: #fff;
@@ -404,7 +399,7 @@
     background-color: rgba(255, 255, 255, 0.1);
   }
 
-  /* Desktop Filter Header */
+  
   .filter-header {
     background-color: #3a1c1a;
     color: #fff;
@@ -538,7 +533,6 @@
     background-color: rgba(212, 162, 106, 0.1);
   }
 
-  /* Filter Overlay */
   .filter-overlay {
     position: fixed;
     top: 0;
@@ -638,19 +632,15 @@
     top: 10px;
     right: 10px;
     z-index: 2;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-  }
-  
-  .product-card:hover .product-actions {
-    opacity: 1;
+    visibility: visible !important;
+    opacity: 1 !important;
   }
   
   .action-btn {
     width: 36px;
     height: 36px;
     border-radius: 50%;
-    background-color: white;
+    background-color: rgba(212, 162, 106, 0.05);
     border: none;
     display: flex;
     align-items: center;
@@ -658,18 +648,20 @@
     cursor: pointer;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     transition: all 0.3s ease;
+    color: #d4a26a;
   }
-  
+
   .action-btn:hover {
-    background-color: #d4a26a;
-    color: white;
+    background-color: rgba(212, 162, 106, 0.1);
+    color: #d4a26a;
   }
-  
+
   .wishlist-btn.active {
     background-color: #d4a26a;
     color: white;
+    box-shadow: 0 2px 10px rgba(212, 162, 106, 0.3);
   }
-  
+
   .wishlist-btn.active:hover {
     background-color: #c49260;
   }
@@ -873,7 +865,7 @@
     cursor: not-allowed;
   }
 
-  /* Responsive Design */
+  
   @media (max-width: 1199.98px) {
     .product-grid {
       grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
@@ -1084,7 +1076,7 @@
 </style>
 
 <script>
-  // Mobile Filter Toggle Functionality
+  
   const mobileFilterToggle = document.getElementById('mobileFilterToggle');
   const filterSidebar = document.getElementById('filterSidebar');
   const filterOverlay = document.getElementById('filterOverlay');
@@ -1114,14 +1106,14 @@
     filterOverlay.addEventListener('click', closeMobileFilter);
   }
 
-  // Close filter on escape key
+  
   document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape' && filterSidebar.classList.contains('show')) {
       closeMobileFilter();
     }
   });
 
-  // Mobile Sort Functionality
+
   function applyMobileSort(sortValue) {
     const form = document.getElementById('filterForm');
     const sortInput = form.querySelector('select[name="sort"]') || document.createElement('select');
@@ -1133,10 +1125,9 @@
     form.submit();
   }
 
-  // Filter Form Functionality
   document.querySelectorAll('.filter-checkbox').forEach(checkbox => {
     checkbox.addEventListener('change', function() {
-      // Close mobile filter after selection
+     
       if (window.innerWidth < 992) {
         setTimeout(() => {
           closeMobileFilter();
@@ -1152,7 +1143,7 @@
     document.getElementById('filterForm').submit();
   }
 
-  // Wishlist Functionality - FIXED TO USE GLOBAL FUNCTIONS
+
   document.querySelectorAll('.wishlist-btn').forEach(button => {
     button.addEventListener('click', async function() {
       const productId = this.getAttribute('data-product-id');
@@ -1184,8 +1175,7 @@
             this.classList.add('active');
             this.setAttribute('title', 'Remove from Wishlist');
           }
-          
-          // Use global function to update wishlist badge
+ 
           if (typeof window.updateWishlistBadge === 'function') {
             console.log('Updating wishlist badge with count:', data.itemCount);
             window.updateWishlistBadge(data.itemCount);
@@ -1249,18 +1239,17 @@
     });
   });
 
-  // Handle window resize
+
   window.addEventListener('resize', function() {
     if (window.innerWidth >= 992 && filterSidebar.classList.contains('show')) {
       closeMobileFilter();
     }
   });
 
-  // Initialize badge counts when page loads
+ 
   document.addEventListener('DOMContentLoaded', function() {
     console.log('Product listing page loaded, fetching badge counts...');
-    
-    // Fetch initial counts using global functions
+
     setTimeout(() => {
       if (typeof window.fetchCartItemCount === 'function') {
         window.fetchCartItemCount();

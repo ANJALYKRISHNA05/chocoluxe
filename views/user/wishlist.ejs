@@ -443,7 +443,7 @@
                                 showConfirmButton: false
                             }).then(() => {
                                 location.reload();
-                                // Update wishlist badge using global function
+                                
                                 if (typeof window.updateWishlistBadge === 'function') {
                                     window.updateWishlistBadge(data.itemCount);
                                 }
@@ -482,14 +482,12 @@
                         showConfirmButton: false
                     }).then(() => {
                         location.reload();
-                        // Update both cart and wishlist badges using global functions
                         if (typeof window.updateCartBadge === 'function') {
                             window.updateCartBadge(data.itemCount);
                         }
                         if (typeof window.updateWishlistBadge === 'function' && data.wishlistItemCount !== undefined) {
                             window.updateWishlistBadge(data.wishlistItemCount);
                         }
-                        // Refresh counts from server
                         if (typeof window.fetchCartItemCount === 'function') {
                             window.fetchCartItemCount();
                         }
@@ -509,7 +507,7 @@
     });
 
     document.addEventListener('DOMContentLoaded', function() {
-        // Fetch initial counts when page loads
+
         if (typeof window.fetchCartItemCount === 'function') {
             window.fetchCartItemCount();
         }

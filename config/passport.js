@@ -11,18 +11,18 @@ passport.use(new GoogleStrategy({
 },
 async (req, accessToken, refreshToken, profile, done) => {
     try {
-        // Check if a user exists with the Google ID
+       
         let user = await User.findOne({ googleId: profile.id });
         if (user) {
             return done(null, user);
         }
 
-        // Check if a user exists with the same email
+       
         const email = profile.emails[0].value;
         user = await User.findOne({ email });
 
         if (user) {
-            // If user exists but doesn't have a Google ID, link the Google account
+          
             if (!user.googleId) {
                 user.googleId = profile.id;
                 await user.save();
@@ -31,7 +31,6 @@ async (req, accessToken, refreshToken, profile, done) => {
             return done(null, user);
         }
 
-        // If no user exists, create a new one
         const referralCode = req.session.referralCode;
         console.log('Google Auth - Referral Code from session:', referralCode);
         let referredBy = null;
