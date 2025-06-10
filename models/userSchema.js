@@ -32,7 +32,7 @@ const userSchema = new mongoose.Schema({
   },
   profileImage: {
     type: String,
-    default: "/Images/default-profile.jpg",
+    default: "/Images/profileicon.png",
   },
   referralCode: {
     type: String,
