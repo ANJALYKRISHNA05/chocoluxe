@@ -1157,7 +1157,7 @@ exports.cancelOrder = async (req, res) => {
             createdAt: new Date(),
           });
 
-          console.log(`Razorpay refund processed successfully for order ${order.orderId}`);
+          
         } catch (refundError) {
           console.error(`Razorpay refund failed for order ${order.orderId}:`, refundError);
 

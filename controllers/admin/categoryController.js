@@ -78,7 +78,7 @@ const categoryController = {
     } else if (name.trim().length > 50) {
       errors.name = "Category name must not exceed 50 characters"
     } else if (!/^[a-zA-Z0-9\s&-]+$/.test(name.trim())) {
-      errors.name = "Category name can only contain letters, numbers, spaces, & and -"
+      errors.name = "Category name can only contain letters,numbers"
     }
 
     if (!description || description.trim() === "") {

@@ -425,7 +425,7 @@
                             <div class="col-md-6 mb-3">
                                 <label for="code" class="form-label">Coupon Code*</label>
                                 <input type="text" class="form-control" id="code" name="code" required>
-                                <div class="invalid-feedback" id="code-error">Please enter a valid coupon code (letters and numbers only, no spaces).</div>
+                                <div class="invalid-feedback" id="code-error">Please enter a valid coupon code (letters and numbers).</div>
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label for="discountType" class="form-label">Discount Type*</label>
@@ -562,8 +562,8 @@
                 isValid = false;
             } else if (!/^[A-Za-z0-9\s]+$/.test(code.trim())) {
                 document.getElementById('code').classList.add('is-invalid');
-                document.getElementById('code-error').textContent = 'Coupon code must contain only letters, numbers, and spaces';
-                errors.code = 'Coupon code must contain only letters, numbers, and spaces';
+                document.getElementById('code-error').textContent = 'Coupon code must contain only letters, numbers';
+                errors.code = 'Coupon code must contain only letters, numbers';
                 isValid = false;
             } else {
                 formData.set('code', code.trimStart());
@@ -631,7 +631,7 @@
                 errors.startDate = 'Start date is required';
                 isValid = false;
             } else {
-                // Create proper date comparison without time component
+          
                 const selectedStartDate = new Date(startDate);
                 selectedStartDate.setHours(0, 0, 0, 0);
                 

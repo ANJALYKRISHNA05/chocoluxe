@@ -647,7 +647,7 @@
       const total = discountedSubtotal + deliveryCharge;
       if (cartTotalElement) cartTotalElement.textContent = `₹${total.toFixed(2)}`;
       
-      // Update cart badge using global function
+     
       if (typeof window.updateCartBadge === 'function') {
         window.updateCartBadge(data.itemCount);
       }

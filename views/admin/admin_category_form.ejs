@@ -20,7 +20,7 @@
                                 <label for="name">Category Name*</label>
                                 <input type="text" class="form-control <%= errors.name ? 'is-invalid' : '' %>" id="name" name="name" value="<%= category ? category.name : '' %>" required>
                                 <div class="invalid-feedback" id="name-error">
-                                    <%= errors.name || 'Please enter a valid category name (2-50 characters, letters, numbers, spaces, & and - only).' %>
+                                    <%= errors.name || 'Please enter a valid category name (2-50 characters, letters, numbers).' %>
                                 </div>
                             </div>
                             
@@ -132,7 +132,7 @@
         border-color: #5a6268;
     }
     
-    /* Form validation styles */
+    
     .is-invalid {
         border-color: #dc3545;
         padding-right: calc(1.5em + 0.75rem);
@@ -265,8 +265,8 @@
                 isValid = false;
             } else if (!/^[a-zA-Z0-9\s&-]+$/.test(name)) {
                 nameInput.classList.add('is-invalid');
-                document.getElementById('name-error').textContent = 'Category name can only contain letters, numbers, spaces, & and -';
-                errors.name = 'Category name can only contain letters, numbers, spaces, & and -';
+                document.getElementById('name-error').textContent = 'Category name can only contain letters, numbers';
+                errors.name = 'Category name can only contain letters, numbers, spaces';
                 isValid = false;
             }
             

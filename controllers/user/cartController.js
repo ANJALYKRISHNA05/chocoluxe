@@ -909,7 +909,7 @@ const validateAndApplyCoupon = async (coupon, userId, subtotal, cart) => {
   });
   
   if (userUsed) {
-    console.log('User has already used this coupon in a completed order');
+   
     cart.coupon = null;
     cart.discount = 0;
     await cart.save();
@@ -928,7 +928,7 @@ const validateAndApplyCoupon = async (coupon, userId, subtotal, cart) => {
       await coupon.save();
     }
     
-    console.log('User can use this coupon');
+
   }
 
   let discount = 0;

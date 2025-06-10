@@ -77,7 +77,7 @@ const addCoupon = async (req, res) => {
 
     
     if (code && !/^[A-Za-z0-9\s]+$/.test(cleanedCode)) {
-      errors.code = "Coupon code must contain only letters, numbers, and spaces"
+      errors.code = "Coupon code must contain only letters, numbers"
     }
 
   
@@ -261,7 +261,7 @@ const updateCoupon = async (req, res) => {
 
     
     if (code && !/^[A-Za-z0-9\s]+$/.test(cleanedCode)) {
-      errors.code = "Coupon code must contain only letters, numbers, and spaces"
+      errors.code = "Coupon code must contain only letters, numbers"
     }
 
     

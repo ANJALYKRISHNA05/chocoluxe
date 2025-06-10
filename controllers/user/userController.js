@@ -740,7 +740,7 @@ const addAddress = async (req, res) => {
      
         const namePattern = /^[A-Za-z][A-Za-z\s\.\-']{1,49}$/;
         if (!namePattern.test(name)) {
-            req.session.message = 'Name must start with a letter, contain only letters, spaces, periods, hyphens, or apostrophes (2-50 characters).';
+            req.session.message = 'Name must start with a letter, contain only letters(2-50 characters).';
             return res.redirect('/user/address/add');
         }
         
@@ -752,12 +752,12 @@ const addAddress = async (req, res) => {
       
         const locationPattern = /^[A-Za-z][A-Za-z\s\-']{1,29}$/;
         if (!locationPattern.test(city)) {
-            req.session.message = 'City must start with a letter, contain only letters, spaces, hyphens, or apostrophes (2-30 characters).';
+            req.session.message = 'City must start with a letter, contain only letters (2-30 characters).';
             return res.redirect('/user/address/add');
         }
         
         if (!locationPattern.test(state)) {
-            req.session.message = 'State must start with a letter, contain only letters, spaces, hyphens, or apostrophes (2-30 characters).';
+            req.session.message = 'State must start with a letter, contain only letters, spaces (2-30 characters).';
             return res.redirect('/user/address/add');
         }
         
@@ -839,7 +839,7 @@ const updateAddress = async (req, res) => {
        
         const namePattern = /^[A-Za-z][A-Za-z\s\.\-']{1,49}$/;
         if (!namePattern.test(name)) {
-            req.session.message = 'Name must start with a letter, contain only letters, spaces, periods, hyphens, or apostrophes (2-50 characters).';
+            req.session.message = 'Name must start with a letter, contain only letters (2-50 characters).';
             return res.redirect(`/user/address/edit/${addressId}`);
         }
         
@@ -851,12 +851,12 @@ const updateAddress = async (req, res) => {
        
         const locationPattern = /^[A-Za-z][A-Za-z\s\-']{1,29}$/;
         if (!locationPattern.test(city)) {
-            req.session.message = 'City must start with a letter, contain only letters, spaces, hyphens, or apostrophes (2-30 characters).';
+            req.session.message = 'City must start with a letter, contain only letters (2-30 characters).';
             return res.redirect(`/user/address/edit/${addressId}`);
         }
         
         if (!locationPattern.test(state)) {
-            req.session.message = 'State must start with a letter, contain only letters, spaces, hyphens, or apostrophes (2-30 characters).';
+            req.session.message = 'State must start with a letter, contain only letters (2-30 characters).';
             return res.redirect(`/user/address/edit/${addressId}`);
         }
  
@@ -1075,7 +1075,7 @@ const handleGoogleAuth = (req, res, next) => {
     console.log('Google Auth Route - Query params:', req.query);
     if (req.query.referralCode) {
         req.session.referralCode = req.query.referralCode;
-        console.log('Google Auth Route - Stored referral code in session:', req.query.referralCode);
+
     }
     next();
 };
@@ -1090,16 +1090,15 @@ const handleGoogleCallback = async (req, res) => {
         profileImage: user.profileImage || '/Images/default-profile.jpg'
     };
     
-    console.log('Google Callback - Session data:', req.session);
+  
     
   
     const isNewUser = await Wallet.findOne({ userId: user._id }) ? false : true;
-    console.log('Google Callback - Is new user:', isNewUser);
-    console.log('Google Callback - User object:', user);
+
     
     if (isNewUser) {
       
-        console.log('Google Callback - Google Referral data:', req.session.googleReferral);
+       
         
       
         let referredBy = user.referredBy;
@@ -1111,11 +1110,11 @@ const handleGoogleCallback = async (req, res) => {
             referrerUsername = req.session.googleReferral.referrerUsername;
             
             
-            console.log('Google Callback - Updating user with referral info:', referredBy);
+         
             await User.findByIdAndUpdate(user._id, { referredBy: referredBy });
         }
         
-        console.log('Google Callback - Final referredBy value:', referredBy);
+   
         
         
         const userId = user._id;
