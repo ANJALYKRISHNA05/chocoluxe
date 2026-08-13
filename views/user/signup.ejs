@@ -76,6 +76,28 @@
             <div class="card-body login-section">
                 <div class="login-form mt-5">
                     <h3 class="card-title">Sign Up</h3>
+
+                    <div class="alert alert-warning border-0 shadow-sm text-start mb-4" style="background-color: #fff8e7; color: #4a2c2a; border-radius: 12px; padding: 16px; border-left: 5px solid #d1a876 !important;">
+                        <div class="d-flex align-items-center mb-2">
+                            <i class="fas fa-info-circle me-2" style="font-size: 1.15rem; color: #d1a876;"></i>
+                            <strong style="font-size: 0.95rem; color: #4a2c2a;">Demonstration & Evaluation Access</strong>
+                        </div>
+                        <p class="mb-2" style="font-size: 0.84rem; line-height: 1.4; color: #5c3a38;">
+                            Outbound email verification is restricted on this free cloud hosting tier. To explore the platform directly without email verification, please log in using the pre-configured credentials below:
+                        </p>
+                        <div class="p-2.5 px-3 rounded mb-2" style="background-color: #ffffff; border: 1px dashed #d1a876; font-size: 0.85rem;">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <span><strong>Email:</strong> <code style="color: #4a2c2a; font-weight: 700; font-size: 0.9rem;">testing@gmail.com</code></span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span><strong>Password:</strong> <code style="color: #4a2c2a; font-weight: 700; font-size: 0.9rem;">testing123#</code></span>
+                            </div>
+                        </div>
+                        <a href="/user/login" class="btn btn-sm text-white w-100 text-decoration-none text-center mt-1" style="background-color: #4a2c2a; font-size: 0.82rem; padding: 7px; border-radius: 6px; font-weight: 600; display: block;">
+                            <i class="fas fa-sign-in-alt me-1"></i> Proceed to Login with Demo Account
+                        </a>
+                    </div>
+
                     <form id="signupform" method="post" action="/user/signup" onsubmit="return validateForm()">
                         <div class="form-group mt-3">
                             <label for="username">Username</label>
