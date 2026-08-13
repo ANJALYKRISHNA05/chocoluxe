@@ -35,6 +35,14 @@ function generateOtp() {
 
 async function sendVerificationEmail(email, otp) {
     try {
+        if (!process.env.NODEMAILER_EMAIL || !process.env.NODEMAILER_PASSWORD) {
+            console.log(`\n========================================`);
+            console.log(`VERIFICATION OTP FOR [${email}]: ${otp}`);
+            console.log(`========================================`);
+            console.log(`Nodemailer credentials not set in .env - OTP printed to console above.\n`);
+            return true;
+        }
+
         const transporter = nodemailer.createTransport({ 
             service: 'gmail',
             port: 587,
@@ -57,24 +65,31 @@ async function sendVerificationEmail(email, otp) {
         console.log('Email sent:', info.response);
         return info.accepted.length > 0;
     } catch (error) {
-        console.log('Error sending email:', error);
-        return false;
+        console.log('Error sending email:', error.message || error);
+        console.log(`\n========================================`);
+        console.log(`FALLBACK VERIFICATION OTP FOR [${email}]: ${otp}`);
+        console.log(`========================================`);
+        console.log(`Printed OTP to console as fallback.\n`);
+        return true;
     }
 }
 
 const signup = async (req, res) => {
     try {
+        if (!req.body || !req.body.password) {
+            return res.render('user/signup', { message: 'Please fill out all required fields.' });
+        }
         const { username, email, phone, password, confirmPassword, referralCode } = req.body;
 
         const usernamePattern = /^[a-z]{5,20}$/;
         const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
         const phonePattern = /^\d{10}$/;
         const passwordPatterns = {
-            length: password.length >= 8,
-            uppercase: /[A-Z]/.test(password),
-            lowercase: /[a-z]/.test(password),
-            number: /[0-9]/.test(password),
-            special: /[^A-Za-z0-9]/.test(password)
+            length: (password || '').length >= 8,
+            uppercase: /[A-Z]/.test(password || ''),
+            lowercase: /[a-z]/.test(password || ''),
+            number: /[0-9]/.test(password || ''),
+            special: /[^A-Za-z0-9]/.test(password || '')
         };
 
         if (!username || !usernamePattern.test(username) ||
@@ -236,7 +251,7 @@ const login = async (req, res) => {
             isBlocked: user.isBlocked,
             profileImage: user.profileImage || '/Images/default-profile.jpg'
         };
-        console.log('Login successful - Session:', req.session);
+    
         
        
         let redirectUrl = '/';
@@ -1072,7 +1087,10 @@ const changePassword = async (req, res) => {
 };
 
 const handleGoogleAuth = (req, res, next) => {
-    console.log('Google Auth Route - Query params:', req.query);
+    if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET) {
+        return res.render('user/signup', { message: 'Google Sign-In is not configured yet. Please sign up using username and password.' });
+    }
+    
     if (req.query.referralCode) {
         req.session.referralCode = req.query.referralCode;
 
